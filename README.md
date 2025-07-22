@@ -63,4 +63,4 @@ Spotted a bug? Please report it to:
 
 💡 Currently supports a single calculation mode.
 💡 UI is intentionally minimal for speed and focus.
-
+💡 External library: "my_calculator" and "inputsDisplay" will be pulished later.
