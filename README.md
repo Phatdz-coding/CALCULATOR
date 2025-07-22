@@ -9,7 +9,7 @@ A lightweight, high-performance scientific calculator built to make solving math
 ## ✨ Features
 
 - **Real-time processing**
-- **Supports multiple and nested math functions**
+- **Supports multiple and nested math functions**  
   (e.g. trig functions, hyperbolic functions, and their inverses)
 - **In-line integral and derivative support**
 - **Up to 49 user-defined variables**, assignable via an integrated panel
