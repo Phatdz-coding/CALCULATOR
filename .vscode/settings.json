@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "inputsdisplays.h": "c",
+        "sdl.h": "c",
+        "my_calculator.h": "c"
+    }
+}
