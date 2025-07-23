@@ -62,5 +62,4 @@ Spotted a bug? Please report it to:
 📧 **thanhphatggclass@gmail.com**
 
 💡 Currently supports a single calculation mode.  
-💡 UI is intentionally minimal for speed and focus.  
-💡 External library: "my_calculator" and "inputsDisplays" will be pulished later.
+💡 UI is intentionally minimal for speed and focus.
