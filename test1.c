@@ -554,8 +554,8 @@ void usual_calculation()
             {
                 if (isfinite(result))
                 {
-                    if (is_integer(result))
-                        printf(" = %d", (int)result);
+                    if (is_integer(result) && (result < (double) INT_MAX && result > (double) INT_MIN))
+                        printf(" = %d", (int) result);
                     else
                         printf(" = %.17lf", result);
                 }
