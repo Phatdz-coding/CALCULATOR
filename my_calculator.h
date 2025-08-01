@@ -207,6 +207,15 @@ double combinations(int, int);
 double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
 double product_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
 double logarithm(const double base, const double expression);
+void merge_2_num(__INFIX__ *I_exp, const short int index);
+void merge_num_and_bracket(__INFIX__ *I_exp, const short int index);
+void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index);
+void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first);
+bool merge_unused_bracket(__INFIX__ *I_exp, const short int index);
+void merge_pow_of_one(__INFIX__ *I_exp, const short int index);
+void merge_pow_of_zero(__INFIX__ *I_exp, const short int index);
+void reformat_I_exp(__INFIX__ *I_exp);
+
 //=================================================================================================================//
 //                                            FUNCTIONS DEFINITION                                                //
 //=================================================================================================================//
@@ -5078,28 +5087,75 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 // var ^ const = const * var ^ (const - 1)
                 if (_DU_.size == 1 && _DU_.tokens[0].num == 1.0 && _DV_.size == 1 && _DV_.tokens[0].num == 0.0)
                 {
-                    double the_const = Compute_P_expression(submodule_Parse(_V_));
-                    if (is_integer(the_const))
-                    {
-                        add_single_token(&copyof_input, the_const, '\0', '\0');
-                        add_single_token(&copyof_input, NAN, '\0', '*');
-                        add_single_token(&copyof_input, NAN, var, '\0');
-                        add_single_token(&copyof_input, NAN, '\0', '^');
-                        add_single_token(&copyof_input, the_const - 1.0, '\0', '\0');
-                    }
+                    /* ===== */
+                    add_many_tokens(&copyof_input, _V_);
+                    add_single_token(&copyof_input, NAN, '\0', '*');
+                    add_single_token(&copyof_input, NAN, var, '\0');
+                    add_single_token(&copyof_input, NAN, '\0', '^');
+                    add_single_token(&copyof_input, NAN, '\0', '(');
+                    add_many_tokens(&copyof_input, _V_);
+                    add_single_token(&copyof_input, NAN, '\0', '-');
+                    add_single_token(&copyof_input, 1.0, '\0', '\0');
+                    add_single_token(&copyof_input, NAN, '\0', ')');
+                    /* ===== */
+                    
+                    
+                    // bool extern_var = false;
+                    // for (short int ev = 0; ev < _V_.size; ev++)
+                    // {
+                    //     if (_V_.tokens[ev].variable != '\0' && _V_.tokens[ev].variable != var)
+                    //     {
+                    //         extern_var = true;
+                    //         break;
+                    //     }
+                    // }
 
-                    else
-                    {
-                        add_many_tokens(&copyof_input, _V_);
-                        add_single_token(&copyof_input, NAN, '\0', '*');
-                        add_single_token(&copyof_input, NAN, var, '\0');
-                        add_single_token(&copyof_input, NAN, '\0', '^');
-                        add_single_token(&copyof_input, NAN, '\0', '(');
-                        add_many_tokens(&copyof_input, _V_);
-                        add_single_token(&copyof_input, NAN, '\0', '-');
-                        add_single_token(&copyof_input, 1.0, '\0', '\0');
-                        add_single_token(&copyof_input, NAN, '\0', ')');
-                    }
+                    // if (!extern_var)
+                    // {
+                    //     double the_const = Compute_P_expression(submodule_Parse(_V_));
+                    //     if (is_integer(the_const))
+                    //     {
+                    //         if ((the_const == 0.0 || fabs(the_const) <= __DBL_EPSILON__))
+                    //         {
+                    //             add_single_token(&copyof_input, 0.0, '\0', '\0');
+                    //         }
+                    //         else
+                    //         {
+                    //             add_single_token(&copyof_input, the_const, '\0', '\0');
+                    //             add_single_token(&copyof_input, NAN, '\0', '*');
+                    //             add_single_token(&copyof_input, NAN, var, '\0');
+                    //             add_single_token(&copyof_input, NAN, '\0', '^');
+                    //             add_single_token(&copyof_input, the_const - 1.0, '\0', '\0');
+                    //         }
+                    //     }
+                    //     else
+                    //     {
+                    //         add_single_token(&copyof_input, the_const, '\0', '\0');
+                    //         add_single_token(&copyof_input, NAN, '\0', '*');
+                    //         add_single_token(&copyof_input, NAN, var, '\0');
+                    //         add_single_token(&copyof_input, NAN, '\0', '^');
+                    //         add_single_token(&copyof_input, NAN, '\0', '(');
+                    //         add_single_token(&copyof_input, the_const, '\0', '\0');
+                    //         add_single_token(&copyof_input, NAN, '\0', '-');
+                    //         add_single_token(&copyof_input, 1.0, '\0', '\0');
+                    //         add_single_token(&copyof_input, NAN, '\0', ')');
+                    //     }
+                    // }
+
+                    // else
+                    // {
+                    //     add_many_tokens(&copyof_input, _V_);
+                    //     add_single_token(&copyof_input, NAN, '\0', '*');
+                    //     add_single_token(&copyof_input, NAN, var, '\0');
+                    //     add_single_token(&copyof_input, NAN, '\0', '^');
+                    //     add_single_token(&copyof_input, NAN, '\0', '(');
+                    //     add_many_tokens(&copyof_input, _V_);
+                    //     add_single_token(&copyof_input, NAN, '\0', '-');
+                    //     add_single_token(&copyof_input, 1.0, '\0', '\0');
+                    //     add_single_token(&copyof_input, NAN, '\0', ')');
+                    // }
+
+
                 }
 
                 // const ^ var = ln(a) * const ^ var
@@ -6388,7 +6444,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
 
 string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
 {
-    string_ empty_string = {NULL, 0};
+    string_ empty_string = {0, NULL};
 
     if (infix_exp.size < 1 || infix_exp.tokens == NULL)
         return empty_string;
@@ -6448,6 +6504,8 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
                 strcat(str_exp.Content, "tanh");
             else if (operator_ == SPECIFIER_OF_COTH)
                 strcat(str_exp.Content, "coth");
+            else if (operator_ == SPECIFIER_OF_SECH)
+                strcat(str_exp.Content, "sech");
             else if (operator_ == SPECIFIER_OF_CSCH)
                 strcat(str_exp.Content, "csch");
             else if (operator_ == SPECIFIER_OF_ARCSINH)
@@ -6475,11 +6533,37 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
             else if (operator_ == SPECIFIER_OF_LAMBERTW)
                 strcat(str_exp.Content, "lambertw");
             else if (operator_ == SPECIFIER_OF_DIF)
-                strcat(str_exp.Content, "ddx");
+                strcat(str_exp.Content, "dif");
             else if (operator_ == SPECIFIER_OF_INTEGRAL)
                 strcat(str_exp.Content, "integral");
             else
-                str_exp.Content[j++] = operator_;
+            {
+                // case: ) ope (
+                if (infix_exp.tokens[i - 1].operator== ')' && infix_exp.tokens[i + 1].operator== '(')
+                {
+                    char special_case[4] = {' ', operator_, ' ', '\0'};
+                    strcat(str_exp.Content, special_case);
+                }
+
+                // case: (num)
+                // else if (operator_ == '(' && isfinite(infix_exp.tokens[i + 1].num) && infix_exp.tokens[i + 2].operator== ')')
+                // {
+                //     double _num_ = infix_exp.tokens[i + 1].num;
+                //     char str_num[30] = {0};
+
+                //     if (is_integer(_num_))
+                //         sprintf(str_num, "%d", (int)_num_);
+                //     else
+                //         sprintf(str_num, "%.17lf", _num_);
+
+                //     strcat(str_exp.Content, str_num);
+
+                //     i += 2;
+                // }
+
+                else
+                    str_exp.Content[j++] = operator_;
+            }
         }
         else
         {
@@ -6502,7 +6586,13 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
             else
             {
                 char str_num[30] = {0};
-                if (is_integer(num_))
+                if (fabs(num_) <= __DBL_EPSILON__ &&
+                    (infix_exp.tokens[i - 1].operator== '-' || infix_exp.tokens[i - 1].operator== '+' || infix_exp.tokens[i - 1].operator== '(') &&
+                    (infix_exp.tokens[i + 1].operator== '-' || infix_exp.tokens[i + 1].operator== '+' || infix_exp.tokens[i + 1].operator== ')'))
+                {
+                    continue;
+                }
+                else if (is_integer(num_))
                 {
                     sprintf(str_num, "%d", (int)num_);
                 }
@@ -8883,6 +8973,559 @@ double logarithm(const double base, const double expression)
     }
 
     return log_result;
+}
+
+__INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
+{
+    __INFIX__ result;
+    result.tokens = NULL;
+    result.size = 0;
+
+    if (P_exp.size == 0)
+    {
+        return result;
+    }
+
+    // Stack to hold sub-expressions (each as an __INFIX__ structure)
+    __INFIX__ expression_stack[1000];
+    int stack_top = -1;
+
+    // Process each token in the postfix expression
+    for (int i = 0; i < P_exp.size; i++)
+    {
+        _TOKENS_DATA_ current = P_exp.tokens[i];
+
+        // If it's a number or variable, create a single-token infix expression
+        if (current.operator== '\0')
+        {
+            stack_top++;
+            expression_stack[stack_top].size = 1;
+            expression_stack[stack_top].tokens = (_infix_ *)malloc(sizeof(_infix_));
+
+            expression_stack[stack_top].tokens[0].num = current.num;
+            expression_stack[stack_top].tokens[0].operator= '\0';
+            expression_stack[stack_top].tokens[0].variable = current.variable;
+        }
+        // If it's a unary operator (functions)
+        else if (current.operator== SPECIFIER_OF_SIN || current.operator== SPECIFIER_OF_COS ||
+                 current.operator== SPECIFIER_OF_TAN || current.operator== SPECIFIER_OF_COT ||
+                 current.operator== SPECIFIER_OF_SEC || current.operator== SPECIFIER_OF_CSC ||
+                 current.operator== SPECIFIER_OF_ARCSIN || current.operator== SPECIFIER_OF_ARCCOS ||
+                 current.operator== SPECIFIER_OF_ARCTAN || current.operator== SPECIFIER_OF_ARCCOT ||
+                 current.operator== SPECIFIER_OF_SINH || current.operator== SPECIFIER_OF_COSH ||
+                 current.operator== SPECIFIER_OF_TANH || current.operator== SPECIFIER_OF_COTH ||
+                 current.operator== SPECIFIER_OF_ARCSINH || current.operator== SPECIFIER_OF_ARCCOSH ||
+                 current.operator== SPECIFIER_OF_ARCTANH || current.operator== SPECIFIER_OF_ARCCOTH ||
+                 current.operator== SPECIFIER_OF_LN || current.operator== SPECIFIER_OF_LG ||
+                 current.operator== SPECIFIER_OF_SQRT || current.operator== SPECIFIER_OF_CBRT ||
+                 current.operator== SPECIFIER_OF_ABS || current.operator== SPECIFIER_OF_GAMMA ||
+                 current.operator== SPECIFIER_OF_CEIL || current.operator== SPECIFIER_OF_FLOOR ||
+                 current.operator== SPECIFIER_OF_LAMBERTW)
+        {
+
+            if (stack_top >= 0)
+            {
+                __INFIX__ operand = expression_stack[stack_top--];
+
+                // Create new expression: function(operand)
+                __INFIX__ new_expr;
+                new_expr.size = 3 + operand.size; // function + ( + operand + )
+                new_expr.tokens = (_infix_ *)malloc(new_expr.size * sizeof(_infix_));
+
+                int idx = 0;
+                // Add function - properly initialize all fields
+                new_expr.tokens[idx].num = 0.0;
+                new_expr.tokens[idx].operator= current.operator;
+                new_expr.tokens[idx].variable = '\0';
+                idx++;
+
+                // Add opening parenthesis - properly initialize all fields
+                new_expr.tokens[idx].num = 0.0;
+                new_expr.tokens[idx].operator= '(';
+                new_expr.tokens[idx].variable = '\0';
+                idx++;
+
+                // Add operand
+                for (int j = 0; j < operand.size; j++)
+                {
+                    new_expr.tokens[idx++] = operand.tokens[j];
+                }
+
+                // Add closing parenthesis - properly initialize all fields
+                new_expr.tokens[idx].num = 0.0;
+                new_expr.tokens[idx].operator= ')';
+                new_expr.tokens[idx].variable = '\0';
+
+                // Push back to stack
+                expression_stack[++stack_top] = new_expr;
+
+                // Free the operand
+                free(operand.tokens);
+            }
+        }
+        // If it's a binary operator
+        else
+        {
+            if (stack_top >= 1)
+            {
+                __INFIX__ right = expression_stack[stack_top--];
+                __INFIX__ left = expression_stack[stack_top--];
+
+                // For simplicity, let's not use complex precedence logic for now
+                // Just create: left operator right (without extra parentheses)
+                __INFIX__ new_expr;
+                new_expr.size = left.size + 1 + right.size; // left + operator + right
+                new_expr.tokens = (_infix_ *)malloc(new_expr.size * sizeof(_infix_));
+
+                int idx = 0;
+
+                // Add left operand
+                for (int j = 0; j < left.size; j++)
+                {
+                    new_expr.tokens[idx++] = left.tokens[j];
+                }
+
+                // Add operator - properly initialize all fields
+                new_expr.tokens[idx].num = 0.0;
+                new_expr.tokens[idx].operator= current.operator;
+                new_expr.tokens[idx].variable = '\0';
+                idx++;
+
+                // Add right operand
+                for (int j = 0; j < right.size; j++)
+                {
+                    new_expr.tokens[idx++] = right.tokens[j];
+                }
+
+                // Push back to stack
+                expression_stack[++stack_top] = new_expr;
+
+                // Free the operands
+                free(left.tokens);
+                free(right.tokens);
+            }
+        }
+    }
+
+    // The final result should be the only element left in the stack
+    if (stack_top == 0)
+    {
+        result = expression_stack[0];
+    }
+
+    return result;
+}
+
+/**
+ * Merges two numbers with an operator between them
+ * @param I_exp Pointer to the infix expression structure
+ * @param index Index of the first number in the expression
+ */
+void merge_2_num(__INFIX__ *I_exp, const short int index)
+{
+    _infix_ token_num[1] = {NAN, '\0', '\0'};
+    __INFIX__ replacement = {1, token_num};
+
+    switch (I_exp->tokens[index + 1].operator)
+    {
+    case '+':
+    {
+        if (index >= 1 && I_exp->tokens[index - 1].operator== '-')
+        {
+            if (I_exp->tokens[index + 2].num >= I_exp->tokens[index].num)
+            {
+                replacement.tokens[0].num = I_exp->tokens[index + 2].num - I_exp->tokens[index].num;
+                I_exp->tokens[index - 1].operator= '+';
+            }
+            else
+                replacement.tokens[0].num = I_exp->tokens[index].num - I_exp->tokens[index + 2].num;
+        }
+        else
+            replacement.tokens[0].num = I_exp->tokens[index].num + I_exp->tokens[index + 2].num;
+
+        break;
+    }
+    case '-':
+    {
+        if (index >= 1 && I_exp->tokens[index - 1].operator== '-')
+            replacement.tokens[0].num = I_exp->tokens[index].num + I_exp->tokens[index + 2].num;
+        else
+        {
+            replacement.tokens[0].num = I_exp->tokens[index].num - I_exp->tokens[index + 2].num;
+
+            if (replacement.tokens[0].num < 0.0 && index >= 1 && I_exp->tokens[index - 1].operator== '-')
+            {
+                I_exp->tokens[index - 1].operator= '-';
+                replacement.tokens[0].num *= -1.0;
+            }
+        }
+        break;
+    }
+    case '*':
+        replacement.tokens[0].num = I_exp->tokens[index].num * I_exp->tokens[index + 2].num;
+        break;
+    case '^':
+        replacement.tokens[0].num = pow(I_exp->tokens[index].num, I_exp->tokens[index + 2].num);
+        break;
+    case '%':
+    {
+        if (is_integer(I_exp->tokens[index].num) && is_integer(I_exp->tokens[index + 2].num))
+            replacement.tokens[0].num = (double)(((int)I_exp->tokens[index].num) % ((int)I_exp->tokens[index + 2].num));
+        break;
+    }
+    default:
+        break;
+    }
+
+    substitude_result(I_exp, replacement, index, index + 2);
+}
+
+/**
+ * Merges a number enclosed in brackets by removing the brackets
+ */
+void merge_num_and_bracket(__INFIX__ *I_exp, const short int index)
+{
+    _infix_ token_num[1] = {I_exp->tokens[index + 1].num, '\0', '\0'};
+    __INFIX__ replacement = {1, token_num};
+    substitude_result(I_exp, replacement, index, index + 2);
+}
+
+/**
+ * Removes multiplication by 1 from the expression
+ */
+void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index)
+{
+    for (short int i = index; i + 2 < I_exp->size; i++)
+    {
+        I_exp->tokens[i].num = I_exp->tokens[i + 2].num;
+        I_exp->tokens[i].variable = I_exp->tokens[i + 2].variable;
+        I_exp->tokens[i].operator= I_exp->tokens[i + 2].operator;
+    }
+
+    _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
+    if (temp == NULL)
+    {
+        perror("merge_multiplier_of_one - oen_first: Failed to realloc temp");
+        return;
+    }
+    I_exp->tokens = temp;
+    I_exp->size -= 2;
+}
+
+/**
+ * Handles multiplication by zero, replacing the entire term with 0
+ * @param I_exp Pointer to the infix expression structure
+ * @param index Index where the multiplication by 0 occurs
+ * @param zero_first Boolean indicating if zero is the first operand
+ */
+void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first)
+{
+    _infix_ token_num[1] = {0.0, '\0', '\0'};
+    __INFIX__ replacement = {1, token_num};
+
+    if (zero_first)
+    {
+        short int index_end = -1;
+        short int open_bracket = 0;
+        short int close_bracket = 0;
+
+        for (short int i = index + 2; i < I_exp->size; i++)
+        {
+            if (I_exp->tokens[i].operator== '(')
+                open_bracket++;
+            else if (I_exp->tokens[i].operator== ')')
+                close_bracket++;
+
+            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '+' || I_exp->tokens[i].operator== '-')) || i + 1 == I_exp->size)
+            {
+                if (i + 1 == I_exp->size)
+                    index_end = i;
+                else
+                    index_end = i - 1;
+                break;
+            }
+        }
+
+        if (index_end == -1)
+            return;
+
+        substitude_result(I_exp, replacement, index, index_end);
+    }
+
+    else
+    {
+        short int index_start = -1;
+        short int open_bracket = 0;
+        short int close_bracket = 0;
+
+        for (short int i = index - 1; i >= 0; i--)
+        {
+            if (I_exp->tokens[i].operator== ')')
+                close_bracket++;
+            else if (I_exp->tokens[i].operator== '(')
+                open_bracket++;
+
+            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '-' || I_exp->tokens[i].operator== '+')) || i == 0)
+            {
+                if (i == 0)
+                    index_start = 0;
+                else
+                    index_start = i + 1;
+                break;
+            }
+        }
+
+        if (index_start == -1)
+            return;
+
+        substitude_result(I_exp, replacement, index_start, index - 1);
+    }
+}
+
+/**
+ * Removes unnecessary nested brackets from the expression
+ */
+bool merge_unused_bracket(__INFIX__ *I_exp, const short int index)
+{
+
+    short int index_next_bracket = index + 1;
+    short int open_bracket = 0;
+    short int close_bracket = 0;
+    short int index_outer_bracket_close = -1;
+
+    for (short int u = index_next_bracket; u < I_exp->size; u++)
+    {
+        if (I_exp->tokens[u].operator== '(')
+            open_bracket++;
+        else if (I_exp->tokens[u].operator== ')')
+            close_bracket++;
+
+        if (open_bracket == close_bracket)
+        {
+            index_outer_bracket_close = u;
+            break;
+        }
+    }
+
+    if (index_outer_bracket_close == -1 || (index_outer_bracket_close + 1 < I_exp->size && I_exp->tokens[index_outer_bracket_close + 1].operator!= '+' && I_exp->tokens[index_outer_bracket_close + 1].operator!= '-' && I_exp->tokens[index_outer_bracket_close + 1].operator!= ')'))
+        return false;
+
+    __INFIX__ replacement = {0, NULL};
+
+    copy_sub_I_exp(&replacement, *I_exp, index_next_bracket, index_outer_bracket_close);
+
+    substitude_result(I_exp, replacement, index_next_bracket, index_outer_bracket_close);
+
+    if (replacement.tokens != NULL)
+        free(replacement.tokens);
+
+    return true;
+}
+
+/**
+ * Removes exponentiation by 1 (x^1 becomes x)
+ */
+void merge_pow_of_one(__INFIX__ *I_exp, const short int index)
+{
+    for (short int i = index; i + 2 < I_exp->size; i++)
+    {
+        I_exp->tokens[i].num = I_exp->tokens[i + 2].num;
+        I_exp->tokens[i].operator= I_exp->tokens[i + 2].operator;
+        I_exp->tokens[i].variable = I_exp->tokens[i + 2].variable;
+    }
+
+    _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
+    if (temp != NULL)
+    {
+        I_exp->tokens = temp;
+        I_exp->size -= 2;
+    }
+    else
+        perror("merge_pow_of_one: Failed to realloc temp");
+}
+
+/**
+ * Handles exponentiation by 0 (x^0 becomes 1)
+ */
+void merge_pow_of_zero(__INFIX__ *I_exp, const short int index)
+{
+    _infix_ token_num[1] = {1.0, '\0', '\0'};
+    __INFIX__ replacement = {1, token_num};
+
+    if (isfinite(I_exp->tokens[index - 1].num))
+    {
+        substitude_result(I_exp, replacement, index - 1, index + 1);
+    }
+    else
+    {
+        short int open_bracket = 0;
+        short int close_bracket = 0;
+        short int index_outer_open_backet = -1;
+        for (short int i = index - 1; i >= 0; i--)
+        {
+            if (I_exp->tokens[i].operator== '(')
+                open_bracket++;
+            else if (I_exp->tokens[i].operator== ')')
+                close_bracket++;
+
+            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '+' || I_exp->tokens[i].operator== '-' || I_exp->tokens[i].operator== '*' || I_exp->tokens[i].operator== '/' || I_exp->tokens[i].operator== '^' || I_exp->tokens[i].operator== '!' || I_exp->tokens[i].operator== '%')))
+            {
+                index_outer_open_backet = i + 1;
+
+                break;
+            }
+
+            else if (i == 0)
+            {
+                index_outer_open_backet = 0;
+                break;
+            }
+            else if (open_bracket == close_bracket && i - 1 >= 0 && I_exp->tokens[i - 1].operator== '(')
+            {
+                index_outer_open_backet = i;
+                break;
+            }
+        }
+
+        if (index_outer_open_backet == -1)
+            return;
+
+        substitude_result(I_exp, replacement, index_outer_open_backet, index + 1);
+    }
+}
+
+/**
+ * Reformats and simplifies the infix expression for better readability
+ * @param I_exp Pointer to the infix expression structure to reformat
+ */
+// NOTE:
+// This function does not reduce OR optimze the expression for faster computation. It just makes the expression look better
+void reformat_I_exp(__INFIX__ *I_exp)
+{
+    if (I_exp->size < 2 || I_exp->tokens == NULL)
+        return;
+
+    for (short int i = 0; i < I_exp->size; i++)
+    {
+        double num_ = I_exp->tokens[i].num;
+        char operator_ = I_exp->tokens[i].operator;
+        char variable_ = I_exp->tokens[i].variable;
+
+        // case 1: num + | - | * | ^ | %% | num
+        // except for built-in const & division
+        if (i >= 1 &&
+            I_exp->tokens[i - 1].operator!= '*' && I_exp->tokens[i - 1].operator!= '/' && I_exp->tokens[i - 1].operator!= '^' &&
+            isfinite(num_) &&
+            i + 1 < I_exp->size &&
+            I_exp->tokens[i + 1].operator!= '/' &&
+            i + 2<I_exp->size &&
+            isfinite(I_exp->tokens[i + 2].num) &&
+            i + 3 < I_exp->size &&
+            (I_exp->tokens[i + 3].operator!= '*' && I_exp->tokens[i + 3].operator!= '/' && I_exp->tokens[i + 3].operator!= '^') &&
+            num_ != PI && num_ != EULER_NUMBER && num_ != _G_ && num_ != _C_ && num_ != LN_2 && num_ != SQRT_2 && num_ != SQRT_2_2 && num_ != SQRT_3 &&
+            I_exp->tokens[i + 2].num != PI && I_exp->tokens[i + 2].num != EULER_NUMBER && I_exp->tokens[i + 2].num != _G_ && I_exp->tokens[i + 2].num != _C_ && I_exp->tokens[i + 2].num != LN_2 && I_exp->tokens[i + 2].num != SQRT_2 && I_exp->tokens[i + 2].num != SQRT_2_2 && I_exp->tokens[i + 2].num != SQRT_3)
+        {
+            merge_2_num(I_exp, i);
+            i = -1;
+        }
+
+        // case 2: (num)
+        else if (i >= 1 &&
+                 (I_exp->tokens[i - 1].operator== '+' || I_exp->tokens[i - 1].operator== '-' || I_exp->tokens[i - 1].operator== '*' || I_exp->tokens[i - 1].operator== '/' || I_exp->tokens[i - 1].operator== '^' || I_exp->tokens[i - 1].operator== '%') &&
+                 operator_ == '(' && i + 1 < I_exp->size &&
+                 isfinite(I_exp->tokens[i + 1].num) &&
+                 i + 2 < I_exp->size &&
+                 I_exp->tokens[i + 2].operator== ')')
+        {
+            merge_num_and_bracket(I_exp, i);
+            i = -1;
+        }
+
+        // case 3: 1 * | * 1
+        else if (i + 1 < I_exp->size && ((num_ == 1.0 && I_exp->tokens[i + 1].operator== '*') || (operator_ == '*' && I_exp->tokens[i + 1].num == 1.0)))
+        {
+            merge_multiplier_of_one(I_exp, i);
+            i = -1;
+        }
+
+        // case 4: 0 * | * 0
+        else if (((num_ == 0.0 || fabs(num_) <= __DBL_EPSILON__) &&
+                  i + 1 < I_exp->size &&
+                  I_exp->tokens[i + 1].operator== '*') ||
+                 (operator_ == '*' &&
+                  i + 1 < I_exp->size &&
+                  (I_exp->tokens[i + 1].num == 0.0 || fabs(I_exp->tokens[i + 1].num) <= __DBL_EPSILON__)))
+        {
+            if (operator_ == '*')
+                merge_multiplier_of_zero(I_exp, i, false);
+            else
+                merge_multiplier_of_zero(I_exp, i, true);
+            i = -1;
+        }
+
+        // case 5: (((((...)))))
+        else if (operator_ == '(' && i + 1 < I_exp->size && I_exp->tokens[i + 1].operator== '(')
+        {
+            if (merge_unused_bracket(I_exp, i))
+                i = -1;
+        }
+
+        // case 6: (...) ^ 1
+        else if (operator_ == '^' && I_exp->tokens[i + 1].num == 1.0)
+        {
+            merge_pow_of_one(I_exp, i);
+            i = -1;
+        }
+
+        // case 7: (...) ^ 0
+        else if (operator_ == '^' && (I_exp->tokens[i + 1].num == 0.0 || fabs(I_exp->tokens[i + 1].num) <= __DBL_EPSILON__))
+        {
+            merge_pow_of_zero(I_exp, i);
+            i = -1;
+        }
+    }
+
+    // case 8: (...)
+    {
+        short int open_bracket = 0;
+        short int close_bracket = 0;
+        short int outer_close_bracket = -1;
+        for (short int i = 0; i < I_exp->size; i++)
+        {
+            if (I_exp->tokens[i].operator== '(')
+                open_bracket++;
+            else if (I_exp->tokens[i].operator== ')')
+                close_bracket++;
+
+            if (open_bracket == close_bracket && open_bracket * close_bracket != 0)
+            {
+                outer_close_bracket = i;
+                break;
+            }
+        }
+
+        if (I_exp->tokens[0].operator== '(' && outer_close_bracket == I_exp->size - 1)
+        {
+            for (short int i = 0; i + 1 < I_exp->size; i++)
+            {
+                I_exp->tokens[i].num = I_exp->tokens[i + 1].num;
+                I_exp->tokens[i].operator= I_exp->tokens[i + 1].operator;
+                I_exp->tokens[i].variable = I_exp->tokens[i + 1].variable;
+            }
+
+            _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
+            if (temp != NULL)
+            {
+                I_exp->tokens = temp;
+                I_exp->size -= 2;
+            }
+            else
+            {
+                perror("reformat_I_exp - case8: Failed to realloc temp");
+                return;
+            }
+        }
+    }
 }
 
 #endif

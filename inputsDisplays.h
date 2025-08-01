@@ -17,8 +17,8 @@
 
 typedef struct
 {
-    char *Content;
     int Len;
+    char *Content;
 } string_;
 
 void debuger(const char *message);
