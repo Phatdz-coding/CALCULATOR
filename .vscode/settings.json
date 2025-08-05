@@ -2,6 +2,10 @@
     "files.associations": {
         "inputsdisplays.h": "c",
         "sdl.h": "c",
-        "my_calculator.h": "c"
+        "my_calculator.h": "c",
+        "gsl_complex.h": "c",
+        "sovle_equations.h": "c",
+        "math.h": "c",
+        "gsl_math.h": "c"
     }
 }
