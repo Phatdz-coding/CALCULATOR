@@ -1,4 +1,5 @@
 #include <MY_LIB/sovle_equations.h>
+// See new libbraries in se_include folder
 
 int main()
 {
