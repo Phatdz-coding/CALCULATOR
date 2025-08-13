@@ -47,11 +47,11 @@ int main(const int num_of_arg, const char *arg[])
     if (!initialize_variables(&hMapFile))
         return 1;
 
-    // open_menu = true;
-    // while (central_control())
-    //     ;
+    open_menu = true;
+    while (central_control())
+        ;
 
-    solve_equation();
+    // solve_equation();
 
     CloseHandle(hMapFile);
     return 0;
@@ -1415,6 +1415,7 @@ void solve_equation()
 
     free_buffer(&str_function);
 }
+
 
 
 
