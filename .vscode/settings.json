@@ -6,6 +6,19 @@
         "gsl_complex.h": "c",
         "sovle_equations.h": "c",
         "math.h": "c",
-        "gsl_math.h": "c"
-    }
+        "gsl_math.h": "c",
+        "gsl_errno.h": "c",
+        "errno.h": "c",
+        "config.h": "c",
+        "cal_info.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "gsl_minmax.h": "c",
+        "limits.h": "c",
+        "stdarg.h": "c",
+        "ctype.h": "c",
+        "global_var.h": "c",
+        "input_box.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

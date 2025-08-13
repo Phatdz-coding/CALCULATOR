@@ -1,47 +1,33 @@
+#include <MY_LIB/global_var.h>
 #include <MY_LIB/inputsDisplays.h>
 #include <MY_LIB/my_calculator.h>
-
-#define NUM_OF_VARIABLES 49
-#define SHARED_MEM_NAME "Local\\SharedVariables"
-#define PROGRAM_NAME "sci_cal.exe"
-
-// -------------------- shared variables (exp) -------------------- //
-typedef struct shared_variables
-{
-    double num;
-    char var_name;
-} shared_variables;
-
-// global set
-// This pointer holds the address of the shared memory block
-shared_variables *variable_set;
-
-// ---------------------------------------------------------- //
+#include <MY_LIB/sovle_equations.h>
+#include <MY_LIB/cal_info.h>
+#include <MY_LIB/input_box.h>
 
 // --------------functions and menu------------- //
 
+void handle_child_process(const char *[]);
+
 void usual_calculation();
+
 void derivative_calculator();
-void display_menu();
-void display_const();
-void usualcal_display_func();
-void usualcal_display_help();
-void derivative_calculator_display_help();
-void derivative_calculator_display_func();
+
 void integral_calculator();
-bool open_new_process(const char *, const bool);
-void assign_variables();
-bool initialize_variables(HANDLE *hMapFile);
-void substitude_variables(__INFIX__ *);
+
+void solve_quadratic_equation();
+
+void solve_cubic_equation();
+
+void solve_quartic_equation();
+
+void solve_n_degree_poly_equation();
+
+void solve_equation();
+
 bool central_control();
 
-// ------------------global var---------------- //
-
-bool esc_win = false;
-bool open_menu;
-
-static short int index_table[256] = {
-    ['a'] = 0, ['b'] = 1, ['d'] = 2, ['f'] = 3, ['h'] = 4, ['i'] = 5, ['j'] = 6, ['k'] = 7, ['l'] = 8, ['m'] = 9, ['n'] = 10, ['o'] = 11, ['p'] = 12, ['q'] = 13, ['r'] = 14, ['s'] = 15, ['t'] = 16, ['u'] = 17, ['v'] = 18, ['w'] = 19, ['x'] = 20, ['y'] = 21, ['z'] = 22, ['A'] = 23, ['B'] = 24, ['C'] = 25, ['D'] = 26, ['E'] = 27, ['F'] = 28, ['G'] = 29, ['H'] = 30, ['I'] = 31, ['J'] = 32, ['K'] = 33, ['L'] = 34, ['M'] = 35, ['N'] = 36, ['O'] = 37, ['P'] = 38, ['Q'] = 39, ['R'] = 40, ['S'] = 41, ['T'] = 42, ['U'] = 43, ['V'] = 44, ['W'] = 45, ['X'] = 46, ['Y'] = 47, ['Z'] = 48};
+void display_const();
 
 // -------------------------------------------- //
 
@@ -50,21 +36,9 @@ int main(const int num_of_arg, const char *arg[])
     turn_on_advanced_character_mode();
 
     // get signal and work on child processes
-    // derivative_calculator();
     if (num_of_arg > 1)
     {
-        if (!strcmp(arg[1], "display-const"))
-            display_const();
-        else if (!strcmp(arg[1], "usualcal-display-func"))
-            usualcal_display_func();
-        else if (!strcmp(arg[1], "usualcal-display-help"))
-            usualcal_display_help();
-        else if (!strcmp(arg[1], "global-assign-variables"))
-            assign_variables();
-        else if (!strcmp(arg[1], "--der-cal-display-help"))
-            derivative_calculator_display_help();
-        else if (!strcmp(arg[1], "--der-cal-display-func"))
-            derivative_calculator_display_func();
+        handle_child_process(arg);
         return 0;
     }
 
@@ -73,9 +47,11 @@ int main(const int num_of_arg, const char *arg[])
     if (!initialize_variables(&hMapFile))
         return 1;
 
-    open_menu = true;
-    while (central_control())
-        ;
+    // open_menu = true;
+    // while (central_control())
+    //     ;
+
+    solve_equation();
 
     CloseHandle(hMapFile);
     return 0;
@@ -83,192 +59,32 @@ int main(const int num_of_arg, const char *arg[])
 
 // -------------------------------------------- //
 
-void derivative_calculator_display_func()
+void handle_child_process(const char *arg[])
 {
-    const char *list_of_func[] = {
-        "1/ Trigonometric functions: sin(), cos(), tan(), cot(), sec(), csc().\n",
-        "2/ Inverse trigonometric functions: arcsin(), arccos(), arctan(), arccot(), arcsec(), arccsc().\n",
-        "3/ Hyperbolic functions: sinh(), cosh(), tanh(), coth(), sech(), csch().\n",
-        "4/ Inverse hyperbolic functions: arcsinh(), arccosh(), arctanh(), arccoth(), arcsech(), arccsch().\n",
-        "5/ Square root function: sqrt().\n"
-        "6/ Cube root function: cbrt().\n",
-        "7/ Absolute value function: abs().\n",
-        "8/ Natural logarithm function: ln().\n",
-        "9/ Logarithm base 10 function: lg().\n",
-        "10/ Gamma function: gamma().\n",
-        "11/ Ceiling function: ceil().\n",
-        "12/ Floor function: floor().\n",
-        "13/ Lambert W function: lambertw().\n",
-        "14/ Logarithm function: log(base , expression)\n"};
-    //
-
-    short int list_size = sizeof(list_of_func) / sizeof(list_of_func[0]);
-
-    for (short int i = 0; i < list_size; i++)
-        puts(list_of_func[i]);
-
-    puts("\n### NOTE: These functions are available in this mode");
-
-    system("pause >nul");
-}
-
-void derivative_calculator_display_help()
-{
-    const char *help[] = {
-        "[_MODE_] Derivative Calculator\n",
-        "### Shortcut keys:",
-        "Esc      : Go to menu",
-        "Enter    : Start differentiating (Leave the input field empty to find the next higher derivative)",
-        "Ctrl + D : Refresh screen and data",
-        "\n### Tip:",
-        "Highlight the text and then right-click to copy",
-        "Right-click to paste the copy.",
-        "\n### Sample functions:\n",
-        "3x^8 - ex^pi + 2   --- Differentiate with respect to: x",
-        "k^k - x^2 --- Differentiate with respect to: k",
-        "pi - 3m^a - ln(a + ln2) --- Differentiate with respect to: a"};
-
-    short int help_size = sizeof(help) / sizeof(help[0]);
-
-    for (short int i = 0; i < help_size; i++)
-        puts(help[i]);
-
-    system("pause >nul");
-}
-
-void substitude_variables(__INFIX__ *I_exp)
-{
-    char special_vars[NUM_OF_VARIABLES + 1] = {0};
-    short int index_sv = 0;
-
-    // scan for functions' special var
-    for (short int i = 0; i < I_exp->size; i++)
-    {
-        if (I_exp->tokens[i - 3].operator != ',' && I_exp->tokens[i - 1].operator == ',' && I_exp->tokens[i].variable != '\0' && (I_exp->tokens[i + 1].operator == ',' || I_exp->tokens[i + 1].operator == '='))
-        {
-            special_vars[index_sv++] = I_exp->tokens[i].variable;
-        }
-    }
-
-    // first substitution
-
-    for (short int i = 0; i < I_exp->size; i++)
-    {
-        if (I_exp->tokens[i].variable == '\0')
-            continue;
-
-        bool special_var = false;
-        for (short int k = 0; k < index_sv; k++)
-        {
-            if (I_exp->tokens[i].variable == special_vars[k])
-            {
-                special_var = true;
-                break;
-            }
-        }
-        if (special_var)
-            continue;
-
-        I_exp->tokens[i].num = variable_set[index_table[I_exp->tokens[i].variable]].num;
-
-        I_exp->tokens[i].variable = '\0';
-    }
-
-    // check
-    // puts("Check 1\n");
-    // display_infix_exp(*I_exp);
-    // putchar('\n');
-    // system("pause");
-
-    if (special_vars[0] == 0 || !handle_special_functions_(I_exp))
-        return;
-
-    // second substitution
-
-    for (short int i = 0; i < I_exp->size; i++)
-    {
-        if (I_exp->tokens[i].variable == '\0')
-            continue;
-
-        I_exp->tokens[i].num = variable_set[index_table[I_exp->tokens[i].variable]].num;
-
-        I_exp->tokens[i].variable = '\0';
-    }
-
-    // check 2
-    // puts("\n\nCheck 2\n");
-    // display_infix_exp(*I_exp);
-}
-
-bool initialize_variables(HANDLE *hMapFile)
-{
-    (*hMapFile) = CreateFileMappingA(
-        INVALID_HANDLE_VALUE,
-        NULL,
-        PAGE_READWRITE,
-        0,
-        sizeof(shared_variables) * NUM_OF_VARIABLES,
-        SHARED_MEM_NAME);
-
-    if (!(*hMapFile) || (*hMapFile) == INVALID_HANDLE_VALUE)
-    {
-        perror("initialize_variable: Failed to create shared memory");
-        printf("Last error: %lu\n", GetLastError());
-        return false;
-    }
-
-    // pass the address of the shared memory block to the main process
-    variable_set = (shared_variables *)MapViewOfFile((*hMapFile),
-                                                     FILE_MAP_ALL_ACCESS,
-                                                     0,
-                                                     0,
-                                                     sizeof(shared_variables) * NUM_OF_VARIABLES);
-    //
-    if (!variable_set)
-    {
-        perror("initialize_variables: Failed to pass address of shared memory");
-        return false;
-    }
-
-    // initialize value for variables
-    const char var_set_name[] = "abdfhijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for (short int i = 0; i < NUM_OF_VARIABLES; i++)
-    {
-        variable_set[i].num = 0;
-        variable_set[i].var_name = var_set_name[i];
-    }
-
-    // variable_set[0].num = EULER_NUMBER / 7.0;
-
-    return true;
-}
-
-void usualcal_display_help()
-{
-    const char *help[] = {
-        "[_MODE_] Usual Calculation\n",
-        "### Shortcut keys:",
-        "Esc       : Go to menu",
-        "Ctrl + L  : See list of available function",
-        "Ctrl + C  : See list of available constant",
-        "Ctrl + D  : Clear screen",
-        "Enter ↳   : Assign value for variables and calculate",
-        "\n### Tip:",
-        "Highlight the text and then right-click to copy",
-        "Right-click to paste the copy.",
-        "\nSameple expressions:\n",
-        "integral( 5pi/3 * abs( sin( (pi/3) * t - 2pi/5 ) ) , t , 0 , sqrt.5)\n",
-        "dif(e^( 1/x ) , x = sqrt.5) - ln2\n",
-        "2e/5 - 3pi/7 + sinh(arctanh( pi/6 )) + ln2 ^ e\n",
-        "100!\n",
-        "gamma(7) - 7!\n"};
-
-    short int help_size = sizeof(help) / sizeof(help[0]);
-
-    for (short int i = 0; i < help_size; i++)
-        printf("%s\n", help[i]);
-
-    system("pause >nul");
+    if (!strcmp(arg[1], "display-const"))
+        display_const();
+    else if (!strcmp(arg[1], "usualcal-display-func"))
+        usualcal_display_func();
+    else if (!strcmp(arg[1], "usualcal-display-help"))
+        usualcal_display_help();
+    else if (!strcmp(arg[1], "global-assign-variables"))
+        assign_variables();
+    else if (!strcmp(arg[1], "--der-cal-display-help"))
+        derivative_calculator_display_help();
+    else if (!strcmp(arg[1], "--der-cal-display-func"))
+        derivative_calculator_display_func();
+    else if (!strcmp(arg[1], "solve_quadratic-display-help"))
+        solve_quadratic_display_help();
+    else if (!strcmp(arg[1], "solve_cubic-display-help"))
+        solve_cubic_display_help();
+    else if (!strcmp(arg[1], "solve_quartic-display-help"))
+        solve_quartic_display_help();
+    else if (!strcmp(arg[1], "solve_n_degree_poly-display-help"))
+        solve_n_degree_poly_display_help();
+    else if (!strcmp(arg[1], "solve_equation-display-help"))
+        solve_equation_display_help();
+    else if (!strcmp(arg[1], "solve_equation-display-results"))
+        solve_equation_display_result();
 }
 
 void display_const()
@@ -298,7 +114,7 @@ void display_const()
     if (input_code != 'v' && input_code != 'V')
         return;
 
-    puts("\n---Stored variables---\n\n");
+    puts("\n▤▤▤ Stored variables\n");
 
     {
         HANDLE dc_hMapFile;
@@ -320,8 +136,19 @@ void display_const()
             return;
         }
 
-        for (short int i = 0; i < NUM_OF_VARIABLES; i++)
-            printf("  %c = %.10lf\n", stored_var[i].var_name, stored_var[i].num);
+        // for (short int i = 0; i < NUM_OF_VARIABLES; i++)
+        //     printf("  %c = %.10lf\n", stored_var[i].var_name, stored_var[i].num);
+
+        for (unsigned short int i = 0; i < NUM_OF_VARIABLES; i++)
+        {
+            if (is_zero(stored_var[i].num))
+                continue;
+
+            printf("\n  %c = ", stored_var[i].var_name);
+            display_number(stored_var[i].num);
+        }
+
+        puts("\nOther variables are equal to zero");
 
         UnmapViewOfFile(stored_var);
         CloseHandle(dc_hMapFile);
@@ -330,198 +157,12 @@ void display_const()
     system("pause >nul");
 }
 
-void usualcal_display_func()
-{
-    const char *list_of_func[] = {
-        "1/ Trigonometric functions: sin(), cos(), tan(), cot(), sec(), csc().\n\n",
-        "2/ Inverse trigonometric functions: arcsin(), arccos(), arctan(), arccot(), arcsec(), arccsc().\n\n",
-        "3/ Hyperbolic functions: sinh(), cosh(), tanh(), coth(), sech(), csch().\n\n",
-        "4/ Inverse hyperbolic functions: arcsinh(), arccosh(), arctanh(), arccoth(), arcsech(), arccsch().\n\n",
-        "5/ Square root function: sqrt().\n\n"
-        "6/ Cube root function: cbrt().\n\n",
-        "7/ Absolute value function: abs().\n\n",
-        "8/ Natural logarithm function: ln().\n\n",
-        "9/ Logarithm base 10 function: lg().\n\n",
-        "10/ Gamma function: gamma().\n\n",
-        "11/ Ceiling function: ceil().\n\n",
-        "12/ Floor function: floor().\n\n",
-        "13/ The lambert W function: lambertw().\n\n",
-        "\n/*---------- Special Functions ----------*\\\n\n",
-        "1/ Differentiation: ddx( function , variable = expression )\n",
-        "\tThis function find the derivative of a function at a certain point. Examples:\n",
-        "\t\tddx( 3x^3 - 2x^2 + 6.6x , x = 3.2 )  --- Result: 85.96\n",
-        "\t\tddx( e^( -1 / k ) , k = pi - e)  --- Result: 0.5256...\n",
-        "2/ Integration: integral( function , varibale , a , b )\n",
-        "\tThis function find the integral of a function in the range a -> b, where a and b can be an expression. Example:\n",
-        "\t\tintegral( ln(x + pi) , x , 9 , 10)   --- Result: 2.53673...\n",
-        "3/ Sigma-sum or sum of a sequence: sumsequence( function , variable , start value , end value , step )\n",
-        "\tThis function calculate the total sum of a sequence, where start | end value & step can be an expression. Examples:\n",
-        "\t\tsumsequence( n , n , 1 , 100 , 1 )   --- Result: 5050\n",
-        "\t\tsumsequence( k / (k - 1) , k , 0, 100, pi/3)   --- Result: 121.0142376...\n",
-        "4/ Product of a sequence: productsequence( function , variable , start value , end value , step )\n",
-        "\tThis function calculate the product of a sequence, where start | end value & step can be an expression. Example:\n",
-        "\t\tproductsequence( (p + 1) / (p - 1), p , 2, 9, e/2 - pi/6)   --- Result: 75.634856...\n",
-        "5/ Greatest Common Divisor: GCD( integer 1 , integer 2 )\n",
-        "\tThis function calculate the GCD of 2 expressions, where integer 1 > integer 2. Example:\n",
-        "\t\tGCD(12, 30)   --- Result: 6\n",
-        "6/ Least Common Multiplier: LCM( integer 1 , integer 2 )\n",
-        "\tThis function calculate the LCM of 2 expressions, where integer 1 > integer 2. Example:\n",
-        "\t\tLCM(19, 30)   --- Result: 570\n",
-        "7/ Permutations: permutations( integer 1 , integer 2 )\n",
-        "\tThis probabilistic function calculate the number of permutations. Example:\n",
-        "\t\tpermutations(5, 3)   --- Result: 60\n",
-        "8/ Combinations: combinations( integer 1 , integer 2 )\n",
-        "\tThis probabilistic function calculate the number of combinations. Example:\n",
-        "\t\tcombinations(20, 5)   --- Result: 15504\n",
-        "9/ Logarithm: log( base , expression )\n",
-        "\tThis function calculate the logarithm where the base & the expression > 0. Example:\n",
-        "\t\tlog(2, 10)   --- Result: 3.3219...\n"};
-
-    short int list_size = sizeof(list_of_func) / sizeof(list_of_func[0]);
-
-    for (short int i = 0; i < list_size; i++)
-        puts(list_of_func[i]);
-
-    puts("### NOTE: These functions are availablle int this mode");
-
-    system("pause >nul");
-}
-
-bool open_new_process(const char *feature, bool get_input)
-{
-    STARTUPINFOA si = {sizeof(STARTUPINFOA)};
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&pi, sizeof(pi));
-
-    // Configure startup info to use normal console handles
-    si.dwFlags |= STARTF_USESTDHANDLES;
-    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-
-    char cmdLine[256];
-    snprintf(cmdLine, sizeof(cmdLine), "cmd /c \"%s %s\"", PROGRAM_NAME, feature);
-
-    BOOL success = CreateProcessA(
-        NULL, cmdLine, NULL, NULL, TRUE,
-        CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-
-    if (!success)
-    {
-        perror("open_new_process: Failed to create new process, wrong program name OR other errors");
-        return false;
-    }
-
-    // Wait for the child process to finish
-    if (get_input)
-        WaitForSingleObject(pi.hProcess, INFINITE);
-
-    // Clean up process handles
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-
-    return true;
-}
-
-void assign_variables()
-{
-    HANDLE av_hMapFile;
-
-    {
-        // get access to memory block
-        av_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, SHARED_MEM_NAME);
-        if (!av_hMapFile || av_hMapFile == INVALID_HANDLE_VALUE)
-            return;
-
-        // get the address of the shared memory
-        variable_set = (shared_variables *)MapViewOfFile(av_hMapFile,
-                                                         FILE_MAP_ALL_ACCESS,
-                                                         0,
-                                                         0,
-                                                         sizeof(shared_variables) * NUM_OF_VARIABLES);
-        //
-        if (!variable_set)
-        {
-            CloseHandle(av_hMapFile);
-            return;
-        }
-    }
-
-    // modify the value of variables
-    {
-        puts("-----Modify Variables-----");
-        puts("  [Esc] To exit this panel");
-        puts("  [Enter ↳] Enter variable name then press Enter to assign its value\n");
-        printf("Variable name: ");
-
-        const short int vn_input_line = 4;
-        const short int vn_output_line = 5;
-        const short int vn_input_col = strlen("Variable name: ") + 1;
-        short int vn_input_code;
-        char var;
-
-        const short int exp_input_line = 7;
-
-        while (1)
-        {
-            vn_input_code = _getch();
-
-            // standard var
-            if (((vn_input_code >= 'a' && vn_input_code <= 'z') || (vn_input_code >= 'A' && vn_input_code <= 'Z')) && vn_input_code != 'c' && vn_input_code != 'e' && vn_input_code != 'g')
-            {
-                var = vn_input_code;
-                move_cursor(vn_input_line, vn_input_col - 1);
-                putchar(var);
-
-                clear_line_(vn_output_line);
-                printf("Current value: %.17lf", variable_set[index_table[var]].num);
-                move_cursor(vn_input_line, vn_input_col);
-            }
-
-            // enter
-            else if (vn_input_code == 13)
-            {
-                move_cursor(exp_input_line, 0);
-                printf("Type your expression: ");
-
-                // compute & store new value
-                {
-                    char *str_exp = input_String("");
-
-                    __INFIX__ I_exp = convert_string_to_INFIX(str_exp);
-
-                    //
-                    substitude_variables(&I_exp);
-
-                    variable_set[index_table[var]].num = evaluate_I_exp(I_exp);
-                    //
-                    free(I_exp.tokens);
-                    free(str_exp);
-                }
-
-                clear_line_in_range(vn_output_line, exp_input_line + 5);
-                printf("Current value: %.17lf", variable_set[index_table[var]].num);
-
-                move_cursor(vn_input_line, vn_input_col);
-            }
-
-            // esc
-            else if (vn_input_code == 27)
-                break;
-        }
-    }
-
-    UnmapViewOfFile(variable_set);
-    CloseHandle(av_hMapFile);
-}
-
 bool central_control()
 {
     system("cls");
     if (open_menu)
     {
         display_menu();
-        open_menu = false;
     }
 
     print_each_char(30, "\nChoose mode: ");
@@ -540,30 +181,26 @@ bool central_control()
     case 3:
         integral_calculator();
         break;
-    default:
-        esc_win = true;
+    case 4:
+        solve_quadratic_equation();
         break;
-    }
-
-    if (esc_win)
+    case 5:
+        solve_cubic_equation();
+        break;
+    case 6:
+        solve_quartic_equation();
+        break;
+    case 7:
+        solve_n_degree_poly_equation();
+        break;
+    case 8:
+        solve_equation();
+        break;
+    default:
         return false;
-    return true;
-}
-
-void display_menu()
-{
-    system("cls");
-    const char *mode_list[] = {
-        "0/ Close window",
-        "1/ Usual Calculation",
-        "2/ Derivative Calculator",
-        "3/ Integral Calculator (in-dev)"};
-    int size = sizeof(mode_list) / sizeof(mode_list[0]);
-    for (int i = 0; i < size; i++)
-    {
-        puts(mode_list[i]);
-        delay(40);
     }
+
+    return true;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------- //
@@ -572,7 +209,7 @@ void usual_calculation()
 {
     puts("[_MODE_] Usual Calculation");
     delay(40);
-    puts("Press [ Ctrl + G ] for help & guidance\n");
+    puts("Press [ Ctrl + G ] For help\n");
     delay(40);
     puts("↓ Type your expression ↓");
 
@@ -585,7 +222,6 @@ void usual_calculation()
     bool new_input = false;
 
     getWinSize(&win_width, &win_height);
-    // win_width--;
 
     int max_input_len = (output_line - input_line) * win_width;
 
@@ -619,15 +255,7 @@ void usual_calculation()
             if (raw_input.Content[0] != '\0')
             {
                 putchar('\n');
-                if (isfinite(result))
-                {
-                    if (is_integer(result) && (result < (double)INT_MAX && result > (double)INT_MIN))
-                        printf(" = %d", (int)result);
-                    else
-                        printf(" = %.17lf", result);
-                }
-                else
-                    puts(" __Syntax Error__");
+                display_number(result);
             }
 
             move_cursor(C_Y, C_X);
@@ -726,7 +354,7 @@ void derivative_calculator()
 {
     puts("[_MODE_] Derivative Calculator");
     delay(40);
-    puts("[Ctrl + G] For help");
+    puts("Press [Ctrl + G] For help");
     delay(40);
     // puts("Function:");
 
@@ -1118,6 +746,676 @@ void derivative_calculator()
     }
 }
 
-void integral_calculator()
+void integral_calculator() {}
+
+void solve_quadratic_equation()
 {
+    puts("[_MODE_] Solve Quadratic Equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("Quadratic equation form: ax² + bx + c = 0 (where a, b & c are real numbers and a ≠ 0)");
+    delay(40);
+    puts("a = 0\nb = 0\nc = 0\n[Press Shift + a, b, c to switch coefficients]");
+
+    short int input_code = 0;
+    const unsigned short int inputvalue_coef_line = 8;
+
+    double a = 0, b = 0, c = 0;
+
+    while (1)
+    {
+        input_code = _getch();
+
+        if (input_code == 'A')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("a =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &a, "solve_quadratic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(4);
+            printf("a = ");
+            display_number(a);
+        }
+
+        else if (input_code == 'B')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("b =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &b, "solve_quadratic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(5);
+            printf("b = ");
+            display_number(b);
+        }
+
+        else if (input_code == 'C')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("c =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &c, "solve_quadratic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(6);
+            printf("c = ");
+            display_number(c);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_quadratic-display-help", false);
+        }
+
+        // Ctrl + S
+        else if (input_code == 19 && a != 0.0)
+        {
+            clear_line_in_range(12, 17);
+            move_cursor(12, 0);
+            printf("Delta △ = ");
+            display_number(b * b - 4 * a * c);
+            putchar('\n');
+            puts("▶Solutions◀");
+            gsl_complex x1, x2;
+            short int solving_status = se_sovle_quadratic_equation(a, b, c, &x1, &x2);
+
+            se_display_quadratic_solutions(x1, x2);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            a = 0;
+            b = 0;
+            c = 0;
+
+            puts("[_MODE_] Solve Quadratic Equation");
+            delay(40);
+            puts("Press [Ctrl + G] For help\n");
+            delay(40);
+            puts("Quadratic equation form: ax² + bx + c = 0 (where a, b & c are real numbers and a ≠ 0)");
+            delay(40);
+            puts("a = 0\nb = 0\nc = 0\n[Press Shift + a, b, c to switch coefficients]");
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            break;
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
 }
+
+void solve_cubic_equation()
+{
+    puts("[_MODE_] Solve Cubic Equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("Cubic equation form: ax³ + bx² + cx + d = 0 (where a, b, c & d are real numbers and a ≠ 0)");
+    delay(40);
+    puts("a = 0\nb = 0\nc = 0\nd = 0\n[Press Shift + a, b, c, d to switch coefficients]");
+
+    short int input_code = 0;
+    const unsigned short int display_coef_a_line = 4;
+    const unsigned short int inputvalue_coef_line = 9;
+
+    double a = 0, b = 0, c = 0, d = 0;
+
+    while (1)
+    {
+        input_code = _getch();
+
+        if (input_code == 'A')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("a =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &a, "solve_cubic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line);
+            printf("a = ");
+            display_number(a);
+        }
+
+        else if (input_code == 'B')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("b =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &b, "solve_cubic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 1);
+            printf("b = ");
+            display_number(b);
+        }
+
+        else if (input_code == 'C')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("c =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &c, "solve_cubic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 2);
+            printf("c = ");
+            display_number(c);
+        }
+
+        else if (input_code == 'D')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("d =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &d, "solve_cubic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 3);
+            printf("d = ");
+            display_number(d);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_cubic-display-help", false);
+        }
+
+        // Ctrl + S
+        else if (input_code == 19 && a != 0.0)
+        {
+            clear_line_in_range(13, 18);
+            move_cursor(13, 0);
+            printf("Delta △ = ");
+            display_number(b * b + 18 * a * b * c * d + 6 * c * c - 4 * d * c * c - 46 * d * d - 27 * a * d * d);
+            putchar('\n');
+            puts("▶Solutions◀");
+            gsl_complex x1, x2, x3;
+            short int solving_status = se_solve_cubic_equation(a, b, c, d, &x1, &x2, &x3);
+
+            se_display_cubic_equation_solutions(x1, x2, x3);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            a = 0;
+            b = 0;
+            c = 0;
+            d = 0;
+
+            puts("[_MODE_] Solve Cubic Equation");
+            delay(40);
+            puts("Press [Ctrl + G] For help\n");
+            delay(40);
+            puts("Quadratic equation form: ax³ + bx² + cx + d = 0 (where a, b, c & d are real numbers and a ≠ 0)");
+            delay(40);
+            puts("a = 0\nb = 0\nc = 0\nd = 0\n[Press Shift + a, b, c, d to switch coefficients]");
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            break;
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+}
+
+void solve_quartic_equation()
+{
+    puts("[_MODE_] Solve Quartic Equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("Quartic equation form: ax⁴ + bx³ + cx² + dx + e = 0 (where a, b, c, d & e are real numbers and a ≠ 0)");
+    delay(40);
+    puts("a = 0\nb = 0\nc = 0\nd = 0\ne = 0\n[Press Shift + a, b, c, d, e to switch coefficients]");
+
+    short int input_code = 0;
+    const unsigned short int display_coef_a_line = 4;
+    const unsigned short int inputvalue_coef_line = 10;
+
+    double a = 0, b = 0, c = 0, d = 0, e = 0;
+
+    while (1)
+    {
+        input_code = _getch();
+
+        if (input_code == 'A')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("a =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &a, "solve_quartic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line);
+            printf("a = ");
+            display_number(a);
+        }
+
+        else if (input_code == 'B')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("b =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &b, "solve_quartic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 1);
+            printf("b = ");
+            display_number(b);
+        }
+
+        else if (input_code == 'C')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("c =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &c, "solve_quartic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 2);
+            printf("c = ");
+            display_number(c);
+        }
+
+        else if (input_code == 'D')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("d =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &d, "solve_quartic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 3);
+            printf("d = ");
+            display_number(d);
+        }
+
+        else if (input_code == 'E')
+        {
+            move_cursor(inputvalue_coef_line, 0);
+            printf("e =");
+
+            short int status = ib_2_3_4_poly_equation(inputvalue_coef_line, 3, inputvalue_coef_line + 3, &e, "solve_quartic-display-help");
+
+            if (status == -1)
+                break;
+
+            clear_line_(display_coef_a_line + 4);
+            printf("e = ");
+            display_number(e);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_quartic-display-help", false);
+        }
+
+        // Ctrl + S
+        else if (input_code == 19 && a != 0.0)
+        {
+            clear_line_in_range(14, 19);
+            move_cursor(14, 0);
+            // display delta
+            printf("Delta △ = ");
+            display_number(256 * pow(a, 5) * pow(e, 3) -
+                           192 * pow(a, 2) * b * d * pow(e, 2) -
+                           128 * pow(a, 2) * pow(c, 2) * pow(e, 2) +
+                           144 * pow(a, 2) * c * pow(d, 2) * e -
+                           27 * pow(a, 2) * pow(d, 4) +
+                           144 * a * pow(b, 2) * c * pow(e, 2) -
+                           6 * a * pow(b, 2) * pow(d, 2) * e -
+                           80 * a * b * pow(c, 2) * d * e +
+                           18 * a * b * c * pow(d, 3) +
+                           16 * a * pow(c, 4) * e -
+                           4 * a * pow(c, 3) * pow(d, 2) -
+                           27 * pow(b, 4) * pow(e, 2) +
+                           18 * pow(b, 3) * c * d * e -
+                           4 * pow(b, 3) * pow(d, 3) -
+                           4 * pow(b, 2) * pow(c, 3) * e +
+                           pow(b, 2) * pow(c, 2) * pow(d, 2));
+            putchar('\n');
+            puts("▶Solutions◀");
+            gsl_complex x1, x2, x3, x4;
+            short int solving_status = se_solve_quartic_equation(a, b, c, d, e, &x1, &x2, &x3, &x4);
+
+            se_display_quartic_equation_solutions(x1, x2, x3, x4);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            a = 0;
+            b = 0;
+            c = 0;
+            d = 0;
+            e = 0;
+
+            puts("[_MODE_] Solve Quartic Equation");
+            delay(40);
+            puts("Press [Ctrl + G] For help\n");
+            delay(40);
+            puts("Quartic equation form: ax⁴ + bx³ + cx² + dx + e = 0 (where a, b, c, d & e are real numbers and a ≠ 0)");
+            delay(40);
+            puts("a = 0\nb = 0\nc = 0\nd = 0\ne = 0\n[Press Shift + a, b, c, d, e to switch coefficients]");
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            break;
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+}
+
+void solve_n_degree_poly_equation()
+{
+    puts("[__MODE__] Solve nᵗʰ degree polynomial equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("The nᵗʰ degree polynomial equation form:");
+    puts("a₀xⁿ + a₁xⁿ⁻¹ + a₂xⁿ⁻² + . . . + aₙ₋₁x + aₙ = 0 (Where a₀ , a₁ , ... , aₙ are real numbers and a₀ ≠ 0 | And n ≥ 5)");
+
+    short int degree;
+    unsigned short int numof_coef;
+
+    double *coefficients = NULL;
+
+    while (1)
+    {
+        printf("Enter degree: ");
+        degree = (short int)input_int();
+        if (degree <= 4)
+        {
+            puts("⚠  Invalid input ⚠");
+            continue;
+        }
+
+        numof_coef = degree + 1;
+
+        coefficients = (double *)calloc(numof_coef, sizeof(double));
+        if (coefficients == NULL)
+        {
+            perror("Failed to calloc coefficients");
+            return;
+        }
+
+        bool invalid_input = false;
+
+        for (unsigned short int i = 0; i < numof_coef; i++)
+        {
+            int C_Y;
+            get_cursor_position(NULL, &C_Y);
+            printf("a_[%d] = ", i);
+
+            short int input_status = solve_poly_get_coef(coefficients + i);
+
+            // Esc
+            if (input_status == 27)
+            {
+                free_coefficients(&coefficients);
+                return;
+            }
+
+            if (!isfinite(coefficients[i]) || coefficients[0] == 0.0)
+            {
+                puts("⚠  Syntax Error ⚠");
+                --i;
+                continue;
+            }
+
+            int pre_C_Y = C_Y;
+            get_cursor_position(NULL, &C_Y);
+
+            clear_line_in_range(pre_C_Y, C_Y);
+            printf("a_[%d] = ", i);
+            display_number(coefficients[i]);
+            putchar('\n');
+        }
+
+        // display the equation
+        printf("Your %dᵗʰ degree polynomial equation:\n", degree);
+        for (unsigned short int a = 0, n = degree; a < numof_coef && n >= 0; a++, n--)
+        {
+            if (coefficients[a] != 0.0)
+            {
+                if (coefficients[a] > 0.0)
+                {
+                    if (a != 0)
+                        putchar('+');
+                    display_number_with_max_3_dec_places(coefficients[a]);
+                }
+
+                else
+                {
+                    if (a != 0)
+                        putchar('-');
+                    display_number_with_max_3_dec_places(-coefficients[a]);
+                }
+
+                if (n > 0)
+                {
+                    putchar('x');
+                    print_super_script_number(n);
+                }
+                putchar(' ');
+            }
+        }
+
+        puts("\nHas the following solutions:\n");
+
+        gsl_complex *solutions;
+        se_solve_polynomial_equation(coefficients, degree, &solutions);
+
+        // display solutions
+        for (unsigned short int i = 0; i < degree; i++)
+        {
+            putchar('x');
+            print_sub_script_number(i + 1);
+            printf(" = ");
+            se_display_complex_number_2(solutions[i]);
+            putchar('\n');
+        }
+
+        if (solutions != NULL)
+        {
+            free(solutions);
+            solutions = NULL;
+        }
+        free_coefficients(&coefficients);
+
+        puts("Press [Esc] to go to menu OR press any key to continue . . .");
+        short int input_code = _getch();
+        if (input_code == 27)
+            return;
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            puts("[__MODE__] Solve nᵗʰ degree polynomial equation");
+            delay(40);
+            puts("Press [Ctrl + G] For help\n");
+            delay(40);
+            puts("The nᵗʰ degree polynomial equation form:");
+            puts("a₀xⁿ + a₁xⁿ⁻¹ + a₂xⁿ⁻² + . . . + aₙ₋₁x + aₙ = 0 (Where a₀ , a₁ , ... , aₙ are real numbers and a₀ ≠ 0 | And n ≥ 5)");
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_n_degree_poly-display-help", false);
+            _getch();
+        }
+    }
+}
+
+void solve_equation()
+{
+    puts("[__MODE__] Solve Any Equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help");
+
+    const unsigned short int fx_line = 4;
+    const unsigned short int variable_line = fx_line + 4;
+    const unsigned short int l_bound_line = variable_line + 2;
+    const unsigned short int u_bound_line = l_bound_line + 2;
+
+    const unsigned short int output_line = u_bound_line + 4;
+
+    int win_w;
+    getWinSize(&win_w, NULL);
+
+    unsigned short int max_fx_len = (variable_line - fx_line) * win_w;
+    short int input_code = 0;
+
+    char *str_function = create_new_buffer_with_sizeof(1);
+    char var = 'x';
+    double l_bound = -1.0, u_bound = 1.0;
+
+    while (1)
+    {
+        move_cursor(fx_line - 1, 0);
+        printf("Equation form: f(%c) = 0\nf(%c) = %s\n\n\n\nSolve for: %c\nSolve the equation in range:\nLower bound = %.6lf\n\n\nUpper bound = %.6lf\n\n\n", var, var, str_function, var, l_bound, u_bound);
+
+        input_code = _getch();
+
+        clear_line_in_range(output_line, output_line + 3);
+
+        if (input_code == 0)
+        {
+            input_code = _getch();
+
+            // F1
+            if (input_code == 59)
+            {
+                clear_line_in_range(fx_line, variable_line - 1);
+                printf("f(%c) = ", var);
+                free_buffer(&str_function);
+                str_function = ib_se_get_function();
+            }
+
+            // F2
+            else if (input_code == 60)
+            {
+                move_cursor(variable_line, 11);
+                while (1)
+                {
+                    var = _getch();
+
+                    if (((var >= 'a' && var <= 'z') || (var >= 'A' && var <= 'Z')) && var != 'c' && var != 'e' && var != 'g')
+                    {
+                        break;
+                    }
+                }
+            }
+
+            // F3
+            else if (input_code == 61)
+            {
+                ib_2_3_4_poly_equation(l_bound_line + 1, 0, l_bound_line + 2, &l_bound, "solve_equation-display-help");
+            }
+
+            // F4
+            else if (input_code == 62)
+            {
+                ib_2_3_4_poly_equation(u_bound_line + 2, 0, u_bound_line + 3, &u_bound, "solve_equation-display-help");
+            }
+
+            // F5 - start solving section
+            else if (input_code == 63)
+            {
+                start_solving_section(str_function, var, l_bound, u_bound, output_line);
+            }
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_equation-display-help", false);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            clear_line_in_range(fx_line - 1, output_line + 3);
+
+            free_buffer(&str_function);
+            str_function = create_new_buffer_with_sizeof(1);
+            l_bound = -1;
+            u_bound = 1;
+            var = 'x';
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            break;
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+
+    free_buffer(&str_function);
+}
+
+
+
+
