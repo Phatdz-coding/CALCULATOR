@@ -21,10 +21,10 @@ A lightweight, high-performance scientific calculator built to make solving math
 
 ## 🚧 Upcoming Features
 
-- Additional calculation modes: complex numbers, equation solving, etc.
+- Additional calculation modes: complex numbers, table, etc.
 - Enhanced precision and optimized performance
 - Expanded library of math functions
-- Dedicated tools for integrals & derivatives
+- Dedicated tools for integrals
 - And much more to come...
 
 ---
@@ -38,12 +38,19 @@ A lightweight, high-performance scientific calculator built to make solving math
 
 ## ▶️ How to Run
 
-- Main source file: `test1.c`
-- Executable: `test1.exe`
+- Main source file: `sci_cal.c`
+- Executable: `sci_cal.exe`
 
 To run:
-1. Download `test1.exe` from the release section
+1. Download `sci_cal.exe` from the release section
 2. Launch the executable and start typing your expressions!
+
+## ▶️ How to Compile
+- Source Files: sci_cal.c, gsl and MY_LIB.
+1. You need to download the main source files mentioned above
+2. Move gsl and MY_LIB folder to your "include" folder
+3. Run compilation command:  
+  **gcc -o3 sci_cal.c -o sci_cal.exe**
 
 ✅ This file is safe — no viruses or malware inside ( ͡~ ͜ʖ ͡°)👌
 
@@ -58,8 +65,6 @@ MIT — feel free to contribute or fork your own version!
 ## ⚠️ Notes
 
 This is a **beta version**, so bugs may exist.  
-Spotted a bug? Please report it to:  
-📧 **thanhphatggclass@gmail.com**
+Spotted a bug? Please report it to my repo ( ͡° ͜ʖ ͡°)
 
-💡 Currently supports a single calculation mode.  
 💡 UI is intentionally minimal for speed and focus.
