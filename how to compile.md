@@ -1,5 +1,4 @@
-### This branch is used to test out new features: solving equations
-See it in the solve_equations.c source file
+### Souce file: sci_cal.c  
 
 ### How to compile?
 Step 1: Download all folders in the se_include folders and move them to your "include" folder  
