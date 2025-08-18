@@ -33,7 +33,7 @@ solution_pack * shared_solution_pack;
 
 static bool open_menu;
 
-// ---------------------------------------------------------- //
+// ----------------------------------------------------------- //
 
 #define PROGRAM_NAME "sci_cal.exe" // This macro must have the exact name of the program
 #define NUM_OF_VARIABLES 49

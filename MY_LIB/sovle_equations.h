@@ -642,8 +642,10 @@ void se_free_coefficients_of_system_equation(double ***coefficients, const unsig
     for (short int i = 0; i < num_of_variable; i++)
     {
         free((*coefficients)[i]);
+        (*coefficients)[i] = NULL;
     }
     free(*coefficients);
+    *coefficients = NULL;
 }
 
 /*

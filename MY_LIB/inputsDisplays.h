@@ -95,7 +95,6 @@ void clear_line_in_range(const short int lower_bound, const short int upper_boun
     move_cursor(lower_bound, 0);
     for (short int i = 0; i < upper_bound - lower_bound + 1; i++)
         puts(blanks);
-
     move_cursor(lower_bound, 0);
 }
 

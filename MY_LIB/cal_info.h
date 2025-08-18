@@ -21,14 +21,48 @@ void solve_quadratic_display_help();
 
 void solve_n_degree_poly_display_help();
 
+void solve_equation_display_help();
+
+void solve_cubic_display_help();
+
+void solve_quartic_display_help();
+
+void solve_system_of_linear_equation_display_help();
+
 // ======================================================================================================= //
 // ======================================================================================================= //
 // ======================================================================================================= //
 
+void solve_system_of_linear_equation_display_help()
+{
+    const char *help[] = {
+        "🔢 Solve System of Linear Equation\n",
+        "### Shortcut keys:",
+        "Esc                    : Go to menu OR quit input section",
+        "F1                     : To start input number of unknown and coefficient",
+        "Ctrl + L               : See list of available funtion",
+        "Ctrl + C               : See list of available constant & variable",
+        "Ctrl + D               : Refresh",
+        "Ctrl + Enter           : Assign value for variables",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
+        "\n🖱️: ̗̀➛ Tip",
+        "Highlight the text and then right-click to copy",
+        "Right-click to paste the copy"};
+
+    unsigned short int help_size = sizeof(help) / sizeof(help[0]);
+
+    for (unsigned short int i = 0; i < help_size; i++)
+    {
+        puts(help[i]);
+    }
+
+    system("pause >nul");
+}
+
 void solve_equation_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Solve Any Equation (single variable)\n",
+        "🔢 Solve Any Equation (single variable)\n",
         "### Shortcut keys:",
         "Esc                    : Go to menu",
         "F1                     : To type your function",
@@ -39,8 +73,8 @@ void solve_equation_display_help()
         "Ctrl + C               : See list of available constant & variable",
         "Ctrl + D               : Refresh",
         "Ctrl + Enter           : Assign value for variables",
-        "\n###NOTE: You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with lower & upper bound"
-        "\n### Tip:",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with lower & upper bound"
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
 
@@ -57,15 +91,15 @@ void solve_equation_display_help()
 void solve_n_degree_poly_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Solve nᵗʰ degree Polynomial Equation\n",
+        "🔢 Solve nᵗʰ degree Polynomial Equation\n",
         "### Shortcut keys:",
         "Esc                    : Go to menu",
         "Ctrl + L               : See list of available funtion",
         "Ctrl + C               : See list of available constant & variable",
         "Ctrl + D               : Refresh",
         "Ctrl + Enter           : Assign value for variables",
-        "\n###NOTE: You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
-        "\n### Tip:",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
 
@@ -82,7 +116,7 @@ void solve_n_degree_poly_display_help()
 void solve_quadratic_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Solve Quadratic Equation\n",
+        "🔢 Solve Quadratic Equation\n",
         "### Shortcut keys:",
         "Esc                    : Go to menu",
         "Ctrl + L               : See list of available funtion",
@@ -91,8 +125,8 @@ void solve_quadratic_display_help()
         "Ctrl + S               : Start solving",
         "Ctrl + Enter           : Assign value for variables",
         "Press Shift + a, b, c  : To switch coefficients",
-        "\n###NOTE: You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
-        "\n### Tip:",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
 
@@ -109,7 +143,7 @@ void solve_quadratic_display_help()
 void solve_cubic_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Solve Cubic Equation\n",
+        "🔢 Solve Cubic Equation\n",
         "### Shortcut keys:",
         "Esc                        : Go to menu",
         "Ctrl + L                   : See list of available funtion",
@@ -118,8 +152,8 @@ void solve_cubic_display_help()
         "Ctrl + S                   : Start solving",
         "Ctrl + Enter               : Assign value for variables",
         "Press Shift + a, b, c, d   : To switch coefficients",
-        "\n###NOTE: You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
-        "\n### Tip:",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
 
@@ -136,7 +170,7 @@ void solve_cubic_display_help()
 void solve_quartic_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Solve Quartic Equation\n",
+        "🔢 Solve Quartic Equation\n",
         "### Shortcut keys:",
         "Esc                          : Go to menu",
         "Ctrl + L                     : See list of available funtion",
@@ -145,8 +179,8 @@ void solve_quartic_display_help()
         "Ctrl + S                     : Start solving",
         "Ctrl + Enter                 : Assign value for variables",
         "Press Shift + a, b, c, d, e  : To switch coefficients",
-        "\n###NOTE: You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
-        "\n### Tip:",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with coefficients"
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
 
@@ -171,8 +205,9 @@ void display_menu()
         "4/ Solve Quadratic Equation (2-degree polynomial equation)",
         "5/ Solve Cubic Equation (3-degree polynomial equation)",
         "6/ Solve Quartic Equation (4-degree polynomial equation)",
-        "7/ Solve nᵗʰ degree polynomial equation",
-        "8/ Solve any equation"};
+        "7/ Solve nᵗʰ Degree Polynomial Equation",
+        "8/ Solve any Equation",
+        "9/ Solve System of Linear Equation"};
     int size = sizeof(mode_list) / sizeof(mode_list[0]);
     for (int i = 0; i < size; i++)
     {
@@ -241,14 +276,14 @@ void usualcal_display_func()
 void usualcal_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Usual Calculation\n",
+        "🔢 Usual Calculation\n",
         "### Shortcut keys:",
         "Esc       : Go to menu",
         "Ctrl + L  : See list of available function",
         "Ctrl + C  : See list of available constant",
         "Ctrl + D  : Clear screen",
         "Enter ↳   : Assign value for variables and calculate",
-        "\n### Tip:",
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy",
         "\nSameple expressions:\n",
@@ -269,12 +304,12 @@ void usualcal_display_help()
 void derivative_calculator_display_help()
 {
     const char *help[] = {
-        "[_MODE_] Derivative Calculator\n",
+        "🔢 Derivative Calculator\n",
         "### Shortcut keys:",
         "Esc      : Go to menu",
         "Enter    : Start differentiating (Leave the input field empty to find the next higher derivative)",
         "Ctrl + D : Refresh screen and data",
-        "\n### Tip:",
+        "\n🖱️: ̗̀➛ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy",
         "\n### Sample functions:\n",
