@@ -6395,6 +6395,13 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
                 //     i += 2;
                 // }
 
+                // case: - negative_num
+                else if (infix_exp.tokens[i].operator== '-' && infix_exp.tokens[i + 1].num<0.0)
+                {
+                    infix_exp.tokens[i + 1].num *= -1.0;
+                    str_exp.Content[j++] = '+';
+                }
+
                 else
                     str_exp.Content[j++] = operator_;
             }
@@ -9403,7 +9410,5 @@ _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source)
 
     return copyof_source;
 }
-
-
 
 #endif
