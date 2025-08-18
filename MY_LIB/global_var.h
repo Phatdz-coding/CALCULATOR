@@ -28,7 +28,7 @@ typedef struct solution_pack
     double u_bound;
 } solution_pack;
 
-solution_pack * shared_solution_pack;
+static solution_pack * shared_solution_pack;
 
 
 static bool open_menu;
