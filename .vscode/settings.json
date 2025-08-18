@@ -18,7 +18,9 @@
         "stdarg.h": "c",
         "ctype.h": "c",
         "global_var.h": "c",
-        "input_box.h": "c"
+        "input_box.h": "c",
+        "compile": "c",
+        "cstdlib": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

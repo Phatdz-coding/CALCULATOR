@@ -25,6 +25,8 @@ void solve_n_degree_poly_equation();
 
 void solve_equation();
 
+void solve_system_of_linear_equation();
+
 bool central_control();
 
 void display_const();
@@ -50,8 +52,6 @@ int main(const int num_of_arg, const char *arg[])
     open_menu = true;
     while (central_control())
         ;
-
-    // solve_equation();
 
     CloseHandle(hMapFile);
     return 0;
@@ -85,11 +85,13 @@ void handle_child_process(const char *arg[])
         solve_equation_display_help();
     else if (!strcmp(arg[1], "solve_equation-display-results"))
         solve_equation_display_result();
+    else if (!strcmp(arg[1], "solve_system_of_linear_equation-display-help"))
+        solve_system_of_linear_equation_display_help();
 }
 
 void display_const()
 {
-    puts("Available constants:\n");
+    puts("════════🔍📖 Available constants════════\n");
     {
         const char *list_of_const[] = {
             "e = 2.718281828459045\n",
@@ -106,7 +108,7 @@ void display_const()
         for (short int i = 0; i < list_size; i++)
             puts(list_of_const[i]);
 
-        puts("\nPress V to see stored variables . . .\n");
+        puts("\nPress V to see user-define variables . . .\n");
     }
 
     int input_code = _getch();
@@ -196,6 +198,9 @@ bool central_control()
     case 8:
         solve_equation();
         break;
+    case 9:
+        solve_system_of_linear_equation();
+        break;
     default:
         return false;
     }
@@ -207,7 +212,7 @@ bool central_control()
 
 void usual_calculation()
 {
-    puts("[_MODE_] Usual Calculation");
+    puts("🔢 Usual Calculation");
     delay(40);
     puts("Press [ Ctrl + G ] For help\n");
     delay(40);
@@ -352,7 +357,7 @@ void usual_calculation()
 
 void derivative_calculator()
 {
-    puts("[_MODE_] Derivative Calculator");
+    puts("🔢 Derivative Calculator");
     delay(40);
     puts("Press [Ctrl + G] For help");
     delay(40);
@@ -497,7 +502,7 @@ void derivative_calculator()
             {
                 system("cls");
 
-                puts("[_MODE_] Derivative Calculator");
+                puts("🔢 Derivative Calculator");
                 puts("[Ctrl + G] For help");
                 puts("[F] Function:");
 
@@ -750,7 +755,7 @@ void integral_calculator() {}
 
 void solve_quadratic_equation()
 {
-    puts("[_MODE_] Solve Quadratic Equation");
+    puts("🔢 Solve Quadratic Equation");
     delay(40);
     puts("Press [Ctrl + G] For help\n");
     delay(40);
@@ -842,7 +847,7 @@ void solve_quadratic_equation()
             b = 0;
             c = 0;
 
-            puts("[_MODE_] Solve Quadratic Equation");
+            puts("🔢 Solve Quadratic Equation");
             delay(40);
             puts("Press [Ctrl + G] For help\n");
             delay(40);
@@ -866,7 +871,7 @@ void solve_quadratic_equation()
 
 void solve_cubic_equation()
 {
-    puts("[_MODE_] Solve Cubic Equation");
+    puts("🔢 Solve Cubic Equation");
     delay(40);
     puts("Press [Ctrl + G] For help\n");
     delay(40);
@@ -975,7 +980,7 @@ void solve_cubic_equation()
             c = 0;
             d = 0;
 
-            puts("[_MODE_] Solve Cubic Equation");
+            puts("🔢 Solve Cubic Equation");
             delay(40);
             puts("Press [Ctrl + G] For help\n");
             delay(40);
@@ -999,7 +1004,7 @@ void solve_cubic_equation()
 
 void solve_quartic_equation()
 {
-    puts("[_MODE_] Solve Quartic Equation");
+    puts("🔢 Solve Quartic Equation");
     delay(40);
     puts("Press [Ctrl + G] For help\n");
     delay(40);
@@ -1140,7 +1145,7 @@ void solve_quartic_equation()
             d = 0;
             e = 0;
 
-            puts("[_MODE_] Solve Quartic Equation");
+            puts("🔢 Solve Quartic Equation");
             delay(40);
             puts("Press [Ctrl + G] For help\n");
             delay(40);
@@ -1164,7 +1169,7 @@ void solve_quartic_equation()
 
 void solve_n_degree_poly_equation()
 {
-    puts("[__MODE__] Solve nᵗʰ degree polynomial equation");
+    puts("🔢 Solve nᵗʰ degree polynomial equation");
     delay(40);
     puts("Press [Ctrl + G] For help\n");
     delay(40);
@@ -1229,7 +1234,7 @@ void solve_n_degree_poly_equation()
         }
 
         // display the equation
-        printf("Your %dᵗʰ degree polynomial equation:\n", degree);
+        printf("\nThe %dᵗʰ degree polynomial equation:\n", degree);
         for (unsigned short int a = 0, n = degree; a < numof_coef && n >= 0; a++, n--)
         {
             if (coefficients[a] != 0.0)
@@ -1287,7 +1292,7 @@ void solve_n_degree_poly_equation()
         {
             system("cls");
 
-            puts("[__MODE__] Solve nᵗʰ degree polynomial equation");
+            puts("🔢 Solve nᵗʰ degree polynomial equation");
             delay(40);
             puts("Press [Ctrl + G] For help\n");
             delay(40);
@@ -1306,7 +1311,7 @@ void solve_n_degree_poly_equation()
 
 void solve_equation()
 {
-    puts("[__MODE__] Solve Any Equation");
+    puts("🔢 Solve Any Equation");
     delay(40);
     puts("Press [Ctrl + G] For help");
 
@@ -1416,7 +1421,190 @@ void solve_equation()
     free_buffer(&str_function);
 }
 
+void solve_system_of_linear_equation()
+{
+    puts("🔢 Solve System Equation");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("System of Linear equations has the form:");
+    delay(40);
+    puts("⌈ a₁₁x₁ + a₁₂x₂ + . . . + a₁ₙxₙ = b₁");
+    delay(40);
+    puts("| a₂₁x₁ + a₂₂x₂ + . . . + a₂ₙxₙ = b₂");
+    delay(40);
+    puts("| .\n| .\n| .");
+    delay(40);
+    puts("⌊ aₙ₁x₁ + aₙ₂x₂ + . . . + aₙₙxₙ = bₙ");
+    delay(40);
+    puts("Where n is the number of unknown (n ≥ 2) and a₁₁, a₁₂ . . . aₙₙ, b₁, b₂, bₙ are the coefficients");
+    delay(40);
+    puts("Press [F1] to start input");
 
+    int C_X, C_Y;
+    short int input_code = 0;
+    short int n;
 
+    while (1)
+    {
+    main_loop:
+        n = 0;
+
+        input_code = _getch();
+
+        // F1
+        if (input_code == 59)
+        {
+        get_n:
+            get_cursor_position(&C_X, &C_Y);
+            move_cursor(++C_Y, 0);
+            printf("Number of unknown n = ");
+            n = (short int)input_int();
+            if (n < 2)
+            {
+                puts("⚠  n must be ≥ 2 ⚠");
+                ++C_Y;
+                goto get_n;
+            }
+
+            // get coef
+            double **coef = se_malloc_coefficients_of_system_equation(n);
+            for (unsigned short int row = 0; row < n; row++)
+            {
+                for (unsigned short int col = 0; col < n + 1; col++)
+                {
+                    if (col == n)
+                        printf("\nb»[%d] = ", row + 1);
+                    else
+                        printf("\na»[%d¦%d] = ", row + 1, col + 1);
+
+                    get_cursor_position(&C_X, &C_Y);
+
+                    ++C_Y;
+
+                    short int input_coef_status = ib_for_system_o_l_e(&C_Y, 0, C_Y + 3, coef[row] + col, "solve_system_of_linear_equation-display-help");
+                    if (input_coef_status == 27)
+                    {
+                        puts("\n⚠  Cancled Input Coefficients. F1 to start input");
+                        se_free_coefficients_of_system_equation(&coef, n);
+                        goto main_loop;
+                    }
+
+                    move_cursor(--C_Y, C_X);
+                    display_number(coef[row][col]);
+
+                    C_Y++;
+                }
+            }
+
+            // display the equation
+            puts("\n\n\n▶ System of Linear Equation\n");
+            printf("⌈ ");
+            for (unsigned short int i = 0; i < n; i++)
+            {
+                bool first_term = true;
+                bool has_terms = false;
+
+                if (i == n - 1)
+                    printf("⌊ ");
+                else if (i != 0)
+                    printf("| ");
+
+                // Handle coefficients and variables
+                for (unsigned short int k = 0; k < n; k++)
+                {
+                    if (coef[i][k] == 0.0)
+                        continue;
+
+                    has_terms = true;
+
+                    // Handle signs
+                    if (!first_term)
+                    {
+                        if (coef[i][k] > 0.0)
+                            printf(" + ");
+                        else
+                            printf(" - ");
+                    }
+                    else if (coef[i][k] < 0.0)
+                    {
+                        printf("-");
+                    }
+
+                    // Display coefficient (avoid showing 1 unless it's a constant term)
+                    double abs_coef = fabs(coef[i][k]);
+                    if (abs_coef != 1.0)
+                    {
+                        display_number_with_max_3_dec_places(abs_coef);
+                    }
+
+                    // Display variable
+                    putchar('x');
+                    print_sub_script_number(k + 1);
+
+                    first_term = false;
+                }
+
+                if (!has_terms)
+                {
+                    printf("0");
+                }
+
+                printf(" = ");
+                display_number_with_max_3_dec_places(coef[i][n]);
+                putchar('\n');
+            }
+
+            // solve the equation
+            double *solutions = se_solve_system_equation(n, coef);
+
+            // display the solutions
+            puts("\n\n▶ Solutions");
+            for (unsigned short int i = 0; i < n; i++)
+            {
+                putchar('\t');
+                putchar('x');
+                print_sub_script_number(i + 1);
+                putchar(' ');
+                putchar('=');
+                putchar(' ');
+                display_number(solutions[i]);
+                putchar('\n');
+            }
+
+            // clean up
+            if (solutions != NULL)
+                free(solutions);
+            se_free_coefficients_of_system_equation(&coef, n);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            puts("🔢 Solve System Equation");
+            puts("Press [Ctrl + G] For help\n");
+            puts("System of Linear equations has the form:");
+            puts("⌈ a₁₁x₁ + a₁₂x₂ + . . . + a₁ₙxₙ = b₁");
+            puts("| a₂₁x₁ + a₂₂x₂ + . . . + a₂ₙxₙ = b₂");
+            puts("| .\n| .\n| .");
+            puts("⌊ aₙ₁x₁ + aₙ₂x₂ + . . . + aₙₙxₙ = bₙ");
+            puts("Where n is the number of unknown (n ≥ 2) and a₁₁, a₁₂ . . . aₙₙ, b₁, b₂, bₙ are the coefficients");
+            puts("Press [F1] to start input");
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_system_of_linear_equation-display-help", false);
+        }
+
+        else if (input_code == 27)
+        {
+            break;
+        }
+    }
+}
 
 
