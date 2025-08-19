@@ -1,20 +1,29 @@
 #include <MY_LIB/inputsDisplays.h>
 #include <MY_LIB/my_calculator.h>
 #include <MY_LIB/sovle_equations.h>
-// See new libbraries in se_include folder
 
 int main()
 {
-    char str_function[] = "x^2-2";
-    __INFIX__ I_function = convert_string_to_INFIX(str_function);
+    turn_on_advanced_character_mode();
+    char f1[] = "x*x + y*y - 7";
+    char f2[] = "x*x - y*y - 1";
 
-    double * roots = NULL;
-    short int numof_root = se_solve_equation(I_function, 'x', -2, 3, &roots);
+    const char var_set[] = "xy";
 
-    se_display_root_array(roots, numof_root);
+    __INFIX__ *F_x = se_alloc_F_x_for_systemof_nonlinear_equation(2);
 
+    F_x[0] = convert_string_to_INFIX(f1);
+    F_x[1] = convert_string_to_INFIX(f2);
+    // F_x[2] = convert_string_to_INFIX(f3);
 
+    double *solutions = NULL;
+    short int status = se_solve_system_of_nonlinear_equation(F_x, var_set, 2, &solutions);
 
-    free(I_function.tokens);
+    puts("Solutions");
+    se_display_root_array(solutions, 's', 2);
+
+    se_free_F_x_for_systemof_nonlinear_equation(&F_x, 2);
+    if (solutions != NULL)
+        free(solutions);
     return 0;
 }

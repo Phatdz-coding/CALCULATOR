@@ -20,7 +20,24 @@
         "global_var.h": "c",
         "input_box.h": "c",
         "compile": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "gsl_matrix.h": "c",
+        "array": "c",
+        "string": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "gsl_matrix_complex_long_double.h": "c",
+        "gsl_check_range.h": "c",
+        "gsl_matrix_ulong.h": "c",
+        "gsl_matrix_complex_double.h": "c",
+        "gsl_matrix_complex_float.h": "c",
+        "gsl_matrix_long_double.h": "c",
+        "gsl_matrix_double.h": "c",
+        "gsl_vector_double.h": "c",
+        "gsl_blas_types.h": "c",
+        "gsl_matrix_float.h": "c",
+        "gsl_vector_float.h": "c",
+        "build.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
