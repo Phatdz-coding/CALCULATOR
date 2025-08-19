@@ -6,7 +6,7 @@ int main()
 {
     turn_on_advanced_character_mode();
     char f1[] = "x*x + y*y - 7";
-    char f2[] = "x*x - y*y - 1";
+    char f2[] = "x*x - y*y - ln2";
 
     const char var_set[] = "xy";
 
@@ -17,7 +17,7 @@ int main()
     // F_x[2] = convert_string_to_INFIX(f3);
 
     double *solutions = NULL;
-    short int status = se_solve_system_of_nonlinear_equation(F_x, var_set, 2, &solutions);
+    short int status = se_solve_system_of_nonlinear_equation(F_x, var_set, 2, &solutions, -2.0, 0.0);
 
     puts("Solutions");
     se_display_root_array(solutions, 's', 2);

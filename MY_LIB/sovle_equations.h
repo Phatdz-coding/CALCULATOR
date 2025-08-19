@@ -10,6 +10,8 @@
 #include <gsl/sys/minmax.c>
 #include <gsl/poly/zsolve_init.c>
 #include <gsl/poly/zsolve.c>
+// #include <gsl/vector/vector.c>
+// #include <gsl/matrix/gsl_matrix.h>
 
 // determine the minimum value of a number or expression that is likely to be zero
 #define SE_EPSILON 1e-12
@@ -1317,6 +1319,358 @@ short int se_solve_equation(const __INFIX__ equation, const char var, double low
     (*roots) = se_roots;
 
     return num_of_root;
+}
+
+// ====== //
+
+__INFIX__ *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol)
+{
+    __INFIX__ *F_x = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+    if (F_x == NULL)
+    {
+        perror("se_alloc_F_x_for_systemof_nonlinear_equation: Failed to calloc F_x");
+        return NULL;
+    }
+    return F_x;
+}
+
+void se_free_F_x_for_systemof_nonlinear_equation(__INFIX__ **F_x, const unsigned short int num_of_sol)
+{
+    if (*F_x == NULL)
+        return;
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        if ((*F_x)[i].tokens != NULL)
+        {
+            free((*F_x)[i].tokens);
+            (*F_x)[i].tokens = NULL;
+        }
+    }
+    free(*F_x);
+    *F_x = NULL;
+}
+
+double se_eval_P_function(const _POSTFIX__ P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set)
+{
+    _POSTFIX__ P_F_x = copy_postfix_expression(P_F_x_originnal);
+
+    for (unsigned short int i = 0; i < P_F_x.size; i++)
+    {
+        if (P_F_x.tokens[i].variable != '\0')
+        {
+            for (unsigned short int k = 0; k < num_of_sol; k++)
+            {
+                if (P_F_x.tokens[i].variable == var_set[k])
+                {
+                    P_F_x.tokens[i].variable = '\0';
+                    P_F_x.tokens[i].num = valueof_var_set[k];
+
+                    // check
+                    // printf("substitue: %c = %.3lf\n", var_set[k], valueof_var_set[k]);
+                }
+            }
+        }
+    }
+
+    double result = Compute_P_expression(P_F_x);
+
+    free(P_F_x.tokens);
+
+    return result;
+}
+
+short int se_solve_system_of_nonlinear_equation(const __INFIX__ *F_x, const char *var_set, const unsigned short int num_of_sol, double **solutions, double l_bound, double u_bound)
+{
+    // prepare for solving section
+    if (strlen(var_set) != num_of_sol)
+        return -1;
+
+    // declare
+    double *se_solutions = NULL;
+    double *F_x_k = NULL;
+    _POSTFIX__ *P_F_x = NULL;
+    __INFIX__ **J_x = NULL;
+    _POSTFIX__ **P_J_x = NULL;
+    double **J_x_k = NULL;
+
+    // solution array
+    se_solutions = (double *)calloc(num_of_sol, sizeof(double));
+    if (se_solutions == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc se_solutions");
+        return -1;
+    }
+
+    // value of vector function at vector x_k
+    F_x_k = (double *)calloc(num_of_sol, sizeof(double));
+    if (F_x_k == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc F_x_k");
+        goto clean_up;
+    }
+
+    // turn infix function to postfix
+    P_F_x = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+    if (P_F_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_F_x");
+        goto clean_up;
+    }
+    // parse
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        P_F_x[i] = submodule_Parse(F_x[i]);
+    }
+
+    // alloc Jacobian matrix
+    // infix type
+    J_x = (__INFIX__ **)calloc(num_of_sol, sizeof(__INFIX__ *));
+    if (J_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        J_x[i] = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+        if (J_x[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x[i]");
+            goto clean_up;
+        }
+    }
+
+    // postfix type
+    P_J_x = (_POSTFIX__ **)calloc(num_of_sol, sizeof(_POSTFIX__ *));
+    if (P_J_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_J_x");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        P_J_x[i] = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+        if (P_J_x[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_J_x[i]");
+            goto clean_up;
+        }
+    }
+
+    // value of J_x at vector x_k
+    J_x_k = (double **)calloc(num_of_sol, sizeof(double *));
+    if (J_x_k == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x_k");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        J_x_k[i] = (double *)calloc(num_of_sol, sizeof(double));
+        if (J_x_k[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x_k[i]");
+            goto clean_up;
+        }
+    }
+
+    // define Jacobian matrix
+    {
+        for (unsigned short int row = 0; row < num_of_sol; row++)
+        {
+            for (unsigned short int col = 0; col < num_of_sol; col++)
+            {
+                J_x[row][col] = differentiate_I_exp(F_x[row], var_set[col]);
+                reformat_I_exp(&(J_x[row][col]));
+                optimize_I_exp(&(J_x[row][col]));
+                P_J_x[row][col] = submodule_Parse(J_x[row][col]);
+
+                // check
+                // printf("pos = %d | %d\n", row, col);
+                // display_infix_exp(J_x[row][col]);
+                // display_postfix_exp(P_J_x[row][col]);
+                // putchar('\n');
+            }
+        }
+    }
+
+    // iteration
+    unsigned short int iteration = 0;
+
+    // seed randomness
+    srand(time(NULL));
+
+init_solutions:
+
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        // temporary set to random values
+        se_solutions[i] = random_in_range_double(l_bound, u_bound);
+        printf("x_0 = %.5lf\n", se_solutions[i]);
+    }
+
+compute_F_x_k:
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        F_x_k[i] = se_eval_P_function(P_F_x[i], var_set, num_of_sol, se_solutions);
+    }
+
+    // check
+    // se_display_root_array(F_x_k, 'f', num_of_sol);
+
+    // compute_J_x_k
+    for (unsigned short int row = 0; row < num_of_sol; row++)
+    {
+        for (unsigned short int col = 0; col < num_of_sol; col++)
+        {
+            J_x_k[row][col] = se_eval_P_function(P_J_x[row][col], var_set, num_of_sol, se_solutions);
+        }
+    }
+
+    // check
+    // for (unsigned short int i = 0; i < num_of_sol; i++)
+    // {
+    //     se_display_root_array(J_x_k[i], 'J', num_of_sol);
+    //     putchar('\n');
+    // }
+
+    // prepare_coef_system
+    double **coef = se_malloc_coefficients_of_system_equation(num_of_sol);
+    for (unsigned short int row = 0; row < num_of_sol; row++)
+    {
+        for (unsigned short int col = 0; col < num_of_sol; col++)
+        {
+            coef[row][col] = J_x_k[row][col];
+        }
+        coef[row][num_of_sol] = -F_x_k[row];
+    }
+
+    double *y = se_solve_system_equation(num_of_sol, coef);
+    if (y == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to solve for y");
+        goto clean_up;
+    }
+
+    // check
+    // puts("Solve the system");
+    // se_display_root_array(y, 'y', num_of_sol);
+
+    // calculate the norm
+    double sum = 0.0;
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        sum += y[i] * y[i];
+    }
+    double norm = sqrt(sum);
+
+    // update_x_k
+    // x_[k] = x_[k - 1] + y_[k - 1]
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        se_solutions[i] += y[i];
+    }
+
+    // free y & coef
+    se_free_coefficients_of_system_equation(&coef, num_of_sol);
+    if (y != NULL)
+    {
+        free(y);
+        y = NULL;
+    }
+
+    iteration++;
+
+    // calculate the next F_x_k
+    if (isfinite(norm) && norm > __DBL_EPSILON__ && iteration < SE_MAX_ITERATION)
+    {
+        goto compute_F_x_k;
+    }
+    else if (!isfinite(norm))
+    {
+        goto init_solutions;
+    }
+
+    // check
+    printf("Iterations : %d | Norm = %.17lf\n", iteration, norm);
+
+clean_up:
+    //
+    if (F_x_k != NULL)
+    {
+        free(F_x_k);
+        F_x_k = NULL;
+    }
+
+    //
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        if (P_F_x[i].tokens != NULL)
+            free(P_F_x[i].tokens);
+    }
+    if (P_F_x != NULL)
+    {
+        free(P_F_x);
+        P_F_x = NULL;
+    }
+
+    //
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        for (unsigned short int k = 0; k < num_of_sol; k++)
+        {
+            if (P_J_x[i][k].tokens != NULL)
+                free(P_J_x[i][k].tokens);
+        }
+        if (P_J_x[i] != NULL)
+            free(P_J_x[i]);
+    }
+    if (P_J_x != NULL)
+    {
+        free(P_J_x);
+        P_J_x = NULL;
+    }
+
+    //
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        for (unsigned short int k = 0; k < num_of_sol; k++)
+        {
+            if (J_x[i][k].tokens != NULL)
+                free(J_x[i][k].tokens);
+        }
+        if (J_x[i] != NULL)
+            free(J_x[i]);
+    }
+    if (J_x != NULL)
+    {
+        free(J_x);
+        J_x = NULL;
+    }
+
+    //
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        if (J_x_k[i] != NULL)
+            free(J_x_k[i]);
+    }
+    if (J_x_k != NULL)
+    {
+        free(J_x_k);
+        J_x_k = NULL;
+    }
+
+    if (iteration == SE_MAX_ITERATION)
+    {
+        l_bound -= 5.0;
+        u_bound += 5.0;
+        goto init_solutions;
+    }
+
+result___:
+    *solutions = se_solutions;
+
+    return 0;
 }
 
 #endif
