@@ -17,7 +17,7 @@ int main()
     // F_x[2] = convert_string_to_INFIX(f3);
 
     double *solutions = NULL;
-    short int status = se_solve_system_of_nonlinear_equation(F_x, var_set, 2, &solutions, -2.0, 0.0);
+    short int status = se_solve_system_of_nonlinear_equation(F_x, var_set, 2, &solutions, -2.0, 2.0);
 
     puts("Solutions");
     se_display_root_array(solutions, 's', 2);
@@ -25,5 +25,6 @@ int main()
     se_free_F_x_for_systemof_nonlinear_equation(&F_x, 2);
     if (solutions != NULL)
         free(solutions);
+    
     return 0;
 }
