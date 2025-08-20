@@ -10,12 +10,16 @@
 #include <gsl/sys/minmax.c>
 #include <gsl/poly/zsolve_init.c>
 #include <gsl/poly/zsolve.c>
+// #include <gsl/vector/vector.c>
+// #include <gsl/matrix/gsl_matrix.h>
 
 // determine the minimum value of a number or expression that is likely to be zero
 #define SE_EPSILON 1e-12
 
 // determine the maximum iteration for refining root
 #define SE_MAX_ITERATION 150
+#define SE_MAX_RETRIES 5
+#define SE_MAX_VARIABLES 100
 
 // ====================================================================================================================== //
 // ===============================================FUNCTION DECLARATIONS================================================== //
@@ -68,6 +72,22 @@ void se_verify_roots(const _POSTFIX__ P_equation, const char var, double **roots
 short int se_solve_equation(const __INFIX__ equation, const char var, double lower_bound, double upper_bound, double **roots);
 
 void se_display_root_array(const double *, const char var, const unsigned short int);
+
+static void se_cleanup_nonlinear_resources(
+    double **F_x_k,
+    _POSTFIX__ **P_F_x,
+    __INFIX__ ***J_x,
+    _POSTFIX__ ***P_J_x,
+    double ***J_x_k,
+    const unsigned short int num_of_sol);
+
+short int se_solve_system_of_nonlinear_equation(
+    const __INFIX__ *F_x,
+    const char *var_set,
+    const unsigned short int num_of_sol,
+    double **solutions,
+    double l_bound,
+    double u_bound);
 
 // ====================================================================================================================== //
 // ===============================================FUNCTION DEFINITIONS=================================================== //
@@ -1317,6 +1337,757 @@ short int se_solve_equation(const __INFIX__ equation, const char var, double low
     (*roots) = se_roots;
 
     return num_of_root;
+}
+
+// ====== //
+
+__INFIX__ *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol)
+{
+    __INFIX__ *F_x = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+    if (F_x == NULL)
+    {
+        perror("se_alloc_F_x_for_systemof_nonlinear_equation: Failed to calloc F_x");
+        return NULL;
+    }
+    return F_x;
+}
+
+void se_free_F_x_for_systemof_nonlinear_equation(__INFIX__ **F_x, const unsigned short int num_of_sol)
+{
+    if (*F_x == NULL)
+        return;
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        if ((*F_x)[i].tokens != NULL)
+        {
+            free((*F_x)[i].tokens);
+            (*F_x)[i].tokens = NULL;
+        }
+    }
+    free(*F_x);
+    *F_x = NULL;
+}
+
+double se_eval_P_function(const _POSTFIX__ P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set)
+{
+    _POSTFIX__ P_F_x = copy_postfix_expression(P_F_x_originnal);
+
+    for (unsigned short int i = 0; i < P_F_x.size; i++)
+    {
+        if (P_F_x.tokens[i].variable != '\0')
+        {
+            for (unsigned short int k = 0; k < num_of_sol; k++)
+            {
+                if (P_F_x.tokens[i].variable == var_set[k])
+                {
+                    P_F_x.tokens[i].variable = '\0';
+                    P_F_x.tokens[i].num = valueof_var_set[k];
+
+                    // check
+                    // printf("substitue: %c = %.3lf\n", var_set[k], valueof_var_set[k]);
+                }
+            }
+        }
+    }
+
+    double result = Compute_P_expression(P_F_x);
+
+    free(P_F_x.tokens);
+
+    return result;
+}
+
+// unstable version
+short int se_solve_system_of_nonlinear_equation___(const __INFIX__ *F_x, const char *var_set, const unsigned short int num_of_sol, double **solutions, double l_bound, double u_bound)
+{
+    // prepare for solving section
+    if (strlen(var_set) != num_of_sol)
+        return -1;
+
+    // declare
+    double *se_solutions = NULL;
+    double *F_x_k = NULL;
+    _POSTFIX__ *P_F_x = NULL;
+    __INFIX__ **J_x = NULL;
+    _POSTFIX__ **P_J_x = NULL;
+    double **J_x_k = NULL;
+
+    // solution array
+    se_solutions = (double *)calloc(num_of_sol, sizeof(double));
+    if (se_solutions == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc se_solutions");
+        return -1;
+    }
+
+    // value of vector function at vector x_k
+    F_x_k = (double *)calloc(num_of_sol, sizeof(double));
+    if (F_x_k == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc F_x_k");
+        goto clean_up;
+    }
+
+    // turn infix function to postfix
+    P_F_x = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+    if (P_F_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_F_x");
+        goto clean_up;
+    }
+    // parse
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        P_F_x[i] = submodule_Parse(F_x[i]);
+    }
+
+    // alloc Jacobian matrix
+    // infix type
+    J_x = (__INFIX__ **)calloc(num_of_sol, sizeof(__INFIX__ *));
+    if (J_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        J_x[i] = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+        if (J_x[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x[i]");
+            goto clean_up;
+        }
+    }
+
+    // postfix type
+    P_J_x = (_POSTFIX__ **)calloc(num_of_sol, sizeof(_POSTFIX__ *));
+    if (P_J_x == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_J_x");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        P_J_x[i] = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+        if (P_J_x[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc P_J_x[i]");
+            goto clean_up;
+        }
+    }
+
+    // value of J_x at vector x_k
+    J_x_k = (double **)calloc(num_of_sol, sizeof(double *));
+    if (J_x_k == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x_k");
+        goto clean_up;
+    }
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        J_x_k[i] = (double *)calloc(num_of_sol, sizeof(double));
+        if (J_x_k[i] == NULL)
+        {
+            perror("se_solve_system_of_nonlinear_equation: Failed to calloc J_x_k[i]");
+            goto clean_up;
+        }
+    }
+
+    // define Jacobian matrix
+    {
+        for (unsigned short int row = 0; row < num_of_sol; row++)
+        {
+            for (unsigned short int col = 0; col < num_of_sol; col++)
+            {
+                J_x[row][col] = differentiate_I_exp(F_x[row], var_set[col]);
+                reformat_I_exp(&(J_x[row][col]));
+                optimize_I_exp(&(J_x[row][col]));
+                P_J_x[row][col] = submodule_Parse(J_x[row][col]);
+
+                // check
+                // printf("pos = %d | %d\n", row, col);
+                // display_infix_exp(J_x[row][col]);
+                // display_postfix_exp(P_J_x[row][col]);
+                // putchar('\n');
+            }
+        }
+    }
+
+    // iteration
+    unsigned short int iteration = 0;
+
+    // seed randomness
+    srand(time(NULL));
+
+init_solutions:
+
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        // temporary set to random values
+        se_solutions[i] = random_in_range_double(l_bound, u_bound);
+        printf("x_0 = %.5lf\n", se_solutions[i]);
+    }
+
+compute_F_x_k:
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        F_x_k[i] = se_eval_P_function(P_F_x[i], var_set, num_of_sol, se_solutions);
+    }
+
+    // check
+    // se_display_root_array(F_x_k, 'f', num_of_sol);
+
+    // compute_J_x_k
+    for (unsigned short int row = 0; row < num_of_sol; row++)
+    {
+        for (unsigned short int col = 0; col < num_of_sol; col++)
+        {
+            J_x_k[row][col] = se_eval_P_function(P_J_x[row][col], var_set, num_of_sol, se_solutions);
+        }
+    }
+
+    // check
+    // for (unsigned short int i = 0; i < num_of_sol; i++)
+    // {
+    //     se_display_root_array(J_x_k[i], 'J', num_of_sol);
+    //     putchar('\n');
+    // }
+
+    // prepare_coef_system
+    double **coef = se_malloc_coefficients_of_system_equation(num_of_sol);
+    for (unsigned short int row = 0; row < num_of_sol; row++)
+    {
+        for (unsigned short int col = 0; col < num_of_sol; col++)
+        {
+            coef[row][col] = J_x_k[row][col];
+        }
+        coef[row][num_of_sol] = -F_x_k[row];
+    }
+
+    double *y = se_solve_system_equation(num_of_sol, coef);
+    if (y == NULL)
+    {
+        perror("se_solve_system_of_nonlinear_equation: Failed to solve for y");
+        se_free_coefficients_of_system_equation(&coef, num_of_sol);
+        goto clean_up;
+    }
+
+    // check
+    // puts("Solve the system");
+    // se_display_root_array(y, 'y', num_of_sol);
+
+    // calculate the norm
+    double sum = 0.0;
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        sum += y[i] * y[i];
+    }
+    double norm = sqrt(sum);
+
+    // update_x_k
+    // x_[k] = x_[k - 1] + y_[k - 1]
+    for (unsigned short int i = 0; i < num_of_sol; i++)
+    {
+        se_solutions[i] += y[i];
+    }
+
+    // free y & coef
+    se_free_coefficients_of_system_equation(&coef, num_of_sol);
+    if (y != NULL)
+    {
+        free(y);
+        y = NULL;
+    }
+
+    iteration++;
+
+    // calculate the next F_x_k
+    if (isfinite(norm) && norm > __DBL_EPSILON__ && iteration < SE_MAX_ITERATION)
+    {
+        goto compute_F_x_k;
+    }
+    else if (!isfinite(norm))
+    {
+        goto init_solutions;
+    }
+
+    // check
+    printf("Iterations : %d | Norm = %.17lf\n", iteration, norm);
+
+    // Retry
+    if (iteration == SE_MAX_ITERATION)
+    {
+        l_bound -= 5.0;
+        u_bound += 5.0;
+        goto init_solutions;
+    }
+
+clean_up:
+    //
+    if (F_x_k != NULL)
+    {
+        free(F_x_k);
+        F_x_k = NULL;
+    }
+
+    //
+    if (P_F_x != NULL)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if (P_F_x[i].tokens != NULL)
+                free(P_F_x[i].tokens);
+        }
+
+        free(P_F_x);
+        P_F_x = NULL;
+    }
+
+    //
+    if (P_J_x != NULL)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if (P_J_x[i] != NULL)
+            {
+                for (unsigned short int k = 0; k < num_of_sol; k++)
+                {
+                    if (P_J_x[i][k].tokens != NULL)
+                        free(P_J_x[i][k].tokens);
+                }
+
+                free(P_J_x[i]);
+            }
+        }
+
+        free(P_J_x);
+        P_J_x = NULL;
+    }
+
+    //
+    if (J_x != NULL)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if (J_x[i] != NULL)
+            {
+                for (unsigned short int k = 0; k < num_of_sol; k++)
+                {
+                    if (J_x[i][k].tokens != NULL)
+                        free(J_x[i][k].tokens);
+                }
+
+                free(J_x[i]);
+            }
+        }
+
+        free(J_x);
+        J_x = NULL;
+    }
+
+    //
+    if (J_x_k != NULL)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if (J_x_k[i] != NULL)
+                free(J_x_k[i]);
+        }
+
+        free(J_x_k);
+        J_x_k = NULL;
+    }
+
+result___:
+    *solutions = se_solutions;
+
+    return 0;
+}
+
+// Helper function to safely clean up resources
+static void se_cleanup_nonlinear_resources(
+    double **F_x_k,
+    _POSTFIX__ **P_F_x,
+    __INFIX__ ***J_x,
+    _POSTFIX__ ***P_J_x,
+    double ***J_x_k,
+    const unsigned short int num_of_sol)
+{
+    // Clean F_x_k
+    if (F_x_k && *F_x_k)
+    {
+        free(*F_x_k);
+        *F_x_k = NULL;
+    }
+
+    // Clean P_F_x
+    if (P_F_x && *P_F_x)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if ((*P_F_x)[i].tokens != NULL)
+            {
+                free((*P_F_x)[i].tokens);
+            }
+        }
+        free(*P_F_x);
+        *P_F_x = NULL;
+    }
+
+    // Clean P_J_x
+    if (P_J_x && *P_J_x)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if ((*P_J_x)[i] != NULL)
+            {
+                for (unsigned short int k = 0; k < num_of_sol; k++)
+                {
+                    if ((*P_J_x)[i][k].tokens != NULL)
+                    {
+                        free((*P_J_x)[i][k].tokens);
+                    }
+                }
+                free((*P_J_x)[i]);
+            }
+        }
+        free(*P_J_x);
+        *P_J_x = NULL;
+    }
+
+    // Clean J_x
+    if (J_x && *J_x)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if ((*J_x)[i] != NULL)
+            {
+                for (unsigned short int k = 0; k < num_of_sol; k++)
+                {
+                    if ((*J_x)[i][k].tokens != NULL)
+                    {
+                        free((*J_x)[i][k].tokens);
+                    }
+                }
+                free((*J_x)[i]);
+            }
+        }
+        free(*J_x);
+        *J_x = NULL;
+    }
+
+    // Clean J_x_k
+    if (J_x_k && *J_x_k)
+    {
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            if ((*J_x_k)[i] != NULL)
+            {
+                free((*J_x_k)[i]);
+            }
+        }
+        free(*J_x_k);
+        *J_x_k = NULL;
+    }
+}
+
+// stable version
+short int se_solve_system_of_nonlinear_equation(
+    const __INFIX__ *F_x,
+    const char *var_set,
+    const unsigned short int num_of_sol,
+    double **solutions,
+    double l_bound,
+    double u_bound)
+{
+    // Input validation
+    if (F_x == NULL || var_set == NULL || solutions == NULL ||
+        strlen(var_set) != num_of_sol || num_of_sol == 0 ||
+        num_of_sol > SE_MAX_VARIABLES || !isfinite(l_bound) || !isfinite(u_bound))
+    {
+        return -1;
+    }
+
+    int return_code = -1;
+    unsigned short int retry_count = 0;
+
+    // Declare all resources
+    double *se_solutions = NULL;
+    double *F_x_k = NULL;
+    _POSTFIX__ *P_F_x = NULL;
+    __INFIX__ **J_x = NULL;
+    _POSTFIX__ **P_J_x = NULL;
+    double **J_x_k = NULL;
+
+    // Seed randomness once
+    static int seeded = 0;
+    if (!seeded)
+    {
+        srand((unsigned int)time(NULL));
+        seeded = 1;
+    }
+
+    // Main retry loop
+    while (retry_count < SE_MAX_RETRIES)
+    {
+        // Clean up from previous iteration
+        se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+
+        // Allocate solution array
+        se_solutions = (double *)calloc(num_of_sol, sizeof(double));
+        if (se_solutions == NULL)
+        {
+            return -1;
+        }
+
+        // Allocate F_x_k
+        F_x_k = (double *)calloc(num_of_sol, sizeof(double));
+        if (F_x_k == NULL)
+        {
+            free(se_solutions);
+            return -1;
+        }
+
+        // Allocate and parse P_F_x
+        P_F_x = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+        if (P_F_x == NULL)
+        {
+            free(se_solutions);
+            free(F_x_k);
+            return -1;
+        }
+
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            P_F_x[i] = submodule_Parse(F_x[i]);
+            if (P_F_x[i].tokens == NULL)
+            {
+                // Clean up partial allocation
+                for (unsigned short int j = 0; j < i; j++)
+                {
+                    if (P_F_x[j].tokens)
+                        free(P_F_x[j].tokens);
+                }
+                free(P_F_x);
+                free(F_x_k);
+                free(se_solutions);
+                return -1;
+            }
+        }
+
+        // Allocate Jacobian matrices
+        J_x = (__INFIX__ **)calloc(num_of_sol, sizeof(__INFIX__ *));
+        if (J_x == NULL)
+        {
+            se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+            free(se_solutions);
+            return -1;
+        }
+
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            J_x[i] = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+            if (J_x[i] == NULL)
+            {
+                se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+                free(se_solutions);
+                return -1;
+            }
+        }
+
+        P_J_x = (_POSTFIX__ **)calloc(num_of_sol, sizeof(_POSTFIX__ *));
+        if (P_J_x == NULL)
+        {
+            se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+            free(se_solutions);
+            return -1;
+        }
+
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            P_J_x[i] = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+            if (P_J_x[i] == NULL)
+            {
+                se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+                free(se_solutions);
+                return -1;
+            }
+        }
+
+        J_x_k = (double **)calloc(num_of_sol, sizeof(double *));
+        if (J_x_k == NULL)
+        {
+            se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+            free(se_solutions);
+            return -1;
+        }
+
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            J_x_k[i] = (double *)calloc(num_of_sol, sizeof(double));
+            if (J_x_k[i] == NULL)
+            {
+                se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+                free(se_solutions);
+                return -1;
+            }
+        }
+
+        // Compute Jacobian matrix
+        for (unsigned short int row = 0; row < num_of_sol; row++)
+        {
+            for (unsigned short int col = 0; col < num_of_sol; col++)
+            {
+                J_x[row][col] = differentiate_I_exp(F_x[row], var_set[col]);
+                reformat_I_exp(&(J_x[row][col]));
+                optimize_I_exp(&(J_x[row][col]));
+                P_J_x[row][col] = submodule_Parse(J_x[row][col]);
+            }
+        }
+
+        // Initialize solutions with random values
+        for (unsigned short int i = 0; i < num_of_sol; i++)
+        {
+            se_solutions[i] = l_bound + ((double)rand() / RAND_MAX) * (u_bound - l_bound);
+        }
+
+        // Newton-Raphson iteration
+        unsigned short int iteration = 0;
+        double norm = INFINITY;
+
+        while (iteration < SE_MAX_ITERATION && norm > SE_EPSILON)
+        {
+            // Compute F(x_k)
+            for (unsigned short int i = 0; i < num_of_sol; i++)
+            {
+                F_x_k[i] = se_eval_P_function(P_F_x[i], var_set, num_of_sol, se_solutions);
+                if (!isfinite(F_x_k[i]))
+                {
+                    break; // Try different initial guess
+                }
+            }
+
+            // Compute J(x_k)
+            for (unsigned short int row = 0; row < num_of_sol; row++)
+            {
+                for (unsigned short int col = 0; col < num_of_sol; col++)
+                {
+                    J_x_k[row][col] = se_eval_P_function(P_J_x[row][col], var_set, num_of_sol, se_solutions);
+                    if (!isfinite(J_x_k[row][col]))
+                    {
+                        goto next_retry; // Try different initial guess
+                    }
+                }
+            }
+
+            // Solve J(x_k) * y = -F(x_k)
+            double **coef = se_malloc_coefficients_of_system_equation(num_of_sol);
+            if (coef == NULL)
+            {
+                se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+                free(se_solutions);
+                return -1;
+            }
+
+            for (unsigned short int row = 0; row < num_of_sol; row++)
+            {
+                for (unsigned short int col = 0; col < num_of_sol; col++)
+                {
+                    coef[row][col] = J_x_k[row][col];
+                }
+                coef[row][num_of_sol] = -F_x_k[row];
+            }
+
+            double *y = se_solve_system_equation(num_of_sol, coef);
+            se_free_coefficients_of_system_equation(&coef, num_of_sol);
+
+            if (y == NULL)
+            {
+                goto next_retry; // Singular matrix, try different initial guess
+            }
+
+            // Check for NaN solutions
+            bool has_nan = false;
+            for (unsigned short int i = 0; i < num_of_sol; i++)
+            {
+                if (!isfinite(y[i]))
+                {
+                    has_nan = true;
+                    break;
+                }
+            }
+
+            if (has_nan)
+            {
+                free(y);
+                goto next_retry;
+            }
+
+            // Calculate norm
+            norm = 0.0;
+            for (unsigned short int i = 0; i < num_of_sol; i++)
+            {
+                norm += y[i] * y[i];
+            }
+            norm = sqrt(norm);
+
+            // Update solution
+            for (unsigned short int i = 0; i < num_of_sol; i++)
+            {
+                se_solutions[i] += y[i];
+            }
+
+            free(y);
+            iteration++;
+
+            if (!isfinite(norm))
+            {
+                goto next_retry;
+            }
+        }
+
+        // Check convergence
+        if (norm <= SE_EPSILON)
+        {
+            // Verify final solution
+            double max_residual = 0.0;
+            for (unsigned short int i = 0; i < num_of_sol; i++)
+            {
+                double residual = fabs(se_eval_P_function(P_F_x[i], var_set, num_of_sol, se_solutions));
+                if (residual > max_residual)
+                {
+                    max_residual = residual;
+                }
+            }
+
+            if (max_residual <= SE_EPSILON)
+            {
+                return_code = 0; // Success
+                break;
+            }
+        }
+
+    next_retry:
+        retry_count++;
+        // Expand search bounds for next retry
+        l_bound -= 2.0;
+        u_bound += 2.0;
+    }
+
+    // Cleanup
+    se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
+
+    if (return_code == 0)
+    {
+        *solutions = se_solutions;
+    }
+    else
+    {
+        if (se_solutions)
+            free(se_solutions);
+    }
+
+    return return_code;
 }
 
 #endif

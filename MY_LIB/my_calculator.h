@@ -215,6 +215,7 @@ void reformat_I_exp(__INFIX__ *I_exp);
 bool is_zero(const double);
 __INFIX__ copy_infix_expression(const __INFIX__ source);
 _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source);
+double random_in_range_double(const double a, const double b);
 
 //=================================================================================================================//
 //                                            FUNCTIONS DEFINITION                                                //
@@ -611,6 +612,25 @@ double sum(double start, double end, double step)
 int random_in_range(int a, int b)
 {
     return rand() % (b - a + 1) + a;
+}
+
+// generate a random (double type) value in between a & b where a < b
+double random_in_range_double(const double a, const double b)
+{
+    double lo = a, hi = b;
+    if (lo > hi)
+    {
+        double t = lo;
+        lo = hi;
+        hi = t;
+    }
+    if (lo == hi)
+        return lo;
+
+    // Uniform u in [0, 1], inclusive of endpoints when rand() == 0 or RAND_MAX
+    double u = (double)rand() / (double)RAND_MAX;
+
+    return lo + u * (hi - lo);
 }
 
 //===============================================================//
