@@ -829,8 +829,8 @@ void solve_quadratic_equation()
             open_new_process("solve_quadratic-display-help", false);
         }
 
-        // Ctrl + S
-        else if (input_code == 19 && a != 0.0)
+        // F5
+        else if (input_code == 63 && a != 0.0)
         {
             clear_line_in_range(12, 17);
             move_cursor(12, 0);
@@ -961,8 +961,8 @@ void solve_cubic_equation()
             open_new_process("solve_cubic-display-help", false);
         }
 
-        // Ctrl + S
-        else if (input_code == 19 && a != 0.0)
+        // F5
+        else if (input_code == 63 && a != 0.0)
         {
             clear_line_in_range(13, 18);
             move_cursor(13, 0);
@@ -1109,8 +1109,8 @@ void solve_quartic_equation()
             open_new_process("solve_quartic-display-help", false);
         }
 
-        // Ctrl + S
-        else if (input_code == 19 && a != 0.0)
+        // F5
+        else if (input_code == 63 && a != 0.0)
         {
             clear_line_in_range(14, 19);
             move_cursor(14, 0);
