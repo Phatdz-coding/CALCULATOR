@@ -51,11 +51,11 @@ int main(const int num_of_arg, const char *arg[])
     if (!initialize_variables(&hMapFile))
         return 1;
 
-    // open_menu = true;
-    // while (central_control())
-    //     ;
+    open_menu = true;
+    while (central_control())
+        ;
 
-    solve_system_of_nonlinear_equation();
+    // solve_system_of_nonlinear_equation();
 
     CloseHandle(hMapFile);
     return 0;
@@ -206,6 +206,9 @@ bool central_control()
         break;
     case 9:
         solve_system_of_linear_equation();
+        break;
+    case 10:
+        solve_system_of_nonlinear_equation();
         break;
     default:
         return false;
@@ -834,6 +837,7 @@ void solve_quadratic_equation()
         {
             clear_line_in_range(12, 17);
             move_cursor(12, 0);
+            puts("✅ Solved successfully");
             printf("Delta △ = ");
             display_number(b * b - 4 * a * c);
             putchar('\n');
@@ -966,6 +970,7 @@ void solve_cubic_equation()
         {
             clear_line_in_range(13, 18);
             move_cursor(13, 0);
+            puts("✅ Solved successfully");
             printf("Delta △ = ");
             display_number(b * b + 18 * a * b * c * d + 6 * c * c - 4 * d * c * c - 46 * d * d - 27 * a * d * d);
             putchar('\n');
@@ -1114,6 +1119,7 @@ void solve_quartic_equation()
         {
             clear_line_in_range(14, 19);
             move_cursor(14, 0);
+            puts("✅ Solved successfully");
             // display delta
             printf("Delta △ = ");
             display_number(256 * pow(a, 5) * pow(e, 3) -
@@ -1189,111 +1195,122 @@ void solve_n_degree_poly_equation()
 
     while (1)
     {
-        printf("Enter degree: ");
-        degree = (short int)input_int();
-        if (degree <= 4)
+        short int input_code = _getch();
+
+        if (input_code == 59)
         {
-            puts("⚠  Invalid input ⚠");
-            continue;
-        }
-
-        numof_coef = degree + 1;
-
-        coefficients = (double *)calloc(numof_coef, sizeof(double));
-        if (coefficients == NULL)
-        {
-            perror("Failed to calloc coefficients");
-            return;
-        }
-
-        bool invalid_input = false;
-
-        for (unsigned short int i = 0; i < numof_coef; i++)
-        {
-            int C_Y;
-            get_cursor_position(NULL, &C_Y);
-            printf("a_[%d] = ", i);
-
-            short int input_status = solve_poly_get_coef(coefficients + i);
-
-            // Esc
-            if (input_status == 27)
+            printf("Enter degree: ");
+            degree = (short int)input_int();
+            if (degree <= 4)
             {
-                free_coefficients(&coefficients);
-                return;
-            }
-
-            if (!isfinite(coefficients[i]) || coefficients[0] == 0.0)
-            {
-                puts("⚠  Syntax Error ⚠");
-                --i;
+                puts("⚠  Invalid input ⚠");
                 continue;
             }
 
-            int pre_C_Y = C_Y;
-            get_cursor_position(NULL, &C_Y);
+            numof_coef = degree + 1;
 
-            clear_line_in_range(pre_C_Y, C_Y);
-            printf("a_[%d] = ", i);
-            display_number(coefficients[i]);
-            putchar('\n');
-        }
-
-        // display the equation
-        printf("\nThe %dᵗʰ degree polynomial equation:\n", degree);
-        for (unsigned short int a = 0, n = degree; a < numof_coef && n >= 0; a++, n--)
-        {
-            if (coefficients[a] != 0.0)
+            coefficients = (double *)calloc(numof_coef, sizeof(double));
+            if (coefficients == NULL)
             {
-                if (coefficients[a] > 0.0)
-                {
-                    if (a != 0)
-                        putchar('+');
-                    display_number_with_max_3_dec_places(coefficients[a]);
-                }
-
-                else
-                {
-                    if (a != 0)
-                        putchar('-');
-                    display_number_with_max_3_dec_places(-coefficients[a]);
-                }
-
-                if (n > 0)
-                {
-                    putchar('x');
-                    print_super_script_number(n);
-                }
-                putchar(' ');
+                perror("Failed to calloc coefficients");
+                return;
             }
+
+            bool invalid_input = false;
+
+            for (unsigned short int i = 0; i < numof_coef; i++)
+            {
+                int C_Y;
+                get_cursor_position(NULL, &C_Y);
+                printf("a_[%d] = ", i);
+
+                short int input_status = solve_poly_get_coef(coefficients + i);
+
+                // Esc
+                if (input_status == 27)
+                {
+                    free_coefficients(&coefficients);
+                    return;
+                }
+
+                if (!isfinite(coefficients[i]) || coefficients[0] == 0.0)
+                {
+                    puts("⚠  Syntax Error ⚠");
+                    --i;
+                    continue;
+                }
+
+                int pre_C_Y = C_Y;
+                get_cursor_position(NULL, &C_Y);
+
+                clear_line_in_range(pre_C_Y, C_Y);
+                printf("a_[%d] = ", i);
+                display_number(coefficients[i]);
+                putchar('\n');
+            }
+
+            // display the equation
+            puts("\n✅ Solved successfully");
+            printf("The %dᵗʰ degree polynomial equation:\n", degree);
+            for (unsigned short int a = 0, n = degree; a < numof_coef && n >= 0; a++, n--)
+            {
+                if (coefficients[a] != 0.0)
+                {
+                    if (coefficients[a] > 0.0)
+                    {
+                        if (a != 0)
+                            putchar('+');
+                        display_number_with_max_3_dec_places(coefficients[a]);
+                    }
+
+                    else
+                    {
+                        if (a != 0)
+                            putchar('-');
+                        display_number_with_max_3_dec_places(-coefficients[a]);
+                    }
+
+                    if (n > 0)
+                    {
+                        putchar('x');
+                        print_super_script_number(n);
+                    }
+                    putchar(' ');
+                }
+            }
+            printf(" = 0");
+
+            puts("\n\nHas the following solutions:\n");
+
+            gsl_complex *solutions;
+            se_solve_polynomial_equation(coefficients, degree, &solutions);
+
+            // display solutions
+            for (unsigned short int i = 0; i < degree; i++)
+            {
+                putchar('x');
+                print_sub_script_number(i + 1);
+                printf(" = ");
+                se_display_complex_number_2(solutions[i]);
+                putchar('\n');
+            }
+
+            if (solutions != NULL)
+            {
+                free(solutions);
+                solutions = NULL;
+            }
+            free_coefficients(&coefficients);
         }
 
-        puts("\nHas the following solutions:\n");
-
-        gsl_complex *solutions;
-        se_solve_polynomial_equation(coefficients, degree, &solutions);
-
-        // display solutions
-        for (unsigned short int i = 0; i < degree; i++)
+        // Esc
+        else if (input_code == 27)
         {
-            putchar('x');
-            print_sub_script_number(i + 1);
-            printf(" = ");
-            se_display_complex_number_2(solutions[i]);
-            putchar('\n');
+            open_menu = true;
+            break;
         }
 
-        if (solutions != NULL)
-        {
-            free(solutions);
-            solutions = NULL;
-        }
-        free_coefficients(&coefficients);
-
-        puts("Press [Esc] to go to menu OR press any key to continue . . .");
-        short int input_code = _getch();
-        if (input_code == 27)
-            return;
+        // Ctrl + D
         else if (input_code == 4)
         {
             system("cls");
@@ -1504,7 +1521,8 @@ void solve_system_of_linear_equation()
             }
 
             // display the equation
-            puts("\n\n\n▶ System of Linear Equation\n");
+            puts("\n\n\n✅ Solved successfully");
+            puts("▶ System of Linear Equation\n");
             printf("⌈ ");
             for (unsigned short int i = 0; i < n; i++)
             {
