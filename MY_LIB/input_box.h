@@ -52,7 +52,9 @@ extern "C"
 
     void solve_equation_display_result(void);
 
-    short int ib_for_system_o_l_e(int * ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result, const char *help_panel);
+    short int ib_for_system_o_l_e(int *ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result, const char *help_panel);
+
+    char *ib_ssonle_get_function(int *ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, const char *help_panel);
 
 #ifdef __cplusplus
 } // extern "C"
@@ -605,7 +607,7 @@ char *ib_se_get_function()
     int C_X, C_Y;
     get_cursor_position(&C_X, &C_Y);
 
-    int win_w;
+    int win_w, win_h;
 
     short int input_column = 0;
     short int input_line = C_Y + 1;
@@ -613,7 +615,7 @@ char *ib_se_get_function()
     short int top_barrier = input_line;
     short int bottom_barrier = top_barrier + 2;
 
-    getWinSize(&win_w, NULL);
+    getWinSize(&win_w, &win_h);
 
     short int max_input_len = (bottom_barrier - top_barrier) * win_w;
 
@@ -626,9 +628,25 @@ char *ib_se_get_function()
     {
         if (new_input)
         {
-            get_cursor_position(&C_X, &C_Y);
-            clear_line_in_range(top_barrier, C_Y);
-            move_cursor(C_Y, 0);
+            // get for current row
+            get_cursor_position(NULL, &C_Y);
+
+            unsigned short int num_of_line = bottom_barrier - top_barrier;
+            for (unsigned short int i = 1; i <= num_of_line; i++)
+            {
+                // clear current line
+                clear_line_(C_Y + i - 1);
+                putchar('\n');
+            }
+
+            if (win_h - C_Y <= num_of_line)
+            {
+                input_line -= num_of_line - (win_h - C_Y) + 1;
+            }
+
+            // move to input line
+            move_cursor(input_line, 0);
+
             printf("%s", str_input);
             new_input = false;
         }
@@ -1015,7 +1033,7 @@ cleanup:
     system("pause >nul");
 }
 
-short int ib_for_system_o_l_e(int * ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result, const char *help_panel)
+short int ib_for_system_o_l_e(int *ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result, const char *help_panel)
 {
     unsigned short int input_line = *ptr_input_line;
     int input_code = 0;
@@ -1178,6 +1196,171 @@ short int ib_for_system_o_l_e(int * ptr_input_line, unsigned short int input_col
     *ptr_input_line = input_line;
 
     return 0;
+}
+
+char *ib_ssonle_get_function(int *ptr_input_line, unsigned short int input_column, unsigned short int bottom_barrier, const char *help_panel)
+{
+    unsigned short int input_line = *ptr_input_line;
+    int input_code = 0;
+    short int input_index = 0;
+    bool new_input = false;
+    int C_X, C_Y;
+    int win_w, win_h;
+    getWinSize(&win_w, &win_h);
+
+    if (input_line == win_h)
+    {
+        putchar('\n');
+        input_line--;
+    }
+
+    short int top_barrier = input_line;
+
+    short int max_input_len = (bottom_barrier - top_barrier) * win_w;
+
+    char *str_input = create_new_buffer_with_sizeof(max_input_len);
+
+    move_cursor(input_line, input_column);
+    get_cursor_position(&C_X, &C_Y);
+
+    while (1)
+    {
+        if (new_input)
+        {
+            // get for current row
+            get_cursor_position(NULL, &C_Y);
+
+            unsigned short int num_of_line = bottom_barrier - top_barrier;
+            for (unsigned short int i = 1; i <= num_of_line; i++)
+            {
+                // clear current line
+                clear_line_(C_Y + i - 1);
+                putchar('\n');
+            }
+
+            if (win_h - C_Y <= num_of_line)
+            {
+                input_line -= num_of_line - (win_h - C_Y) + 1;
+            }
+
+            // move to input line
+            move_cursor(input_line, 0);
+
+            printf("%s", str_input);
+            new_input = false;
+        }
+
+        input_code = _getch();
+
+        if (((input_code >= 'a' && input_code <= 'z') ||
+             (input_code >= '0' && input_code <= '9') ||
+             (input_code >= 'A' && input_code <= 'Z') ||
+             input_code == '!' ||
+             input_code == '%' ||
+             input_code == '^' ||
+             input_code == '*' ||
+             input_code == '(' ||
+             input_code == ')' ||
+             input_code == '-' ||
+             input_code == '+' ||
+             input_code == '/' ||
+             input_code == '.' ||
+             input_code == ',' ||
+             input_code == ' ' ||
+             input_code == '=') &&
+            input_index < max_input_len)
+        {
+            if (input_index == 0 && input_code == ' ')
+                continue;
+            str_input[input_index++] = input_code;
+
+            new_input = true;
+        }
+
+        // Backspace - Delete input
+        else if (input_code == 8)
+        {
+            if (input_index > 0)
+            {
+                str_input[--input_index] = '\0';
+                new_input = true;
+            }
+        }
+
+        // assign var & compute [Ctrl + Enter]
+        else if (input_code == 10)
+        {
+            open_new_process("global-assign-variables", true);
+            new_input = true;
+        }
+
+        // enter
+        else if (input_code == 13 && input_index != 0)
+        {
+            break;
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            open_menu = true;
+            free_buffer(&str_input);
+            return NULL;
+        }
+
+        // Ctrl + C
+        else if (input_code == 3)
+        {
+            open_new_process("display-const", false);
+        }
+
+        // Ctrl + L
+        else if (input_code == 12)
+        {
+            open_new_process("usualcal-display-func", false);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process(help_panel, false);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            memset(str_input, 0, max_input_len);
+            input_index = 0;
+            input_line = top_barrier;
+            C_X = 0;
+            C_Y = input_line;
+            clear_line_in_range(top_barrier, bottom_barrier);
+            move_cursor(input_line, 0);
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+
+    // // compute input
+    // __INFIX__ I_input = convert_string_to_INFIX(str_input);
+
+    // substitude_variables(&I_input);
+    // (*result) = evaluate_I_exp(I_input);
+
+    // free(str_input);
+    // free(I_input.tokens);
+
+    // if (!isfinite(*result))
+    //     return -1;
+
+    // clear_line_(input_line);
+
+    *ptr_input_line = input_line;
+
+    return str_input;
 }
 
 #endif

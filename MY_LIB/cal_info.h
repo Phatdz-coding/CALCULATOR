@@ -29,14 +29,42 @@ void solve_quartic_display_help();
 
 void solve_system_of_linear_equation_display_help();
 
+void solve_system_of_nonlinear_equation_display_help();
+
 // ======================================================================================================= //
 // ======================================================================================================= //
 // ======================================================================================================= //
 
+void solve_system_of_nonlinear_equation_display_help()
+{
+    const char *help[] = {
+        "🔢 Solve System of Non-Linear Equations\n",
+        "### Shortcut keys:",
+        "Esc                    : Go to menu OR quit input section",
+        "F1                     : To start input number of unknown and coefficient",
+        "Ctrl + L               : See list of available funtion",
+        "Ctrl + C               : See list of available constant & variable",
+        "Ctrl + D               : Refresh",
+        "Ctrl + Enter           : Assign value for variables",
+        "\n「 ✦ NOTE ✦ 」 You can only use [Ctrl + L] [Ctrl + C] [Ctrl + Enter] while working with functions, lower & upper bound",
+        "\n🖱️: ̗̀➛ Tip",
+        "Highlight the text and then right-click to copy",
+        "Right-click to paste the copy"};
+
+    unsigned short int help_size = sizeof(help) / sizeof(help[0]);
+
+    for (unsigned short int i = 0; i < help_size; i++)
+    {
+        puts(help[i]);
+    }
+
+    system("pause >nul");
+}
+
 void solve_system_of_linear_equation_display_help()
 {
     const char *help[] = {
-        "🔢 Solve System of Linear Equation\n",
+        "🔢 Solve System of Linear Equations\n",
         "### Shortcut keys:",
         "Esc                    : Go to menu OR quit input section",
         "F1                     : To start input number of unknown and coefficient",

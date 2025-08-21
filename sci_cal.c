@@ -27,6 +27,8 @@ void solve_equation();
 
 void solve_system_of_linear_equation();
 
+void solve_system_of_nonlinear_equation();
+
 bool central_control();
 
 void display_const();
@@ -49,9 +51,11 @@ int main(const int num_of_arg, const char *arg[])
     if (!initialize_variables(&hMapFile))
         return 1;
 
-    open_menu = true;
-    while (central_control())
-        ;
+    // open_menu = true;
+    // while (central_control())
+    //     ;
+
+    solve_system_of_nonlinear_equation();
 
     CloseHandle(hMapFile);
     return 0;
@@ -87,6 +91,8 @@ void handle_child_process(const char *arg[])
         solve_equation_display_result();
     else if (!strcmp(arg[1], "solve_system_of_linear_equation-display-help"))
         solve_system_of_linear_equation_display_help();
+    else if (!strcmp(arg[1], "solve_system_of_nonlinear_equation-display-help"))
+        solve_system_of_nonlinear_equation_display_help();
 }
 
 void display_const()
@@ -1423,7 +1429,7 @@ void solve_equation()
 
 void solve_system_of_linear_equation()
 {
-    puts("🔢 Solve System Equation");
+    puts("🔢 Solve System Equations");
     delay(40);
     puts("Press [Ctrl + G] For help\n");
     delay(40);
@@ -1485,7 +1491,7 @@ void solve_system_of_linear_equation()
                     short int input_coef_status = ib_for_system_o_l_e(&C_Y, 0, C_Y + 3, coef[row] + col, "solve_system_of_linear_equation-display-help");
                     if (input_coef_status == 27)
                     {
-                        puts("\n⚠  Cancled Input Coefficients. F1 to start input");
+                        puts("\n❌ Cancled Input Coefficients. F1 to start input");
                         se_free_coefficients_of_system_equation(&coef, n);
                         goto main_loop;
                     }
@@ -1607,4 +1613,205 @@ void solve_system_of_linear_equation()
     }
 }
 
+void solve_system_of_nonlinear_equation()
+{
+    puts("🔢 Solve System of Non-linear Equations");
+    delay(40);
+    puts("Press [Ctrl + G] For help");
+    delay(40);
+    puts("\nA System of Non-linear Equation has the following form:");
+    delay(40);
+    puts("\tf₁(x₁, x₂, . . ., xₙ) = 0");
+    delay(40);
+    puts("\tf₂(x₁, x₂, . . ., xₙ) = 0");
+    delay(40);
+    puts("\tf₃(x₁, x₂, . . ., xₙ) = 0");
+    puts("\t⋮");
+    puts("\tfₙ(x₁, x₂, . . ., xₙ) = 0");
+    delay(40);
+    puts("Where (x₁, x₂, . . ., xₙ) ∈ Rⁿ and each fᵢ is a non-linear real function, i = 1, 2, . . ., n");
+    delay(40);
+    puts("Press F1 to start");
 
+    int C_X, C_Y;
+
+    while (1)
+    {
+    main_loop:
+        get_cursor_position(&C_X, &C_Y);
+        int input_code = _getch();
+
+        // F1
+        if (input_code == 59)
+        {
+            short int n = 0;
+            char **str_functions = NULL;
+            char *var_set = NULL;
+            __INFIX__ *I_functions = NULL;
+            double *solutions = NULL;
+            double l_bound, u_bound;
+
+            printf("Number of function n = ");
+            while (1)
+            {
+                n = (short int)input_int();
+
+                if (n < 2)
+                    puts("⚠  n must be ≥ 2 ⚠");
+                else
+                    break;
+            }
+
+            // alloc str functions
+            str_functions = se_alloc_string_array(n);
+
+            // Get string functions
+            for (unsigned short int i = 1; i <= n; i++)
+            {
+                printf("⌨  Function %d:\n", i);
+
+                get_cursor_position(&C_X, &C_Y);
+
+                str_functions[i - 1] = ib_ssonle_get_function(&C_Y, 0, C_Y + 3, "solve_system_of_nonlinear_equation-display-help");
+
+                if (str_functions[i - 1] == NULL)
+                {
+                    se_free_string_array(&str_functions, n);
+                    puts("❌ Canceled Input");
+                    goto main_loop;
+                }
+
+                putchar('\n');
+            }
+
+            // alloc var set
+            var_set = input_String("Solve for variables: ");
+
+            // convert to infix type
+            I_functions = se_alloc_F_x_for_systemof_nonlinear_equation(n);
+            for (unsigned short int i = 0; i < n; i++)
+            {
+                I_functions[i] = convert_string_to_INFIX(str_functions[i]);
+            }
+
+            // get bounds
+            puts("Solve the system in range:\nLower bound =");
+            get_cursor_position(&C_X, &C_Y);
+            ib_for_system_o_l_e(&C_Y, 0, C_Y + 3, &l_bound, "solve_system_of_nonlinear_equation-display-help");
+            display_number(l_bound);
+
+            puts("\nUpper bound =");
+            get_cursor_position(&C_X, &C_Y);
+            ib_for_system_o_l_e(&C_Y, 0, C_Y + 3, &u_bound, "solve_system_of_nonlinear_equation-display-help");
+            display_number(u_bound);
+
+            // display the system
+            puts("\n\n▶ System of Non-linear Equations:");
+            for (unsigned short int i = 0; i < n; i++)
+            {
+                // printf("\t• f%d(%s) = %s = 0\n", i + 1, var_set, str_functions[i]);
+                printf("\t• f");
+                print_sub_script_number(i + 1);
+                printf("(");
+                for (unsigned short int v = 0; v < n; v++)
+                {
+                    putchar(var_set[v]);
+                    if (v != n - 1)
+                        putchar(',');
+                }
+                printf(") =   %s = 0\n", str_functions[i]);
+            }
+            printf("\n› Solve for: %s", var_set);
+            printf("\n› Solving range: [");
+            display_number(l_bound);
+            putchar(',');
+            putchar(' ');
+            display_number(u_bound);
+            putchar(']');
+            puts("\n");
+
+            // start solving
+            short int solving_status = se_solve_system_of_nonlinear_equation(I_functions, var_set, n, &solutions, l_bound, u_bound);
+
+            putchar('\n');
+
+            if (solving_status == 0)
+            {
+                puts("✅ Solve successfully");
+                puts("▶ Solutions:");
+                for (unsigned short int i = 0; i < n; i++)
+                {
+                    printf("%c = ", var_set[i]);
+                    display_number(solutions[i]);
+                    putchar('\n');
+                }
+            }
+            else if (solving_status == -1)
+            {
+                puts("❌ Failed to allocate memories for solving process. Please try again.");
+            }
+
+            else if (solving_status == -2)
+            {
+                puts("❌ Solutions are not found OR not converged  ¯\\_(ツ)_/¯");
+                puts("💡 This does not mean that the system has no solutions. You can change the lower & upper bound to find other solutions.");
+            }
+            else if (solving_status == -4)
+            {
+                printf("❌ Invalid variables. Couldn't solve for \"%s\"\n", var_set);
+            }
+            else if (solving_status == -6)
+            {
+                printf("❌ The number of variables \"%s\" (%d) is not matched with the number of functions (%d).\n", var_set, strlen(var_set), n);
+            }
+
+            putchar('\n');
+
+            // clean up
+            se_free_string_array(&str_functions, n);
+            free_buffer(&var_set);
+            if (solutions != NULL)
+            {
+                free(solutions);
+                solutions = NULL;
+            }
+            se_free_F_x_for_systemof_nonlinear_equation(&I_functions, n);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            puts("🔢 Solve System of Non-linear Equations");
+            delay(40);
+            puts("Press [Ctrl + G] For help");
+            delay(40);
+            puts("\nA System of Non-linear Equation has the following form:");
+            delay(40);
+            puts("\tf₁(x₁, x₂, . . ., xₙ) = 0");
+            delay(40);
+            puts("\tf₂(x₁, x₂, . . ., xₙ) = 0");
+            delay(40);
+            puts("\tf₃(x₁, x₂, . . ., xₙ) = 0");
+            puts("\t⋮");
+            puts("\tfₙ(x₁, x₂, . . ., xₙ) = 0");
+            delay(40);
+            puts("Where (x₁, x₂, . . ., xₙ) ∈ Rⁿ and each fᵢ is a non-linear real function, i = 1, 2, . . ., n");
+            delay(40);
+            puts("Press F1 to start");
+        }
+
+        // Cltr + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_system_of_nonlinear_equation-display-help", false);
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            break;
+        }
+    }
+}
