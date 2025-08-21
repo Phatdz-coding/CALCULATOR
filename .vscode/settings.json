@@ -20,7 +20,8 @@
         "global_var.h": "c",
         "input_box.h": "c",
         "compile": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "gsl_integration.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
