@@ -51,6 +51,7 @@ int input_int();
 long long int input_longlongint();
 void setWindowSize(SHORT width, SHORT height);
 void display_number(const double number);
+void display_number_with_max_3_dec_places(const double number);
 bool is_integer___(double x);
 void print_sub_script_number(const int number);
 void print_super_script_number(const int number);
@@ -584,7 +585,7 @@ void display_number(const double number)
     if (isfinite(number))
     {
         if (is_integer___(number))
-            printf("%d", (int)number);
+            printf("%.0lf", number);
 
         else if (is_integer___(10.0 * number))
             printf("%.1lf", number);
@@ -609,7 +610,7 @@ void display_number_with_max_3_dec_places(const double number)
     if (isfinite(number))
     {
         if (is_integer___(number))
-            printf("%d", (int)number);
+            printf("%.0lf", number);
 
         else if (is_integer___(10.0 * number))
             printf("%.1lf", number);
