@@ -20,7 +20,11 @@
         "global_var.h": "c",
         "input_box.h": "c",
         "compile": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "lexer_and_format.h": "c",
+        "array": "c",
+        "initializer_list": "c",
+        "utility": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

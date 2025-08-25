@@ -1,3 +1,4 @@
+#include <MY_LIB/lexer_and_format.h>
 #include <MY_LIB/global_var.h>
 #include <MY_LIB/inputsDisplays.h>
 #include <MY_LIB/my_calculator.h>

@@ -12,7 +12,7 @@
 #include <conio.h>
 #include <stdbool.h>
 #include <math.h>
-// #include <MY_LIB/my_calculator.h>
+#include <MY_LIB/lexer_and_format.h>
 
 #define MAX_STRING_INPUT_SIZE 2048
 
@@ -56,10 +56,50 @@ bool is_integer___(double x);
 void print_sub_script_number(const int number);
 void print_super_script_number(const int number);
 void free_buffer(char **buffer);
+void display_infix_exp(const __INFIX__ expression);
+void display_postfix_exp(_POSTFIX__ P_exp);
 
 // ============================================================================ //
 // ==========================FUNCTION DEFINITIONS============================== //
 // ============================================================================ //
+
+void display_postfix_exp(_POSTFIX__ P_exp)
+{
+    if (P_exp.size < 1 || P_exp.tokens == NULL)
+        return;
+
+    double num_;
+    char var_, op_;
+
+    for (short int i = 0; i < P_exp.size; i++)
+    {
+        num_ = P_exp.tokens[i].num;
+        var_ = P_exp.tokens[i].variable;
+        op_ = P_exp.tokens[i].operator;
+
+        if (!isnan(num_))
+            printf("Num: %.17lf\n", num_);
+        else if (var_ != '\0')
+            printf("Var: %c\n", var_);
+        else
+            printf("Op: %c\n", op_);
+    }
+}
+
+void display_infix_exp(const __INFIX__ expression)
+{
+    if (expression.tokens == NULL)
+        return;
+    for (int i = 0; i < expression.size; i++)
+    {
+        if (expression.tokens[i].variable != '\0')
+            printf("Var: %c\n", expression.tokens[i].variable);
+        if (expression.tokens[i].operator!= '\0')
+            printf("Op: %c\n", expression.tokens[i].operator);
+        if (!isnan(expression.tokens[i].num))
+            printf("Num: %.17lf\n", expression.tokens[i].num);
+    }
+}
 
 void free_buffer(char **buffer)
 {
@@ -584,18 +624,7 @@ void display_number(const double number)
 {
     if (isfinite(number))
     {
-        if (is_integer___(number))
-            printf("%.0lf", number);
-
-        else if (is_integer___(10.0 * number))
-            printf("%.1lf", number);
-
-        else if (is_integer___(100.0 * number))
-            printf("%.2lf", number);
-        else if (is_integer___(1000.0 * number))
-            printf("%.3lf", number);
-        else
-            printf("%.17lf", number);
+        printf("%.15g", number);
     }
     else if (isinf(number) && number < 0.0)
         printf("-∞");

@@ -13,67 +13,13 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <MY_LIB/inputsDisplays.h>
+#include <MY_LIB/lexer_and_format.h>
+#include <MY_LIB/extra_math_function.h>
 
 //=================================================================================================================//
 //                                                   MACROES                                                       //
 //=================================================================================================================//
 
-#define PI 3.14159265358979323846
-#define EULER_NUMBER 2.718281828459045
-#define VARIABLE -INFINITY
-#define _EMPTY_ INFINITY
-#define SQRT_2 1.41421356237309504880
-#define SQRT_2_2 0.707106781186547524
-#define SQRT_3 1.73205080756887729353
-#define LN_2 0.69314718055994530942
-#define _G_ 9.80665
-#define _C_ 299792458
-#define _MAX_INT_VALUE_ 2147483647
-// Function specifiers
-// --- 1-parameter function --- //
-#define SPECIFIER_OF_SIN 's'
-#define SPECIFIER_OF_SINH 'n'
-#define SPECIFIER_OF_ARCSIN 'Q'
-#define SPECIFIER_OF_ARCSINH 'N'
-#define SPECIFIER_OF_COS '<'
-#define SPECIFIER_OF_COSH 'm'
-#define SPECIFIER_OF_ARCCOS 'W'
-#define SPECIFIER_OF_ARCCOSH 'M'
-#define SPECIFIER_OF_TAN 't'
-#define SPECIFIER_OF_TANH 'p'
-#define SPECIFIER_OF_ARCTAN 'U'
-#define SPECIFIER_OF_ARCTANH 'P'
-#define SPECIFIER_OF_COT 'T'
-#define SPECIFIER_OF_COTH 'j'
-#define SPECIFIER_OF_ARCCOT 'O'
-#define SPECIFIER_OF_ARCCOTH 'J'
-#define SPECIFIER_OF_SEC 'S'
-#define SPECIFIER_OF_SECH 'g'
-#define SPECIFIER_OF_ARCSEC 'a'
-#define SPECIFIER_OF_ARCSECH 'A'
-#define SPECIFIER_OF_CSC '>'
-#define SPECIFIER_OF_CSCH 'v'
-#define SPECIFIER_OF_ARCCSC 'b'
-#define SPECIFIER_OF_ARCCSCH 'B'
-#define SPECIFIER_OF_SQRT 'r'
-#define SPECIFIER_OF_CBRT 'R'
-#define SPECIFIER_OF_ABS 'V'
-#define SPECIFIER_OF_LN 'L'
-#define SPECIFIER_OF_LG 'l'
-#define SPECIFIER_OF_GAMMA 'G'
-#define SPECIFIER_OF_CEIL 'C'
-#define SPECIFIER_OF_FLOOR 'F'
-#define SPECIFIER_OF_LAMBERTW 'w'
-// --- many-parameters functions --- //
-#define SPECIFIER_OF_DIF 'd' // derivative
-#define SPECIFIER_OF_INTEGRAL 'I'
-#define SPECIFIER_OF_SIGMA_SUM 'k'
-#define SPECIFIER_OF_PRODUCT_OF_SEQUENCE 'K'
-#define SPECIFIER_OF_PERMUTATIONS 'z' // probalbilstic
-#define SPECIFIER_OF_COMBINATIONS 'Z' // probalbilstic
-#define SPECIFIER_OF_GCD 'y'          // Greatest Common Divisor
-#define SPECIFIER_OF_LCM 'Y'          // Least Common Multiplier
-#define SPECIFIER_OF_LOG 'x'          // Logarithm
 typedef enum
 {
     d,
@@ -85,45 +31,15 @@ typedef enum
     llu
 } NumType;
 
-typedef struct
-{
-    double num;
-    char operator;
-} _postfix_;
-
-typedef struct P_tokens_data
-{
-    double num;
-    char operator;
-    char variable;
-} _TOKENS_DATA_;
-
-typedef struct P_tokens_array
-{
-    _TOKENS_DATA_ *tokens;
-    int size;
-} _POSTFIX__;
-
-typedef struct tokens_data
-{
-    double num;
-    char operator;
-    char variable;
-} _infix_;
-
-typedef struct tokens_array
-{
-    int size;
-    _infix_ *tokens;
-} __INFIX__;
-
 //=================================================================================================================//
 //                                            FUNCTIONS DECLARATION                                                //
 //=================================================================================================================//
 
 int count_digit_of(const int integer);
+
 int Sovle_Quadratic_Equation(double a, double b, double c, double *x1, double *x2);
 int Sovle_Cubic_Polinomial_Equation(double a, double b, double c, double d, double *x1, double *x2, double *x3);
+
 double P_Circle(double radius);
 double S_Circle(double radius);
 double S_Surface_Sphere(double radius);
@@ -131,112 +47,76 @@ double V_Sphere(double radius);
 double S_Triangle_3_sides(double a, double b, double c);
 double S_Triangle_height_base(double height, double base);
 double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
-int fibonacci(int n);
+
 int estimate_upper_bound(int n);
-bool prime_checker(const int number);
-int generate_nth_prime(int n);
-int gcd(int a, int b);
-int lcm(int a, int b);
-int hcf(int a, int b);
-unsigned long long factorial(int n);
-double gamma_function(double n);
+
 int *find_prime_factors(int n, int *num_of_fac);
-double sum(double start, double end, double step);
+
 int random_in_range(int a, int b);
+
 char *convert_int_base10_to_base2_string(int number);
 char *convert_int_base10_to_base8_string(int number);
 char *convert_int_base10_to_base16_string(int number);
 int convert_int_base16_to_base10(char *hex);
 int convert_binary_to_decimal(const char *binary);
 int convert_octal_to_decimal(const char *octal);
+
 char *num_to_string(void *num, NumType type);
+
 int *separate_digits(int num_to_seperate);
+
 int precedent_of(char op);
-void _increase_(int *token, char op);
+
 void Least_Operator(char *expression, char *L_O, int *pos_of_op);
-double evaluate(char *expression);
-char _operator__(char *expression, int token);
-double lambertw_real(double z);
-int strlen_of_(char *string);
+
 double limit_left(char *function, const char _varriable_, const double _x_);
 double limit_right(char *function, const char _varriable_, const double _x_);
 double limit(char *function, const char _varriable_, const double _x_);
-void re_format(char **expression);
-double coth(double x);
-double arccoth(double x);
-double arcsec(double x);
-double arcsech(double x);
-double csch(double x);
-double arccsc(double x);
-double arccsch(double x);
-void brackets_check(char **function);
-double integral_definite(char *function, const char, const double lower_bound, const double upper_bound);
-// double *solve(char *equation, const double, const double);
+
 void sort_int_array(int *arr, int size);
+void sort_double_array(double *arr, int size);
+
 int compare_ints(const void *a, const void *b);
 int compare_doubles(const void *a, const void *b);
-void sort_double_array(double *arr, int size);
-// double average_slope(_postfix_ *P_function, const int output_index, const double a, const double b);
-// void bisection_v2();
-bool is_integer(double x);
-double Compute_P_expression(const _POSTFIX__ P_expression);
+
 _POSTFIX__ Parse(char *expression);
+_POSTFIX__ submodule_Parse(__INFIX__ specified_expression);
+
+double Compute_P_expression(const _POSTFIX__ P_expression);
 double Compute_P_function(_POSTFIX__ function, char *_variables_, ...);
 double evaluate_function(char *_function_, const char *_variables_, ...);
-__INFIX__ convert_string_to_INFIX(char *expression);
-_POSTFIX__ submodule_Parse(__INFIX__ specified_expression);
-__INFIX__ differentiate_I_exp(__INFIX__, const char);
-void display_infix_exp(const __INFIX__ expression);
+double evaluate(char *expression);
+double evaluate_I_exp(__INFIX__ I_exp);
+
 void check_for_valid_braket(__INFIX__ *copyof_input);
+
 void add_many_tokens(__INFIX__ *destination, const __INFIX__ source);
 void add_single_token(__INFIX__ *destination, const double num, const char variable, const char operator);
+
+__INFIX__ differentiate_I_exp(__INFIX__, const char);
 void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos);
-double evaluate_I_exp(__INFIX__ I_exp);
+
 void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replacement, const int index_start, const int index_end);
+
 void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int index_start, const short int index_end);
-bool handle_special_functions_(__INFIX__ *I_exp);
-double integral_definite_infix(__INFIX__ infix_function, const char var, const double lower_bound, const double upper_bound);
-void display_postfix_exp(_POSTFIX__);
-void optimize_P_exp(_POSTFIX__ *);
-void optimize_I_exp(__INFIX__ *I_exp);
-double permutations(int, int);
-double combinations(int, int);
-double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
-double product_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
-double logarithm(const double base, const double expression);
-void merge_2_num(__INFIX__ *I_exp, const short int index);
-void merge_num_and_bracket(__INFIX__ *I_exp, const short int index);
-void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index);
-void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first);
-bool merge_unused_bracket(__INFIX__ *I_exp, const short int index);
-void merge_pow_of_one(__INFIX__ *I_exp, const short int index);
-void merge_pow_of_zero(__INFIX__ *I_exp, const short int index);
-void reformat_I_exp(__INFIX__ *I_exp);
-bool is_zero(const double);
 __INFIX__ copy_infix_expression(const __INFIX__ source);
 _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source);
-double random_in_range_double(const double a, const double b);
+
+bool handle_special_functions_(__INFIX__ *I_exp);
+
+double integral_definite(char *function, const char, const double lower_bound, const double upper_bound);
+double integral_definite_infix(__INFIX__ infix_function, const char var, const double lower_bound, const double upper_bound);
 double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var, double a, double b);
+
+double sum(double start, double end, double step);
+double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
+double product_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
+
+double random_in_range_double(const double a, const double b);
 
 //=================================================================================================================//
 //                                            FUNCTIONS DEFINITION                                                //
 //=================================================================================================================//
-
-bool is_zero(const double x)
-{
-    if (fabs(x) <= __DBL_EPSILON__)
-        return true;
-    return false;
-}
-
-// Checks if a double value is an integer.
-bool is_integer(double x)
-{
-    // NaN and infinity are not integers
-    if (!isfinite(x))
-        return false;
-    return floor(x) == x;
-}
 
 // Comparison function for qsort (increasing order for doubles)
 int compare_doubles(const void *a, const void *b)
@@ -258,16 +138,6 @@ int compare_doubles(const void *a, const void *b)
 void sort_double_array(double *arr, int size)
 {
     qsort(arr, size, sizeof(double), compare_doubles);
-}
-
-int strlen_of_(char *string)
-{
-    int _strlen_ = 0;
-    while (string[_strlen_] != '\0')
-    {
-        _strlen_++;
-    }
-    return _strlen_;
 }
 
 /*
@@ -408,142 +278,12 @@ double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3,
     return 0.5 * fabs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1));
 }
 
-// generate the nth fibonachi number
-int fibonacci(int n)
-{
-    if (n <= 0)
-    {
-        return 0;
-    }
-    else if (n == 1)
-    {
-        return 1;
-    }
-
-    int a = 0, b = 1, fib = 0;
-    for (int i = 2; i <= n; i++)
-    {
-        fib = a + b;
-        a = b;
-        b = fib;
-    }
-    return fib;
-}
-
 // Function to estimate the upper bound for the nth prime
 int estimate_upper_bound(int n)
 {
     if (n < 6)
         return 15;
     return (int)(n * (log(n) + log(log(n))));
-}
-
-// Function to check if a number is a prime
-bool prime_checker(const int number)
-{
-    if (number < 2)
-        return false;
-    for (int i = 2; i * i <= number; i++)
-        if (number % i == 0)
-            return false;
-    return true;
-}
-
-// Function to generate the nth prime number | Fast prime generator
-int generate_nth_prime(int n)
-{
-    if (n < 1)
-        return -1; // Invalid input
-
-    int upper_bound = estimate_upper_bound(n);
-    bool *is_prime = (bool *)malloc((upper_bound + 1) * sizeof(bool));
-    for (int i = 0; i <= upper_bound; i++)
-    {
-        is_prime[i] = true;
-    }
-
-    is_prime[0] = is_prime[1] = false;
-    for (int p = 2; p * p <= upper_bound; p++)
-    {
-        if (is_prime[p])
-        {
-            for (int degreeltiple = p * p; degreeltiple <= upper_bound; degreeltiple += p)
-            {
-                is_prime[degreeltiple] = false;
-            }
-        }
-    }
-
-    int count = 0;
-    int nth_prime_number = -1;
-    for (int i = 2; i <= upper_bound; i++)
-    {
-        if (is_prime[i])
-        {
-            count++;
-            if (count == n)
-            {
-                nth_prime_number = i;
-                break;
-            }
-        }
-    }
-
-    free(is_prime);
-    return nth_prime_number;
-}
-
-// find the greatest common divisor of 2 integers
-int gcd(int a, int b)
-{
-    while (b != 0)
-    {
-        int temp = b;
-        b = a % b;
-        a = temp;
-    }
-    return a;
-}
-
-// find the least common degreeltiplier of 2 integers
-int lcm(int a, int b)
-{
-    if (a == 0 || b == 0)
-        return 0;
-    return abs(a * b) / gcd(a, b);
-}
-
-// find the highest common factor of 2 integers
-int hcf(int a, int b)
-{
-    return gcd(a, b);
-}
-
-/*
-  compute the factorial of an integer
-  the term unsigned long long is used to handle enormous numbers
-*/
-unsigned long long factorial(int n)
-{
-    if (n < 0)
-        return 0; // Factorial is not defined for negative numbers
-
-    unsigned long long result = 1;
-    for (int i = 2; i <= n; i++)
-    {
-        result *= i;
-    }
-    return result;
-}
-
-// Compute the factorial of a real number using the Gamma function
-double gamma_function(double n)
-{
-    if (n < 0)
-    {
-        return NAN; // Factorial is not defined for negative numbers
-    }
-    return tgamma(n + 1);
 }
 
 /*
@@ -936,141 +676,6 @@ int *separate_digits(int num_to_seperate)
     return digits_storage;
 }
 
-double lambertw_real(double z)
-{
-    // Check if z is in the domain of the real-valued Lambert W function
-    if (z < -1.0 / EULER_NUMBER)
-    {
-        return NAN; // Or handle the error as appropriate for your application
-    }
-
-    // Initial guess:  A simple approximation.  Can be improved.
-    double w = 0.0;
-    if (z > 0)
-    {
-        w = log(z + 1); // crude approximation, good for positive z
-    }
-
-    // Newton-Raphson iteration
-    for (int i = 0; i < 100; ++i)
-    {
-        double ew = exp(w);
-        double f = w * ew - z;
-        double df = ew * (w + 1);
-
-        // Avoid division by zero o near-zero
-        if (fabs(df) < 1e-15)
-        {
-            return w; // or NAN, depending on desired behavior
-        }
-
-        double delta = f / df;
-        w -= delta;
-
-        if (fabs(delta) < 1e-15)
-        {
-            break; // Convergence
-        }
-    }
-
-    return w; // Return the approximate value
-}
-
-/**
- * Calculates the hyperbolic cotangent of x.
- * coth(x) = 1 / tanh(x)
- * Returns HUGE_VAL for x == 0 (division by zero).
- */
-double coth(double x)
-{
-    if (x == 0.0)
-    {
-        errno = EDOM; // Domain error
-        return HUGE_VAL;
-    }
-    return 1.0 / tanh(x);
-}
-
-/**
- * Calculates the inverse hyperbolic cotangent of x.
- * arccoth(x) = 0.5 * ln((x + 1) / (x - 1)), |x| > 1
- * Returns NAN for |x| <= 1 (undefined).
- */
-double arccoth(double x)
-{
-    if (fabs(x) <= 1.0)
-    {
-        errno = EDOM; // Domain error
-        return NAN;
-    }
-    return 0.5 * log((x + 1.0) / (x - 1.0));
-}
-
-double arcsec(double x)
-{
-    if (fabs(x) < 1.0)
-    {
-        errno = EDOM; // Domain error
-        return NAN;
-    }
-    return acos(1.0 / x);
-}
-
-double arcsech(double x)
-{
-    if (x <= 0.0 || x > 1.0)
-    {
-        errno = EDOM; // Domain error
-        return NAN;
-    }
-    return log((1.0 + sqrt(1.0 - x * x)) / x);
-}
-
-/**
- * Calculates the hyperbolic cosecant of x.
- * csch(x) = 1 / sinh(x)
- * Returns HUGE_VAL for x == 0 (division by zero).
- */
-double csch(double x)
-{
-    if (x == 0.0)
-    {
-        errno = EDOM; // Domain error
-        return HUGE_VAL;
-    }
-    return 1.0 / sinh(x);
-}
-
-/**
- * Calculates the inverse cosecant of x.
- * arccsc(x) = arcsin(1/x), |x| >= 1
- * Returns NAN for |x| < 1 (undefined).
- */
-double arccsc(double x)
-{
-    if (fabs(x) < 1.0)
-    {
-        errno = EDOM; // Domain error
-        return NAN;
-    }
-    return asin(1.0 / x);
-}
-
-/**
- * Calculates the inverse hyperbolic cosecant of x.
- * arccsch(x) = ln(1/x + sqrt(1/x^2 + 1)), x != 0
- * Returns NAN for x == 0 (undefined).
- */
-double arccsch(double x)
-{
-    if (x == 0.0)
-    {
-        errno = EDOM; // Domain error
-        return NAN;
-    }
-    return log(1.0 / x + sqrt(1.0 / (x * x) + 1.0));
-}
-
 // Comparison function for qsort (increasing order)
 int compare_ints(const void *a, const void *b)
 {
@@ -1139,196 +744,6 @@ int precedent_of(char op)
     default:
         return 0;
     }
-}
-
-void _increase_(int *token, char op)
-{
-    switch (op)
-    {
-    case SPECIFIER_OF_LN:
-    case SPECIFIER_OF_LG:
-    case '%':
-        (*token) += 1;
-        return;
-
-    case SPECIFIER_OF_SIN:
-    case SPECIFIER_OF_SEC:
-    case SPECIFIER_OF_COS:
-    case SPECIFIER_OF_CSC:
-    case SPECIFIER_OF_TAN:
-    case SPECIFIER_OF_COT:
-    case SPECIFIER_OF_ABS:
-    case SPECIFIER_OF_DIF:
-    case SPECIFIER_OF_GCD:
-    case SPECIFIER_OF_LCM:
-    case SPECIFIER_OF_LOG:
-        (*token) += 2;
-        return;
-
-    case SPECIFIER_OF_SQRT:
-    case SPECIFIER_OF_CBRT:
-    case SPECIFIER_OF_CEIL:
-    case SPECIFIER_OF_SINH:
-    case SPECIFIER_OF_COSH:
-    case SPECIFIER_OF_TANH:
-    case SPECIFIER_OF_COTH:
-    case SPECIFIER_OF_SECH:
-    case SPECIFIER_OF_CSCH:
-        (*token) += 3;
-        return;
-
-    case SPECIFIER_OF_FLOOR:
-    case SPECIFIER_OF_GAMMA:
-        (*token) += 4;
-        return;
-
-    case SPECIFIER_OF_ARCSIN:
-    case SPECIFIER_OF_ARCCOS:
-    case SPECIFIER_OF_ARCTAN:
-    case SPECIFIER_OF_ARCCOT:
-    case SPECIFIER_OF_ARCSEC:
-    case SPECIFIER_OF_ARCCSC:
-        (*token) += 5;
-        return;
-
-    case SPECIFIER_OF_ARCSINH:
-    case SPECIFIER_OF_ARCCOSH:
-    case SPECIFIER_OF_ARCTANH:
-    case SPECIFIER_OF_ARCCOTH:
-    case SPECIFIER_OF_ARCSECH:
-    case SPECIFIER_OF_ARCCSCH:
-        (*token) += 6;
-        return;
-
-    case SPECIFIER_OF_LAMBERTW:
-    case SPECIFIER_OF_INTEGRAL:
-        (*token) += 7;
-        return;
-    case SPECIFIER_OF_SIGMA_SUM:
-        (*token) += 10;
-        return;
-    case SPECIFIER_OF_PERMUTATIONS:
-    case SPECIFIER_OF_COMBINATIONS:
-        (*token) += 11;
-        return;
-    case SPECIFIER_OF_PRODUCT_OF_SEQUENCE:
-        (*token) += 14;
-        return;
-    default:
-        return;
-    }
-}
-
-// Convert operators & functions to specifiers
-char _operator__(char *expression, int token)
-{
-    if (expression[token] == '+')
-        return '+';
-    if (expression[token] == '-')
-        return '-';
-    if (expression[token] == '/')
-        return '/';
-    if (expression[token] == '*')
-        return '*';
-    if (expression[token] == '(')
-        return '(';
-    if (expression[token] == ')')
-        return ')';
-    if (expression[token] == '^')
-        return '^';
-    if (expression[token] == '%' && expression[token + 1] == '%')
-        return '%';
-    if (expression[token] == '!')
-        return '!';
-    if (expression[token] == ',')
-        return ',';
-    if (expression[token] == '=')
-        return '=';
-    if (!strncmp(expression + token, "sin(", 4))
-        return SPECIFIER_OF_SIN;
-    if (!strncmp(expression + token, "cos(", 4))
-        return SPECIFIER_OF_COS;
-    if (!strncmp(expression + token, "tan(", 4))
-        return SPECIFIER_OF_TAN;
-    if (!strncmp(expression + token, "cot(", 4))
-        return SPECIFIER_OF_COT;
-    if (!strncmp(expression + token, "sec(", 4))
-        return SPECIFIER_OF_SEC;
-    if (!strncmp(expression + token, "sech(", 5))
-        return SPECIFIER_OF_SECH;
-    if (!strncmp(expression + token, "arcsec(", 7))
-        return SPECIFIER_OF_ARCSEC;
-    if (!strncmp(expression + token, "arcsech(", 8))
-        return SPECIFIER_OF_ARCSECH;
-    if (!strncmp(expression + token, "csc(", 4))
-        return SPECIFIER_OF_CSC;
-    if (!strncmp(expression + token, "csch(", 5))
-        return SPECIFIER_OF_CSCH;
-    if (!strncmp(expression + token, "arccsc(", 7))
-        return SPECIFIER_OF_ARCCSC;
-    if (!strncmp(expression + token, "arccsch(", 8))
-        return SPECIFIER_OF_ARCCSCH;
-    if (!strncmp(expression + token, "arcsin(", 7))
-        return SPECIFIER_OF_ARCSIN;
-    if (!strncmp(expression + token, "arccos(", 7))
-        return SPECIFIER_OF_ARCCOS;
-    if (!strncmp(expression + token, "arctan(", 7))
-        return SPECIFIER_OF_ARCTAN;
-    if (!strncmp(expression + token, "arccot(", 7))
-        return SPECIFIER_OF_ARCCOT;
-    if (!strncmp(expression + token, "sqrt(", 5))
-        return SPECIFIER_OF_SQRT;
-    if (!strncmp(expression + token, "ln(", 3))
-        return SPECIFIER_OF_LN;
-    if (!strncmp(expression + token, "abs(", 4))
-        return SPECIFIER_OF_ABS;
-    if (!strncmp(expression + token, "cbrt(", 5))
-        return SPECIFIER_OF_CBRT;
-    if (!strncmp(expression + token, "gamma(", 6))
-        return SPECIFIER_OF_GAMMA;
-    if (!strncmp(expression + token, "ceil(", 5))
-        return SPECIFIER_OF_CEIL;
-    if (!strncmp(expression + token, "floor(", 6))
-        return SPECIFIER_OF_FLOOR;
-    if (!strncmp(expression + token, "lambertw(", 9))
-        return SPECIFIER_OF_LAMBERTW;
-    if (!strncmp(expression + token, "lg(", 3))
-        return SPECIFIER_OF_LG;
-    if (!strncmp(expression + token, "log(", 4))
-        return SPECIFIER_OF_LOG;
-    if (!strncmp(expression + token, "sinh(", 5))
-        return SPECIFIER_OF_SINH;
-    if (!strncmp(expression + token, "arcsinh(", 8))
-        return SPECIFIER_OF_ARCSINH;
-    if (!strncmp(expression + token, "cosh(", 5))
-        return SPECIFIER_OF_COSH;
-    if (!strncmp(expression + token, "arccosh(", 8))
-        return SPECIFIER_OF_ARCCOSH;
-    if (!strncmp(expression + token, "tanh(", 5))
-        return SPECIFIER_OF_TANH;
-    if (!strncmp(expression + token, "arctanh(", 8))
-        return SPECIFIER_OF_ARCTANH;
-    if (!strncmp(expression + token, "coth(", 5))
-        return SPECIFIER_OF_COTH;
-    if (!strncmp(expression + token, "arccoth(", 8))
-        return SPECIFIER_OF_ARCCOTH;
-    if (!strncmp(expression + token, "dif(", 4))
-        return SPECIFIER_OF_DIF;
-    if (!strncmp(expression + token, "integral(", 9))
-        return SPECIFIER_OF_INTEGRAL;
-    if (!strncmp(expression + token, "sumsequence(", 12))
-        return SPECIFIER_OF_SIGMA_SUM;
-    if (!strncmp(expression + token, "productsequence(", 16))
-        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
-    if (!strncmp(expression + token, "permutations(", 13))
-        return SPECIFIER_OF_PERMUTATIONS;
-    if (!strncmp(expression + token, "combinations(", 13))
-        return SPECIFIER_OF_COMBINATIONS;
-    if (!strncmp(expression + token, "GCD(", 4))
-        return SPECIFIER_OF_GCD;
-    if (!strncmp(expression + token, "LCM(", 4))
-        return SPECIFIER_OF_LCM;
-    return '\0';
 }
 
 /*---Parsing Module 1---
@@ -1526,7 +941,7 @@ _POSTFIX__ Parse(char *expression)
     char _op_;
     for (int i = 0; i < len; i++)
     {
-        _op_ = _operator__(copy_expression, i);
+        _op_ = __operator__(copy_expression, i);
 
         // If it's a number or constant or variable
         if (_op_ == '\0')
@@ -2287,15 +1702,15 @@ void Least_Operator(char *expression, char *L_O, int *pos_of_op)
         {
             if (ope_stack[0]._op_ == '\0')
             {
-                ope_stack[ope_index]._op_ = _operator__(expression, token);
+                ope_stack[ope_index]._op_ = __operator__(expression, token);
                 _increase_(&token, ope_stack[ope_index]._op_);
                 ope_stack[ope_index++].pos = token;
                 // printf("%s\n", ope_stack->_op_);
                 break;
             }
-            else if (precedent_of(ope_stack[ope_index - 1]._op_) < precedent_of(_operator__(expression, token)) || expression[token] == '(')
+            else if (precedent_of(ope_stack[ope_index - 1]._op_) < precedent_of(__operator__(expression, token)) || expression[token] == '(')
             {
-                ope_stack[ope_index]._op_ = _operator__(expression, token);
+                ope_stack[ope_index]._op_ = __operator__(expression, token);
                 _increase_(&token, ope_stack[ope_index]._op_);
                 ope_stack[ope_index++].pos = token;
                 // printf("%s\n", ope_stack->_op_);
@@ -2342,179 +1757,6 @@ void Least_Operator(char *expression, char *L_O, int *pos_of_op)
 
     free(ope_stack);
     free(output_queue);
-}
-
-void re_format(char **expression)
-{
-    if (expression == NULL || *expression == NULL)
-    {
-        fprintf(stderr, "Null pointer passed to re_format\n");
-        return;
-    }
-
-    // clear all blanks in the string
-    int len = strlen_of_((*expression));
-    {
-        int blank = 0;
-        for (int i = 0; i < len; i++)
-        {
-            if ((*expression)[i] == ' ')
-            {
-                for (int k = i; k < len - 1; k++)
-                {
-                    (*expression)[k] = (*expression)[k + 1];
-                }
-                --len;
-                --i; // Stay at the same index to check the new character at this position
-            }
-        }
-
-        (*expression) = (char *)realloc((*expression), (len + 1) * sizeof(char));
-        if ((*expression) == NULL)
-        {
-            perror("Clear blanks");
-            return;
-        }
-        (*expression)[len] = '\0';
-    }
-
-    // subtraction errors handling
-    {
-        // Defensive: check for non-empty string before accessing [0]
-        if (len > 0 && (*expression)[0] == '-')
-        {
-            (*expression) = (char *)realloc((*expression), (len + 2) * sizeof(char));
-            if ((*expression) == NULL)
-            {
-                perror("Subtraction errors handling 1");
-                return;
-            }
-
-            for (int k = len; k >= 1; k--)
-                (*expression)[k] = (*expression)[k - 1];
-            (*expression)[0] = '0';
-            len++;
-            (*expression)[len] = '\0';
-        }
-
-        // if the '-' stays next to '('   E.g:  2^(-3.5)
-        for (int i = 1; i < len; i++) // start from 1 to avoid out-of-bounds
-        {
-            if ((*expression)[i] == '-' && (*expression)[i - 1] == '(')
-            {
-                (*expression) = (char *)realloc((*expression), (len + 2) * sizeof(char));
-                if ((*expression) == NULL)
-                {
-                    perror("Subtraction errors handling 2");
-                    return;
-                }
-                for (int k = len; k >= i + 1; k--)
-                    (*expression)[k] = (*expression)[k - 1];
-                (*expression)[i] = '0';
-                len++;
-                (*expression)[len] = '\0';
-            }
-        }
-    }
-
-    // multiplication errors handling
-    {
-        for (int i = 0; i < len; i++)
-        {
-            if ((*expression)[i] == 'x')
-            {
-                // Left-side of x
-                if (i > 0 &&
-                    (*expression)[i - 1] != '=' &&
-                    (*expression)[i - 1] != '-' &&
-                    (*expression)[i - 1] != '+' &&
-                    (*expression)[i - 1] != '/' &&
-                    (*expression)[i - 1] != '*' &&
-                    (*expression)[i - 1] != '^' &&
-                    (*expression)[i - 1] != '(')
-                {
-                    ++len;
-                    (*expression) = (char *)realloc((*expression), (len + 1) * sizeof(char));
-                    if ((*expression) == NULL)
-                    {
-                        perror("Multiply case 2");
-                        return;
-                    }
-                    (*expression)[len] = '\0';
-                    for (int k = len - 1; k > i; k--)
-                        (*expression)[k] = (*expression)[k - 1];
-                    (*expression)[i] = '*';
-                    // ++i;
-                }
-                // Right-side of x
-                else if (i < len - 1 &&
-                         (*expression)[i + 1] != ')' &&
-                         (*expression)[i + 1] != '-' &&
-                         (*expression)[i + 1] != '+' &&
-                         (*expression)[i + 1] != '*' &&
-                         (*expression)[i + 1] != '/' &&
-                         (*expression)[i + 1] != '^' &&
-                         (*expression)[i + 1] != '=')
-                {
-                    ++i;
-                    ++len;
-                    (*expression) = (char *)realloc((*expression), (len + 1) * sizeof(char));
-                    if ((*expression) == NULL)
-                    {
-                        perror("Multiply case 2");
-                        return;
-                    }
-                    (*expression)[len] = '\0';
-                    for (int k = len - 1; k > i; k--)
-                        (*expression)[k] = (*expression)[k - 1];
-                    (*expression)[i] = '*';
-                }
-            }
-        }
-    }
-}
-
-void brackets_check(char **function)
-{
-    int len = strlen(*function);
-
-    int open = 0;
-    int close = 0;
-    for (int i = 0; i < len; i++)
-    {
-        if ((*function)[i] == '(')
-            open++;
-        if ((*function)[i] == ')')
-            close++;
-    }
-
-    if (open > close)
-    {
-        int leftover = open - close;
-        for (int i = 0; i < len; i++)
-            (*function)[i] = (*function)[i + leftover];
-        len -= leftover;
-        (*function) = (char *)realloc((*function), (len + 1) * sizeof(char));
-        if ((*function) == NULL)
-        {
-            perror("Open > Close");
-            return;
-        }
-        (*function)[len] = '\0';
-        return;
-    }
-    if (open < close)
-    {
-        len -= close - open;
-        (*function) = (char *)realloc((*function), (len + 1) * sizeof(char));
-        if ((*function) == NULL)
-        {
-            perror("Close > Open");
-            return;
-        }
-        (*function)[len] = '\0';
-        return;
-    }
 }
 
 //==========================================================//
@@ -3626,536 +2868,6 @@ double evaluate_function(char *_function_, const char *_variables_, ...)
     return result;
 }
 
-/* To add new functions:
-1/ add to macro
-2/ add to _operator_
-3/ add to _increase
- */
-__INFIX__ convert_string_to_INFIX(char *expression)
-{
-    __INFIX__ specified_exp;
-    specified_exp.size = 0;
-    specified_exp.tokens = NULL;
-
-    if (expression == NULL || strlen(expression) < 1)
-        return specified_exp;
-
-    /* --------------------Pre-processing--------------------
-    1/ Make a copy of original expression
-    2/ Errors format handling
-    3/ Clear blanks in expression
-    4/ Allocate memories
-    5/ Specify expression
-    6/ Re-format infix expression
-    */
-
-    // 1. Create a copy
-    int len = strlen(expression);
-    char *copy_expression = (char *)calloc(len + 1, sizeof(char));
-    if (copy_expression == NULL)
-    {
-        perror("Failed to make a copy of expression");
-        return specified_exp;
-    }
-    for (int i = 0; i < len; i++)
-        copy_expression[i] = expression[i];
-
-    // 2. Clear blanks
-    {
-        for (int i = 0; i < len; i++)
-        {
-            if (copy_expression[i] == ' ')
-            {
-                for (int k = i; k < len - 1; k++)
-                {
-                    copy_expression[k] = copy_expression[k + 1];
-                }
-                --len;
-                --i; // Stay at the same index to check the new character at this position
-            }
-        }
-
-        char *temp = (char *)realloc(copy_expression, (len + 1) * sizeof(char));
-        if (temp == NULL)
-        {
-            perror("Clear blanks");
-            free(copy_expression);
-            return specified_exp;
-        }
-        copy_expression = temp;
-        copy_expression[len] = '\0';
-    }
-
-    // 3. Errors subtraction, addition, floating point number & parenthesis handling
-    {
-        // Defensive: check for non-empty string before accessing [0]
-        if (len > 0 && (copy_expression[0] == '-' || copy_expression[0] == '+'))
-        {
-            char *temp = (char *)realloc(copy_expression, (len + 2) * sizeof(char));
-            if (temp == NULL)
-            {
-                perror("Subtraction errors handling 1");
-                free(copy_expression);
-                return specified_exp;
-            }
-            copy_expression = temp;
-
-            for (int k = len; k >= 1; k--)
-                copy_expression[k] = copy_expression[k - 1];
-            copy_expression[0] = '0';
-            len++;
-            copy_expression[len] = '\0';
-        }
-
-        // if the '-' OR '+' stays next to '('   E.g:  2^(-3.5) || ,- || =,
-        for (int i = 1; i < len; i++) // start from 1 to avoid out-of-bounds
-        {
-            if ((copy_expression[i] == '-' || copy_expression[i] == '+') && (copy_expression[i - 1] == '(' || copy_expression[i - 1] == '=' || copy_expression[i - 1] == ','))
-            {
-                char *temp = (char *)realloc(copy_expression, (len + 2) * sizeof(char));
-                if (temp == NULL)
-                {
-                    perror("Subtraction errors handling 2");
-                    free(copy_expression);
-                    return specified_exp;
-                }
-                copy_expression = temp;
-
-                for (int k = len; k >= i + 1; k--)
-                    copy_expression[k] = copy_expression[k - 1];
-                copy_expression[i] = '0';
-                len++;
-                copy_expression[len] = '\0';
-            }
-        }
-
-        // Special cases of floating point number: .5  or .093
-        for (int i = 0; i < len; i++)
-        {
-            if (i < len - 1 && !isdigit(copy_expression[i + 1]) && copy_expression[i] == '.')
-            {
-                free(copy_expression);
-                return specified_exp;
-            }
-
-            else if (copy_expression[i] == '.' && (i == 0 || !isdigit(copy_expression[i - 1])) && copy_expression[i - 1] != 't')
-            {
-                len++;
-                char *temp = (char *)realloc(copy_expression, (len + 1) * sizeof(char));
-                if (temp == NULL)
-                {
-                    perror("Floating point number failed");
-                    free(copy_expression);
-                    return specified_exp;
-                }
-                copy_expression = temp;
-                copy_expression[len] = '\0';
-
-                for (int k = len - 1; k > i; k--)
-                    copy_expression[k] = copy_expression[k - 1];
-
-                copy_expression[i] = '0';
-                i++;
-            }
-        }
-
-        // Special cases of parenthesis
-        int open = 0, close = 0;
-        for (int i = 0; i < len; i++)
-        {
-            if (copy_expression[i] == '(')
-                open++;
-            else if (copy_expression[i] == ')')
-                close++;
-        }
-
-        if (close < open)
-        {
-            len += open - close;
-            char *temp = (char *)realloc(copy_expression, (len + 1) * sizeof(char));
-            if (temp == NULL)
-            {
-                perror("Failed to handle parenthesis");
-                free(copy_expression);
-                return specified_exp;
-            }
-            copy_expression = temp;
-
-            copy_expression[len] = '\0';
-            for (int i = 0; i < open - close; i++)
-                copy_expression[len - 1 - i] = ')';
-        }
-        else if (open < close)
-        {
-            free(copy_expression);
-            return specified_exp;
-        }
-    }
-
-    // Test
-    // printf("Re-format: %s | Len = %d\n", copy_expression, len);
-
-    // 4. Allocate memories
-
-    _infix_ *infix_exp = (_infix_ *)malloc(len * sizeof(_infix_));
-    if (infix_exp == NULL)
-    {
-        perror("Failed to allocate infix copy_expression");
-        free(copy_expression);
-        return specified_exp;
-    }
-    for (int i = 0; i < len; i++)
-    {
-        infix_exp[i].num = NAN;
-        infix_exp[i].operator= '\0';
-        infix_exp[i].variable = '\0';
-    }
-
-    // 5. Specify copy_expression -- Lexer
-    int infix_len = 0;
-    char _op_;
-    for (int i = 0; i < len; i++)
-    {
-        _op_ = _operator__(copy_expression, i);
-
-        // If it's a number or constant or variable
-        if (_op_ == '\0')
-        {
-            // --Number--
-            if (isdigit(copy_expression[i]))
-            {
-                char *str_num = (char *)calloc(26, sizeof(char)); // Max num len = 26
-                if (str_num == NULL)
-                {
-                    perror("Failed to allocate str_num");
-                    free(copy_expression);
-                    free(infix_exp);
-                    return specified_exp;
-                }
-
-                int j = 0;
-                // separate to another array
-                while ((isdigit(copy_expression[i]) || copy_expression[i] == '.') && j < 26)
-                    str_num[j++] = copy_expression[i++];
-
-                // convert to double and store
-                (infix_exp[infix_len++]).num = atof(str_num);
-
-                // reset str_num
-                free(str_num);
-
-                --i;
-                continue;
-            }
-
-            //--Place down constants--
-            else if (copy_expression[i] == 'e')
-            {
-                infix_exp[infix_len++].num = EULER_NUMBER;
-                continue;
-            }
-
-            else if (copy_expression[i] == 'p' && copy_expression[i + 1] == 'i')
-            {
-                infix_exp[infix_len++].num = PI;
-                i++;
-                continue;
-            }
-
-            else if (!strncmp(copy_expression + i, "sqrt2", 5))
-            {
-                infix_exp[infix_len++].num = SQRT_2;
-                i += 4;
-                continue;
-            }
-
-            else if (!strncmp(copy_expression + i, "sqrt.5", 6))
-            {
-                infix_exp[infix_len++].num = SQRT_2_2;
-                i += 5;
-                continue;
-            }
-
-            else if (!strncmp(copy_expression + i, "sqrt3", 5))
-            {
-                infix_exp[infix_len++].num = SQRT_3;
-                i += 4;
-                continue;
-            }
-
-            else if (copy_expression[i] == 'g' && copy_expression[i + 1] != 'a')
-            {
-                infix_exp[infix_len++].num = _G_;
-                continue;
-            }
-
-            else if (copy_expression[i] == 'l' && copy_expression[i + 1] == 'n' && copy_expression[i + 2] == '2')
-            {
-                infix_exp[infix_len++].num = LN_2;
-                i += 2;
-                continue;
-            }
-
-            else if (copy_expression[i] == 'c' && copy_expression[i - 1] != 'e' && copy_expression[i - 1] != 's' && copy_expression[i + 1] != 'o' && copy_expression[i + 1] != 's')
-            {
-                infix_exp[infix_len++].num = _C_;
-                continue;
-            }
-
-            // special: percentage
-            else if (copy_expression[i] == '%' && copy_expression[i + 1] != '%' && copy_expression[i - 1] != '%')
-            {
-                infix_exp[infix_len++].num = 1.0 / 100.0;
-                continue;
-            }
-
-            //-Replace variable with specifier-
-            else
-            {
-                infix_exp[infix_len++].variable = copy_expression[i];
-                continue;
-            }
-        }
-
-        // If it's an operator or available function
-        else
-        {
-            infix_exp[infix_len++].operator= _op_;
-            _increase_(&i, _op_);
-        }
-    }
-
-    // Re-size infix_exp
-    _infix_ *temp_ = (_infix_ *)realloc(infix_exp, infix_len * sizeof(_infix_));
-    if (temp_ == NULL)
-    {
-        perror("Failed to shrink infix_exp");
-        free(infix_exp);
-        free(copy_expression);
-        return specified_exp;
-    }
-    infix_exp = temp_;
-
-    free(copy_expression);
-
-    // Test infix
-    /* printf("RAW INFIX EXPRESSION:\n\n");
-    for (int i = 0; i < infix_len; i++)
-    {
-        if (!isnan(infix_exp[i].num))
-            printf("NUM = %.9lf", infix_exp[i].num);
-        if (infix_exp[i].operator != '\0')
-            printf("OP = %c", infix_exp[i].operator);
-        if (infix_exp[i].variable != '\0')
-            printf("VAR = %c", infix_exp[i].variable);
-        printf("\n");
-    }
-    printf("Token len = %d\n", infix_len); */
-
-    // 6. Re-format infix_exp to handle errors and missing tokens
-
-    // Left-side of tokens
-    {
-        for (int i = 1; i < infix_len; i++)
-        {
-            // Num or var
-            if ((!isnan(infix_exp[i].num) || infix_exp[i].variable != '\0') &&
-                (!isnan(infix_exp[i - 1].num)         //!= NAN
-                 || infix_exp[i - 1].variable != '\0' // ís variable
-                 || infix_exp[i - 1].operator== ')' || infix_exp[i - 1].operator== '!'))
-            {
-                infix_len++;
-                _infix_ *temp__ = (_infix_ *)realloc(infix_exp, infix_len * sizeof(_infix_));
-                if (temp__ == NULL)
-                {
-                    perror("Failed to realloc infix_exp");
-                    free(infix_exp);
-                    return specified_exp;
-                }
-                infix_exp = temp__;
-
-                for (int k = infix_len - 1; k > i; k--)
-                {
-                    infix_exp[k].num = infix_exp[k - 1].num;
-                    infix_exp[k].variable = infix_exp[k - 1].variable;
-                    infix_exp[k].operator= infix_exp[k - 1].operator;
-                }
-                infix_exp[i].num = NAN;
-                infix_exp[i].variable = '\0';
-                infix_exp[i].operator= '*';
-            }
-
-            // Special cases of operator
-            else if ((infix_exp[i].operator== '+' ||
-                      infix_exp[i]
-                          .operator== '-' ||
-                      infix_exp[i]
-                          .operator== '*' ||
-                      infix_exp[i]
-                          .operator== '/' ||
-                      infix_exp[i]
-                          .operator== '^' ||
-                      infix_exp[i]
-                          .operator== '%' ||
-                      infix_exp[i]
-                          .operator== '!') &&
-                     (infix_exp[i - 1].operator!= '\0' && infix_exp[i - 1].operator!= '!') &&
-                     infix_exp[i - 1]
-                         .operator!= ')')
-            {
-                free(infix_exp);
-                return specified_exp;
-            }
-        }
-
-        // Right-side of tokens
-        for (int i = 0; i < infix_len - 1; i++)
-        {
-            // Num or var
-            if ((!isnan(infix_exp[i].num) || infix_exp[i].variable != '\0') &&
-                (infix_exp[i + 1].operator!= '+' &&
-                 infix_exp[i + 1]
-                     .operator!= '-' &&
-                 infix_exp[i + 1]
-                     .operator!= '*' &&
-                 infix_exp[i + 1]
-                     .operator!= '/' &&
-                 infix_exp[i + 1]
-                     .operator!= '^' &&
-                 infix_exp[i + 1]
-                     .operator!= '%' &&
-                 infix_exp[i + 1]
-                     .operator!= '!' &&
-                 infix_exp[i + 1]
-                     .operator!= ')' &&
-                 infix_exp[i + 1]
-                     .operator!= ',' &&
-                 infix_exp[i + 1]
-                     .operator!= '=' &&
-                 infix_exp[i + 1]
-                     .operator!= '\0'))
-            {
-                i++;
-                infix_len++;
-                _infix_ *temp__ = (_infix_ *)realloc(infix_exp, infix_len * sizeof(_infix_));
-                if (temp__ == NULL)
-                {
-                    perror("Failed to realloc infix_exp");
-                    free(infix_exp);
-                    return specified_exp;
-                }
-                infix_exp = temp__;
-
-                for (int k = infix_len - 1; k > i; k--)
-                {
-                    infix_exp[k].num = infix_exp[k - 1].num;
-                    infix_exp[k].variable = infix_exp[k - 1].variable;
-                    infix_exp[k].operator= infix_exp[k - 1].operator;
-                }
-                infix_exp[i].num = NAN;
-                infix_exp[i].variable = '\0';
-                infix_exp[i].operator= '*';
-            }
-
-            // Special case of parenthesis
-            else if (infix_exp[i].operator== '(' && infix_exp[i + 1].operator== ')' && isnan(infix_exp[i + 1].num))
-            {
-                free(infix_exp);
-                return specified_exp;
-            }
-
-            // Special cases of the left-side of close bracket
-            else if (isnan(infix_exp[i].num) && infix_exp[i].variable == '\0' && infix_exp[i].operator!= ')' && infix_exp[i].operator!= '!' && infix_exp[i + 1].operator== ')')
-            {
-                free(infix_exp);
-                return specified_exp;
-            }
-
-            else if (infix_exp[i].operator== ')' && infix_exp[i + 1].operator!= ')' && infix_exp[i + 1].operator!= '+' && infix_exp[i + 1].operator!= '-' && infix_exp[i + 1].operator!= '*' && infix_exp[i + 1].operator!= '/' && infix_exp[i + 1].operator!= '^' && infix_exp[i + 1].operator!= '%' && infix_exp[i + 1].operator!= '!' && infix_exp[i + 1].operator!= ',')
-            {
-                _infix_ *tmp = (_infix_ *)realloc(infix_exp, (infix_len + 1) * sizeof(_infix_));
-                if (tmp == NULL)
-                {
-                    free(infix_exp);
-                    return specified_exp;
-                }
-                infix_exp = tmp;
-                infix_len++;
-
-                for (int k = infix_len - 1; k > i + 1; k--)
-                {
-                    infix_exp[k].num = infix_exp[k - 1].num;
-                    infix_exp[k].operator= infix_exp[k - 1].operator;
-                    infix_exp[k].variable = infix_exp[k - 1].variable;
-                }
-
-                infix_exp[i + 1].num = NAN;
-                infix_exp[i + 1].variable = '\0';
-                infix_exp[i + 1].operator= '*';
-
-                i++;
-            }
-        }
-
-        // Special cases at the beginning of the expression
-        if (infix_exp[0].operator== '+' ||
-            infix_exp[0]
-                .operator== '-' ||
-            infix_exp[0]
-                .operator== '*' ||
-            infix_exp[0]
-                .operator== '/' ||
-            infix_exp[0]
-                .operator== '^' ||
-            infix_exp[0]
-                .operator== '!' ||
-            infix_exp[0]
-                .operator== '%' ||
-            infix_exp[0]
-                .operator== ')')
-        {
-            free(infix_exp);
-            return specified_exp;
-        }
-
-        // Special cases at the end of the expression
-        if (infix_exp[infix_len - 1].operator== '+' ||
-            infix_exp[infix_len - 1]
-                .operator== '-' ||
-            infix_exp[infix_len - 1]
-                .operator== '*' ||
-            infix_exp[infix_len - 1]
-                .operator== '/' ||
-            infix_exp[infix_len - 1]
-                .operator== '^' ||
-            infix_exp[infix_len - 1]
-                .operator== '(')
-        {
-            free(infix_exp);
-            return specified_exp;
-        }
-    }
-
-    // After pre-processing
-    /* printf("AFTER PRE-PROCESSING INFIX EXPRESSION:\n\n");
-    for (int i = 0; i < infix_len; i++)
-    {
-        if (!isnan(infix_exp[i].num))
-            printf("NUM = %.9lf", infix_exp[i].num);
-        if (infix_exp[i].operator != '\0')
-            printf("OP = %c", infix_exp[i].operator);
-        if (infix_exp[i].variable != '\0')
-            printf("VAR = %c", infix_exp[i].variable);
-        printf("\n");
-    }
-    printf("Token len = %d\n", infix_len); */
-
-    specified_exp.size = infix_len;
-    specified_exp.tokens = infix_exp;
-
-    return specified_exp;
-}
-
 _POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
 {
     int infix_len = specified_expression.size;
@@ -4292,310 +3004,6 @@ _POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
     free(infix_exp);
     free(ope_stack);
     return parsed_expression;
-}
-
-void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos)
-{
-    (*LPO) = '\0';
-    (*LPO_pos) = 0;
-
-    typedef struct
-    {
-        double num;
-        char operator;
-        char variable;
-        int pos;
-    } _infix_find_LPO;
-
-    typedef struct
-    {
-        double num;
-        char variable;
-        char operator;
-        int pos;
-    } _TOKENS_DATA_find_LPO;
-
-    typedef struct
-    {
-        char op;
-        int pos;
-    } _ope_struct_find_LPO;
-
-    int infix_len = specified_expression.size;
-    _infix_find_LPO *infix_exp = (_infix_find_LPO *)malloc(infix_len * sizeof(_infix_find_LPO));
-    if (infix_exp == NULL)
-    {
-        perror("find_LPO: Failed to alloc infix_exp");
-        return;
-    }
-    for (int i = 0; i < infix_len; i++)
-    {
-        infix_exp[i].num = specified_expression.tokens[i].num;
-        infix_exp[i].operator= specified_expression.tokens[i].operator;
-        infix_exp[i].variable = specified_expression.tokens[i].variable;
-        infix_exp[i].pos = i;
-    }
-
-    /* --------------------Parsing processor-------------------- */
-    // Create memories for parsing
-    _TOKENS_DATA_find_LPO *P_expression = (_TOKENS_DATA_find_LPO *)malloc(infix_len * sizeof(_TOKENS_DATA_find_LPO));
-    if (P_expression == NULL)
-    {
-        perror("Failed to create P_expression");
-        free(infix_exp);
-        return;
-    }
-    // Initialize P_expression with "empty" values
-    for (int i = 0; i < infix_len; i++)
-    {
-        P_expression[i].num = NAN;
-        P_expression[i].operator= '\0';
-        P_expression[i].variable = '\0';
-        P_expression[i].pos = 0;
-    }
-
-    _ope_struct_find_LPO *ope_stack = (_ope_struct_find_LPO *)calloc(infix_len + 1, sizeof(_ope_struct_find_LPO));
-    if (ope_stack == NULL)
-    {
-        perror("Failed to create ope_stack");
-        free(infix_exp);
-        free(P_expression);
-        return;
-    }
-
-    // Processor
-    int P_index = 0;
-    int ope_index = 0;
-    for (int i = 0; i < infix_len; i++)
-    {
-        double _num_ = infix_exp[i].num;
-        char _op_ = infix_exp[i].operator;
-        char _var_ = infix_exp[i].variable;
-        int _pos_ = infix_exp[i].pos;
-
-        // If the current token is a number or variable --> store to output stack
-        if (!isnan(_num_))
-        {
-            P_expression[P_index].num = _num_;
-            P_expression[P_index++].pos = _pos_;
-        }
-
-        else if (_var_ != '\0')
-        {
-            P_expression[P_index].variable = _var_;
-            P_expression[P_index++].pos = _pos_;
-        }
-
-        // Else, if it's an operator
-        else
-        {
-            // If it's the first op
-            if (ope_index == 0 && ope_stack[0].op == '\0')
-            {
-                ope_stack[ope_index].op = _op_;
-                ope_stack[ope_index++].pos = _pos_;
-            }
-
-            // If the current op has a greater precedence than the last op in the stack OR it's an open bracket
-            else if (precedent_of(ope_stack[ope_index - 1].op) < precedent_of(_op_) || _op_ == '(')
-            {
-                ope_stack[ope_index].op = _op_;
-                ope_stack[ope_index++].pos = _pos_;
-            }
-
-            // If the current op has a lower precedence than the last op in the stack
-            else if (_op_ != ')')
-            {
-                while (precedent_of(_op_) <= precedent_of(ope_stack[ope_index - 1].op) && ope_index > 0)
-                {
-                    P_expression[P_index].operator= ope_stack[ope_index - 1].op;
-                    P_expression[P_index++].pos = ope_stack[ope_index - 1].pos;
-                    ope_stack[ope_index - 1].op = '\0';
-                    ope_stack[--ope_index].pos = 0;
-                }
-                ope_stack[ope_index].op = _op_;
-                ope_stack[ope_index++].pos = _pos_;
-            }
-
-            // If it's a close bracket
-            else if (_op_ == ')')
-            {
-                while (ope_stack[ope_index - 1].op != '(' && ope_index > 0)
-                {
-                    P_expression[P_index].operator= ope_stack[ope_index - 1].op;
-                    P_expression[P_index++].pos = ope_stack[ope_index - 1].pos;
-                    ope_stack[ope_index - 1].op = '\0';
-                    ope_stack[--ope_index].pos = 0;
-                }
-                ope_stack[ope_index].op = '\0';
-                ope_stack[--ope_index].pos = 0;
-            }
-        }
-    }
-
-    // Push all the remaining op in the ope_stack to output stack
-    while (ope_index > 0)
-    {
-        P_expression[P_index].operator= ope_stack[ope_index - 1].op;
-        P_expression[P_index++].pos = ope_stack[--ope_index].pos;
-    }
-
-    /* ----------After parsing---------- */
-    /* printf("\nAFTER PARSING\n");
-    for (int i = 0; i < P_index; i++)
-    {
-        double _num_ = P_expression[i].num;
-        char _var_ = P_expression[i].variable;
-        char _op_ = P_expression[i].operator;
-
-        if(!isnan(_num_)) printf("Num = %.9lf\n", _num_);
-        if(_var_ != '\0') printf("Var = %c\n", _var_);
-        if(_op_ != '\0') printf("OP = %c\n", _op_);
-    }
-    printf("P_index = %d\n", P_index); */
-
-    // Return final results
-    // parsed_expression.size = P_index;
-    // parsed_expression.tokens = P_expression;
-
-    (*LPO) = P_expression[P_index - 1].operator;
-    (*LPO_pos) = P_expression[P_index - 1].pos;
-
-    free(infix_exp);
-    free(ope_stack);
-    free(P_expression);
-    return;
-}
-
-void display_infix_exp(const __INFIX__ expression)
-{
-    if (expression.tokens == NULL)
-        return;
-    for (int i = 0; i < expression.size; i++)
-    {
-        if (expression.tokens[i].variable != '\0')
-            printf("Var: %c\n", expression.tokens[i].variable);
-        if (expression.tokens[i].operator!= '\0')
-            printf("Op: %c\n", expression.tokens[i].operator);
-        if (!isnan(expression.tokens[i].num))
-            printf("Num: %.17lf\n", expression.tokens[i].num);
-    }
-}
-
-void add_single_token(__INFIX__ *destination, const double num, const char variable, const char operator)
-{
-    // new size
-    size_t new_size = (size_t)destination->size + 1;
-    _infix_ *tmp;
-
-    if (destination->tokens == NULL)
-    {
-        // malloc if tokens is null
-        tmp = (_infix_ *)malloc(new_size * sizeof(_infix_));
-    }
-    else
-        tmp = (_infix_ *)realloc(destination->tokens, new_size * sizeof(_infix_));
-
-    if (tmp == NULL)
-    {
-        perror("add_single_token: Failed to allocate memory");
-        return;
-    }
-
-    // Commit the new buffer and size
-    destination->tokens = tmp;
-    destination->size = (int)new_size;
-
-    // Initialize the newly appended token
-    _infix_ *new_tok = &destination->tokens[new_size - 1];
-    new_tok->num = num;
-    new_tok->variable = variable;
-    new_tok->operator= operator;
-}
-
-void add_many_tokens(__INFIX__ *destination, const __INFIX__ source)
-{
-    if (source.size <= 0 || source.tokens == NULL)
-        return;
-
-    // If destination has no tokens, allocate new memory
-    if (destination->tokens == NULL)
-    {
-        destination->tokens = (_infix_ *)malloc(source.size * sizeof(_infix_));
-        if (destination->tokens == NULL)
-        {
-            perror("add_many_tokens: failed to allocate destination tokens");
-            return;
-        }
-        memcpy(destination->tokens,
-               source.tokens,
-               source.size * sizeof(_infix_));
-        destination->size = source.size;
-    }
-    else
-    {
-        // Append to existing array
-        int new_size = destination->size + source.size;
-        _infix_ *resized = (_infix_ *)realloc(destination->tokens, new_size * sizeof(_infix_));
-        if (resized == NULL)
-        {
-            perror("add_many_tokens: failed to realloc destination tokens");
-            return;
-        }
-        memcpy(resized + destination->size,
-               source.tokens,
-               source.size * sizeof(_infix_));
-        destination->tokens = resized;
-        destination->size = new_size;
-    }
-}
-
-void check_for_valid_braket(__INFIX__ *copyof_input)
-{
-    int open_bracket = 0, close_bracket = 0;
-    for (int i = 0; i < copyof_input->size; i++)
-    {
-        if (copyof_input->tokens[i].operator== '(')
-            open_bracket++;
-        else if (copyof_input->tokens[i].operator== ')')
-            close_bracket++;
-    }
-
-    if (open_bracket > close_bracket)
-    {
-        for (int i = 1; i <= open_bracket - close_bracket; i++)
-            add_single_token(copyof_input, NAN, '\0', ')');
-    }
-
-    else if (open_bracket < close_bracket)
-    {
-        int delta = close_bracket - open_bracket;
-        _infix_ *tmp = (_infix_ *)realloc(copyof_input->tokens, (delta + copyof_input->size) * sizeof(_infix_));
-        if (tmp == NULL)
-        {
-            perror("Check for valid bracket: Failed to realloc tmp");
-            free(copyof_input->tokens);
-            copyof_input->size = 0;
-            copyof_input->tokens = NULL;
-            return;
-        }
-        copyof_input->tokens = tmp;
-        copyof_input->size += delta;
-
-        for (int i = copyof_input->size - 1; i >= delta; i--)
-        {
-            copyof_input->tokens[i].num = copyof_input->tokens[i - delta].num;
-            copyof_input->tokens[i].variable = copyof_input->tokens[i - delta].variable;
-            copyof_input->tokens[i].operator= copyof_input->tokens[i - delta].operator;
-        }
-
-        for (int i = 0; i < delta; i++)
-        {
-            copyof_input->tokens[i].num = NAN;
-            copyof_input->tokens[i].variable = '\0';
-            copyof_input->tokens[i].operator= '(';
-        }
-    }
 }
 
 /*
@@ -6295,6 +4703,296 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
     free(_DU_.tokens);
     free(_DV_.tokens);
     return copyof_input;
+}
+
+
+void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos)
+{
+    (*LPO) = '\0';
+    (*LPO_pos) = 0;
+
+    typedef struct
+    {
+        double num;
+        char operator;
+        char variable;
+        int pos;
+    } _infix_find_LPO;
+
+    typedef struct
+    {
+        double num;
+        char variable;
+        char operator;
+        int pos;
+    } _TOKENS_DATA_find_LPO;
+
+    typedef struct
+    {
+        char op;
+        int pos;
+    } _ope_struct_find_LPO;
+
+    int infix_len = specified_expression.size;
+    _infix_find_LPO *infix_exp = (_infix_find_LPO *)malloc(infix_len * sizeof(_infix_find_LPO));
+    if (infix_exp == NULL)
+    {
+        perror("find_LPO: Failed to alloc infix_exp");
+        return;
+    }
+    for (int i = 0; i < infix_len; i++)
+    {
+        infix_exp[i].num = specified_expression.tokens[i].num;
+        infix_exp[i].operator= specified_expression.tokens[i].operator;
+        infix_exp[i].variable = specified_expression.tokens[i].variable;
+        infix_exp[i].pos = i;
+    }
+
+    /* --------------------Parsing processor-------------------- */
+    // Create memories for parsing
+    _TOKENS_DATA_find_LPO *P_expression = (_TOKENS_DATA_find_LPO *)malloc(infix_len * sizeof(_TOKENS_DATA_find_LPO));
+    if (P_expression == NULL)
+    {
+        perror("Failed to create P_expression");
+        free(infix_exp);
+        return;
+    }
+    // Initialize P_expression with "empty" values
+    for (int i = 0; i < infix_len; i++)
+    {
+        P_expression[i].num = NAN;
+        P_expression[i].operator= '\0';
+        P_expression[i].variable = '\0';
+        P_expression[i].pos = 0;
+    }
+
+    _ope_struct_find_LPO *ope_stack = (_ope_struct_find_LPO *)calloc(infix_len + 1, sizeof(_ope_struct_find_LPO));
+    if (ope_stack == NULL)
+    {
+        perror("Failed to create ope_stack");
+        free(infix_exp);
+        free(P_expression);
+        return;
+    }
+
+    // Processor
+    int P_index = 0;
+    int ope_index = 0;
+    for (int i = 0; i < infix_len; i++)
+    {
+        double _num_ = infix_exp[i].num;
+        char _op_ = infix_exp[i].operator;
+        char _var_ = infix_exp[i].variable;
+        int _pos_ = infix_exp[i].pos;
+
+        // If the current token is a number or variable --> store to output stack
+        if (!isnan(_num_))
+        {
+            P_expression[P_index].num = _num_;
+            P_expression[P_index++].pos = _pos_;
+        }
+
+        else if (_var_ != '\0')
+        {
+            P_expression[P_index].variable = _var_;
+            P_expression[P_index++].pos = _pos_;
+        }
+
+        // Else, if it's an operator
+        else
+        {
+            // If it's the first op
+            if (ope_index == 0 && ope_stack[0].op == '\0')
+            {
+                ope_stack[ope_index].op = _op_;
+                ope_stack[ope_index++].pos = _pos_;
+            }
+
+            // If the current op has a greater precedence than the last op in the stack OR it's an open bracket
+            else if (precedent_of(ope_stack[ope_index - 1].op) < precedent_of(_op_) || _op_ == '(')
+            {
+                ope_stack[ope_index].op = _op_;
+                ope_stack[ope_index++].pos = _pos_;
+            }
+
+            // If the current op has a lower precedence than the last op in the stack
+            else if (_op_ != ')')
+            {
+                while (precedent_of(_op_) <= precedent_of(ope_stack[ope_index - 1].op) && ope_index > 0)
+                {
+                    P_expression[P_index].operator= ope_stack[ope_index - 1].op;
+                    P_expression[P_index++].pos = ope_stack[ope_index - 1].pos;
+                    ope_stack[ope_index - 1].op = '\0';
+                    ope_stack[--ope_index].pos = 0;
+                }
+                ope_stack[ope_index].op = _op_;
+                ope_stack[ope_index++].pos = _pos_;
+            }
+
+            // If it's a close bracket
+            else if (_op_ == ')')
+            {
+                while (ope_stack[ope_index - 1].op != '(' && ope_index > 0)
+                {
+                    P_expression[P_index].operator= ope_stack[ope_index - 1].op;
+                    P_expression[P_index++].pos = ope_stack[ope_index - 1].pos;
+                    ope_stack[ope_index - 1].op = '\0';
+                    ope_stack[--ope_index].pos = 0;
+                }
+                ope_stack[ope_index].op = '\0';
+                ope_stack[--ope_index].pos = 0;
+            }
+        }
+    }
+
+    // Push all the remaining op in the ope_stack to output stack
+    while (ope_index > 0)
+    {
+        P_expression[P_index].operator= ope_stack[ope_index - 1].op;
+        P_expression[P_index++].pos = ope_stack[--ope_index].pos;
+    }
+
+    /* ----------After parsing---------- */
+    /* printf("\nAFTER PARSING\n");
+    for (int i = 0; i < P_index; i++)
+    {
+        double _num_ = P_expression[i].num;
+        char _var_ = P_expression[i].variable;
+        char _op_ = P_expression[i].operator;
+
+        if(!isnan(_num_)) printf("Num = %.9lf\n", _num_);
+        if(_var_ != '\0') printf("Var = %c\n", _var_);
+        if(_op_ != '\0') printf("OP = %c\n", _op_);
+    }
+    printf("P_index = %d\n", P_index); */
+
+    // Return final results
+    // parsed_expression.size = P_index;
+    // parsed_expression.tokens = P_expression;
+
+    (*LPO) = P_expression[P_index - 1].operator;
+    (*LPO_pos) = P_expression[P_index - 1].pos;
+
+    free(infix_exp);
+    free(ope_stack);
+    free(P_expression);
+    return;
+}
+
+void add_single_token(__INFIX__ *destination, const double num, const char variable, const char operator)
+{
+    // new size
+    size_t new_size = (size_t)destination->size + 1;
+    _infix_ *tmp;
+
+    if (destination->tokens == NULL)
+    {
+        // malloc if tokens is null
+        tmp = (_infix_ *)malloc(new_size * sizeof(_infix_));
+    }
+    else
+        tmp = (_infix_ *)realloc(destination->tokens, new_size * sizeof(_infix_));
+
+    if (tmp == NULL)
+    {
+        perror("add_single_token: Failed to allocate memory");
+        return;
+    }
+
+    // Commit the new buffer and size
+    destination->tokens = tmp;
+    destination->size = (int)new_size;
+
+    // Initialize the newly appended token
+    _infix_ *new_tok = &destination->tokens[new_size - 1];
+    new_tok->num = num;
+    new_tok->variable = variable;
+    new_tok->operator= operator;
+}
+
+void add_many_tokens(__INFIX__ *destination, const __INFIX__ source)
+{
+    if (source.size <= 0 || source.tokens == NULL)
+        return;
+
+    // If destination has no tokens, allocate new memory
+    if (destination->tokens == NULL)
+    {
+        destination->tokens = (_infix_ *)malloc(source.size * sizeof(_infix_));
+        if (destination->tokens == NULL)
+        {
+            perror("add_many_tokens: failed to allocate destination tokens");
+            return;
+        }
+        memcpy(destination->tokens,
+               source.tokens,
+               source.size * sizeof(_infix_));
+        destination->size = source.size;
+    }
+    else
+    {
+        // Append to existing array
+        int new_size = destination->size + source.size;
+        _infix_ *resized = (_infix_ *)realloc(destination->tokens, new_size * sizeof(_infix_));
+        if (resized == NULL)
+        {
+            perror("add_many_tokens: failed to realloc destination tokens");
+            return;
+        }
+        memcpy(resized + destination->size,
+               source.tokens,
+               source.size * sizeof(_infix_));
+        destination->tokens = resized;
+        destination->size = new_size;
+    }
+}
+
+void check_for_valid_braket(__INFIX__ *copyof_input)
+{
+    int open_bracket = 0, close_bracket = 0;
+    for (int i = 0; i < copyof_input->size; i++)
+    {
+        if (copyof_input->tokens[i].operator== '(')
+            open_bracket++;
+        else if (copyof_input->tokens[i].operator== ')')
+            close_bracket++;
+    }
+
+    if (open_bracket > close_bracket)
+    {
+        for (int i = 1; i <= open_bracket - close_bracket; i++)
+            add_single_token(copyof_input, NAN, '\0', ')');
+    }
+
+    else if (open_bracket < close_bracket)
+    {
+        int delta = close_bracket - open_bracket;
+        _infix_ *tmp = (_infix_ *)realloc(copyof_input->tokens, (delta + copyof_input->size) * sizeof(_infix_));
+        if (tmp == NULL)
+        {
+            perror("Check for valid bracket: Failed to realloc tmp");
+            free(copyof_input->tokens);
+            copyof_input->size = 0;
+            copyof_input->tokens = NULL;
+            return;
+        }
+        copyof_input->tokens = tmp;
+        copyof_input->size += delta;
+
+        for (int i = copyof_input->size - 1; i >= delta; i--)
+        {
+            copyof_input->tokens[i].num = copyof_input->tokens[i - delta].num;
+            copyof_input->tokens[i].variable = copyof_input->tokens[i - delta].variable;
+            copyof_input->tokens[i].operator= copyof_input->tokens[i - delta].operator;
+        }
+
+        for (int i = 0; i < delta; i++)
+        {
+            copyof_input->tokens[i].num = NAN;
+            copyof_input->tokens[i].variable = '\0';
+            copyof_input->tokens[i].operator= '(';
+        }
+    }
 }
 
 string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
@@ -8889,680 +7587,6 @@ double integral_definite_infix(__INFIX__ infix_function, const char var, const d
     return result;
 }
 
-void display_postfix_exp(_POSTFIX__ P_exp)
-{
-    if (P_exp.size < 1 || P_exp.tokens == NULL)
-        return;
-
-    double num_;
-    char var_, op_;
-
-    for (short int i = 0; i < P_exp.size; i++)
-    {
-        num_ = P_exp.tokens[i].num;
-        var_ = P_exp.tokens[i].variable;
-        op_ = P_exp.tokens[i].operator;
-
-        if (!isnan(num_))
-            printf("Num: %.17lf\n", num_);
-        else if (var_ != '\0')
-            printf("Var: %c\n", var_);
-        else
-            printf("Op: %c\n", op_);
-    }
-}
-
-void optimize_P_exp(_POSTFIX__ *P_exp)
-{
-    if (P_exp->size < 2 || P_exp->tokens == NULL)
-        return;
-
-    // check
-    printf("[Before]\n\n");
-    display_postfix_exp(*P_exp);
-    putchar('\n');
-
-    char OP_;
-    bool standard_op;
-    bool new_changes;
-
-    for (short int i = 0; i < P_exp->size; i++)
-    {
-        new_changes = false;
-        standard_op = false;
-        OP_ = P_exp->tokens[i].operator;
-
-        if (OP_ == '\0')
-            continue;
-
-        // 2-parameter operators
-        if ((OP_ == '-' || OP_ == '+' || OP_ == '*' || OP_ == '/' || OP_ == '^' || OP_ == '%') && !isnan(P_exp->tokens[i - 1].num) && !isnan(P_exp->tokens[i - 2].num))
-        {
-            standard_op = true;
-            new_changes = true;
-
-            // check
-            printf("\nOP_ = %c\n", OP_);
-
-            switch (OP_)
-            {
-            case '+': // addition
-                P_exp->tokens[i - 2].num = P_exp->tokens[i - 2].num + P_exp->tokens[i - 1].num;
-                break;
-            case '-': // substraction
-                P_exp->tokens[i - 2].num = P_exp->tokens[i - 2].num - P_exp->tokens[i - 1].num;
-                break;
-            case '*': // multiplication
-                P_exp->tokens[i - 2].num = P_exp->tokens[i - 2].num * P_exp->tokens[i - 1].num;
-                break;
-            case '/': // division
-            {
-                if (P_exp->tokens[i - 1].num == 0)
-                    return;
-                P_exp->tokens[i - 2].num = P_exp->tokens[i - 2].num / P_exp->tokens[i - 1].num;
-                break;
-            }
-            case '%': // remainder modulo
-            {
-                if (!is_integer(P_exp->tokens[i - 2].num) || !is_integer(P_exp->tokens[i - 1].num))
-                    return;
-                P_exp->tokens[i - 2].num = (double)(((int)P_exp->tokens[i - 2].num) % ((int)P_exp->tokens[i - 1].num));
-                break;
-            }
-            case '^': // exponential
-                P_exp->tokens[i - 2].num = pow(P_exp->tokens[i - 2].num, P_exp->tokens[i - 1].num);
-                break;
-            default:
-                break;
-            }
-        }
-
-        // 1-parameter functions
-        else if (OP_ != SPECIFIER_OF_DIF && OP_ != SPECIFIER_OF_INTEGRAL &&
-                 OP_ != '-' &&
-                 OP_ != '+' &&
-                 OP_ != '*' &&
-                 OP_ != '/' &&
-                 OP_ != '^' &&
-                 OP_ != '%')
-        {
-            new_changes = true;
-
-            switch (OP_)
-            {
-            case SPECIFIER_OF_SIN: // sin
-                P_exp->tokens[i - 1].num = sin(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SINH: // sinh
-                P_exp->tokens[i - 1].num = sinh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SEC: // sec
-                P_exp->tokens[i - 1].num = 1 / cos(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SECH: // sech
-                P_exp->tokens[i - 1].num = 1 / cosh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSEC: // arcsec
-                P_exp->tokens[i - 1].num = arcsec(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSECH: // arcsech
-                P_exp->tokens[i - 1].num = arcsech(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COS: // cos
-                P_exp->tokens[i - 1].num = cos(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COSH: // cosh
-                P_exp->tokens[i - 1].num = cosh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_CSC: // csc
-                P_exp->tokens[i - 1].num = 1 / sin(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_CSCH: // csch
-                P_exp->tokens[i - 1].num = csch(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCSC: // arccsc
-                P_exp->tokens[i - 1].num = arccsc(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCSCH: // arccsch
-                P_exp->tokens[i - 1].num = arccsch(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_TAN: // tan
-                P_exp->tokens[i - 1].num = tan(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_TANH: // tanh
-                P_exp->tokens[i - 1].num = tanh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COT: // cot
-                P_exp->tokens[i - 1].num = 1 / tan(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COTH: // coth
-                P_exp->tokens[i - 1].num = coth(P_exp->tokens[i - 1].num);
-                break;
-            case '!': // factorial
-            {
-                // Check if it's an integer or not
-                if (!is_integer(P_exp->tokens[i - 1].num) || P_exp->tokens[i - 1].num < 0)
-                    return;
-                int fac = 1;
-                int n = (int)P_exp->tokens[i - 1].num;
-                for (int f = 1; f <= n; f++)
-                    fac *= f;
-                P_exp->tokens[i - 1].num = (double)fac;
-                break;
-            }
-            case SPECIFIER_OF_ARCSIN: // arcsin
-                P_exp->tokens[i - 1].num = asin(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSINH: // arcsinh
-                P_exp->tokens[i - 1].num = asinh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOS: // arccos
-                P_exp->tokens[i - 1].num = acos(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOSH: // arccosh
-                P_exp->tokens[i - 1].num = acosh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCTAN: // arctan
-                P_exp->tokens[i - 1].num = atan(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCTANH: // arctanh
-                P_exp->tokens[i - 1].num = atanh(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOT: // arccot
-            {
-                if (P_exp->tokens[i - 1].num > 0)
-                    P_exp->tokens[i - 1].num = atan(1 / (P_exp->tokens[i - 1].num));
-                else
-                    P_exp->tokens[i - 1].num = atan(1 / (P_exp->tokens[i - 1].num)) + PI;
-                break;
-            }
-            case SPECIFIER_OF_ARCCOTH: // arccoth
-                P_exp->tokens[i - 1].num = arccoth(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_LN: // ln
-            {
-                if (P_exp->tokens[i - 1].num <= 0)
-                    return;
-                P_exp->tokens[i - 1].num = log(P_exp->tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_LG: // log10
-            {
-                if (P_exp->tokens[i - 1].num <= 0)
-                    return;
-                P_exp->tokens[i - 1].num = log10(P_exp->tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_SQRT: // sqrt
-            {
-                if (P_exp->tokens[i - 1].num < 0)
-                    return;
-                P_exp->tokens[i - 1].num = sqrt(P_exp->tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_ABS: // abs
-            {
-                if (P_exp->tokens[i - 1].num < 0)
-                    P_exp->tokens[i - 1].num = -P_exp->tokens[i - 1].num;
-                break;
-            }
-            case SPECIFIER_OF_CBRT: // cuberoot
-                P_exp->tokens[i - 1].num = cbrt(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_GAMMA: // gamma function
-            {
-                if (P_exp->tokens[i - 1].num < 0)
-                    return;
-                P_exp->tokens[i - 1].num = gamma_function(P_exp->tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_CEIL: // ceiling function
-                P_exp->tokens[i - 1].num = ceil(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_FLOOR: // floor function
-                P_exp->tokens[i - 1].num = floor(P_exp->tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_LAMBERTW: // lambert W function
-            {
-                if (P_exp->tokens[i - 1].num < -1 / EULER_NUMBER)
-                    return;
-                P_exp->tokens[i - 1].num = lambertw_real(P_exp->tokens[i - 1].num);
-                break;
-            }
-            default:
-                break;
-            }
-        }
-
-        if (!new_changes)
-            continue;
-
-        // Realloc P_exp
-        if (standard_op)
-        {
-            // shifting left
-            for (int k = i - 1; k < P_exp->size - 2; k++)
-            {
-                P_exp->tokens[k].num = P_exp->tokens[k + 2].num;
-                P_exp->tokens[k].operator= P_exp->tokens[k + 2].operator;
-                P_exp->tokens[k].variable = P_exp->tokens[k + 2].variable;
-            }
-
-            // shrink memories
-            _TOKENS_DATA_ *temp_ptr = (_TOKENS_DATA_ *)realloc(P_exp->tokens, (P_exp->size - 2) * sizeof(_TOKENS_DATA_));
-            if (temp_ptr == NULL)
-            {
-                perror("optimize_P_exp - standard_op: Failed to realloc temp_ptr");
-                return;
-            }
-            P_exp->tokens = temp_ptr;
-            P_exp->size -= 2;
-            i -= 2;
-        }
-        else
-        {
-            // shifting left
-            for (int k = i; k < P_exp->size - 1; k++)
-            {
-                P_exp->tokens[k].num = P_exp->tokens[k + 1].num;
-                P_exp->tokens[k].operator= P_exp->tokens[k + 1].operator;
-                P_exp->tokens[k].variable = P_exp->tokens[k + 1].variable;
-            }
-
-            // shrink memories
-            _TOKENS_DATA_ *temp_ptr = (_TOKENS_DATA_ *)realloc(P_exp->tokens, (P_exp->size - 1) * sizeof(_TOKENS_DATA_));
-            if (temp_ptr == NULL)
-            {
-                perror("optimize_P_exp - functions: Failed to realloc temp_ptr");
-                return;
-            }
-            P_exp->tokens = temp_ptr;
-            P_exp->size--;
-            i -= 1;
-        }
-    }
-}
-
-void optimize_I_exp(__INFIX__ *I_exp)
-{
-    if (I_exp->size < 2 || I_exp->tokens == NULL)
-        return;
-
-    // reference
-    // puts("[Before]\n\n");
-    // display_infix_exp(*I_exp);
-
-    _infix_ token_num[1] = {NAN, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
-    char OP_;
-    double num_;
-    bool standard_op;
-    bool new_changes;
-    short int index_start, index_end;
-
-    for (short int i = 0; i < I_exp->size; i++)
-    {
-        OP_ = I_exp->tokens[i].operator;
-        standard_op = false;
-        new_changes = false;
-
-        if (OP_ == '+' ||
-            OP_ == '-' ||
-            OP_ == '*' ||
-            OP_ == '/' ||
-            OP_ == '^' ||
-            OP_ == '%' ||
-            OP_ == '!' ||
-            OP_ == '(' ||
-            OP_ == ')')
-            standard_op = true;
-
-        // Optimizer
-        {
-            // For OP
-            if (OP_ != '\0' &&
-                OP_ != SPECIFIER_OF_INTEGRAL &&
-                OP_ != SPECIFIER_OF_DIF &&
-                OP_ != SPECIFIER_OF_SIGMA_SUM &&
-                OP_ != SPECIFIER_OF_PRODUCT_OF_SEQUENCE &&
-                OP_ != SPECIFIER_OF_PERMUTATIONS &&
-                OP_ != SPECIFIER_OF_COMBINATIONS &&
-                OP_ != SPECIFIER_OF_GCD &&
-                OP_ != SPECIFIER_OF_LCM &&
-                OP_ != ',' &&
-                OP_ != '=')
-            {
-                // case 1: = | , | ( | + | - NUM + | - NUM + | - | ) | , | =
-                if ((i == 1 || I_exp->tokens[i - 2].operator== '=' || I_exp->tokens[i - 2].operator== ',' || I_exp->tokens[i - 2].operator== '(' || I_exp->tokens[i - 2].operator== '+' || I_exp->tokens[i - 2].operator== '-') &&
-                    !isnan(I_exp->tokens[i - 1].num) &&
-                    (OP_ == '+' || OP_ == '-') &&
-                    !isnan(I_exp->tokens[i + 1].num) &&
-                    (i + 2 == I_exp->size || I_exp->tokens[i + 2].operator== '+' || I_exp->tokens[i + 2].operator== '-' || I_exp->tokens[i + 2].operator== ')' || I_exp->tokens[i + 2].operator== ',' || I_exp->tokens[i + 2].operator== '='))
-                {
-                    new_changes = true;
-
-                    // puts("Case 1");
-
-                    if (I_exp->tokens[i - 2].operator== '-')
-                    {
-                        I_exp->tokens[i - 2].operator= '+';
-                        replacement.tokens[0].num = (OP_ == '+') ? (-(I_exp->tokens[i - 1].num) + I_exp->tokens[i + 1].num) : (-(I_exp->tokens[i - 1].num) - I_exp->tokens[i + 1].num);
-                    }
-                    else
-                        replacement.tokens[0].num = (OP_ == '+') ? (I_exp->tokens[i - 1].num + I_exp->tokens[i + 1].num) : (I_exp->tokens[i - 1].num - I_exp->tokens[i + 1].num);
-
-                    index_start = i - 1;
-                    index_end = i + 1;
-                }
-
-                // case 2: NUM * | / | ^ | % NUM
-                else if ((OP_ == '*' || OP_ == '/' || OP_ == '^' || OP_ == '%') &&
-                         !isnan(I_exp->tokens[i - 1].num) &&
-                         !isnan(I_exp->tokens[i + 1].num))
-                {
-                    new_changes = true;
-
-                    // puts("case 2");
-
-                    switch (OP_)
-                    {
-                    case '*':
-                        replacement.tokens[0].num = I_exp->tokens[i - 1].num * I_exp->tokens[i + 1].num;
-                        break;
-                    case '/':
-                    {
-                        if (I_exp->tokens[i + 1].num == 0.0)
-                            return;
-                        replacement.tokens[0].num = I_exp->tokens[i - 1].num / I_exp->tokens[i + 1].num;
-                        break;
-                    }
-                    case '^':
-                        replacement.tokens[0].num = pow(I_exp->tokens[i - 1].num, I_exp->tokens[i + 1].num);
-                        break;
-                    case '%':
-                    {
-                        if (!is_integer(I_exp->tokens[i - 1].num) && !isnan(I_exp->tokens[i + 1].num))
-                            return;
-                        replacement.tokens[0].num = (double)(((int)I_exp->tokens[i - 1].num) % ((int)I_exp->tokens[i + 1].num));
-                        break;
-                    }
-                    default:
-                        break;
-                    }
-
-                    index_start = i - 1;
-                    index_end = i + 1;
-                }
-
-                // case 3: NUM !
-                else if (OP_ == '!' && !isnan(I_exp->tokens[i - 1].num))
-                {
-                    if (I_exp->tokens[i - 1].num < 0 || !is_integer(I_exp->tokens[i - 1].num))
-                        return;
-
-                    replacement.tokens[0].num = (double)factorial((int)I_exp->tokens[i - 1].num);
-
-                    new_changes = true;
-
-                    index_start = i - 1;
-                    index_end = i;
-                }
-
-                // case 4: functions( NUM )
-                else if (!isnan(I_exp->tokens[i + 1].num) && !standard_op)
-                {
-                    // puts("case 4");
-                    new_changes = true;
-                    double num_ = I_exp->tokens[i + 1].num;
-                    double replacement_num;
-
-                    // printf("Case 4: OP_ = %c | num_ = %lf\n", OP_, num_);
-
-                    switch (OP_)
-                    {
-                    case SPECIFIER_OF_SIN:
-                        replacement_num = sin(num_);
-                        break;
-                    case SPECIFIER_OF_SINH:
-                        replacement_num = sinh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCSIN:
-                        replacement_num = asin(num_);
-                        break;
-                    case SPECIFIER_OF_ARCSINH:
-                        replacement_num = asinh(num_);
-                        break;
-                    case SPECIFIER_OF_COS:
-                        replacement_num = cos(num_);
-                        break;
-                    case SPECIFIER_OF_COSH:
-                        replacement_num = cosh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCCOS:
-                        replacement_num = acos(num_);
-                        break;
-                    case SPECIFIER_OF_ARCCOSH:
-                        replacement_num = acosh(num_);
-                        break;
-                    case SPECIFIER_OF_TAN:
-                        replacement_num = tan(num_);
-                        break;
-                    case SPECIFIER_OF_TANH:
-                        replacement_num = tanh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCTAN:
-                        replacement_num = atan(num_);
-                        break;
-                    case SPECIFIER_OF_ARCTANH:
-                        replacement_num = atanh(num_);
-                        break;
-                    case SPECIFIER_OF_COT:
-                        replacement_num = 1.0 / tan(num_);
-                        break;
-                    case SPECIFIER_OF_COTH:
-                        replacement_num = 1.0 / tanh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCCOT:
-                    {
-                        if (I_exp->tokens[i + 1].num > 0.0)
-                            replacement_num = atan(1.0 / num_);
-                        else
-                            replacement_num = atan(1.0 / num_) + PI;
-                        break;
-                    }
-                    case SPECIFIER_OF_ARCCOTH:
-                        replacement_num = arccoth(num_);
-                        break;
-                    case SPECIFIER_OF_SEC:
-                        replacement_num = 1.0 / cos(num_);
-                        break;
-                    case SPECIFIER_OF_SECH:
-                        replacement_num = 1.0 / cosh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCSEC:
-                        replacement_num = acos(1.0 / num_);
-                        break;
-                    case SPECIFIER_OF_ARCSECH:
-                        replacement_num = acosh(1.0 / num_);
-                        break;
-                    case SPECIFIER_OF_CSC:
-                        replacement_num = 1.0 / sin(num_);
-                        break;
-                    case SPECIFIER_OF_CSCH:
-                        replacement_num = 1.0 / sinh(num_);
-                        break;
-                    case SPECIFIER_OF_ARCCSC:
-                        replacement_num = asin(1.0 / num_);
-                        break;
-                    case SPECIFIER_OF_ARCCSCH:
-                        replacement_num = asinh(1.0 / num_);
-                        break;
-                    case SPECIFIER_OF_SQRT:
-                    {
-                        if (num_ < 0.0)
-                            return;
-                        replacement_num = sqrt(num_);
-                        break;
-                    }
-                    case SPECIFIER_OF_CBRT:
-                        replacement_num = cbrt(num_);
-                        break;
-                    case SPECIFIER_OF_ABS:
-                        replacement_num = fabs(num_);
-                        break;
-                    case SPECIFIER_OF_LN:
-                    {
-                        if (num_ <= 0.0)
-                            return;
-                        replacement_num = log(num_);
-                        break;
-                    }
-                    case SPECIFIER_OF_LG:
-                    {
-                        if (num_ <= 0.0)
-                            return;
-                        replacement_num = log10(num_);
-                        break;
-                    }
-                    case SPECIFIER_OF_GAMMA:
-                    {
-                        if (num_ < 0.0)
-                            return;
-                        replacement_num = tgamma(num_);
-                        break;
-                    }
-                    case SPECIFIER_OF_CEIL:
-                        replacement_num = ceil(num_);
-                        break;
-                    case SPECIFIER_OF_FLOOR:
-                        replacement_num = floor(num_);
-                        break;
-                    case SPECIFIER_OF_LAMBERTW:
-                    {
-                        if (num_ < -1.0 / EULER_NUMBER)
-                            return;
-                        replacement_num = lambertw_real(num_);
-                        break;
-                    }
-                    default:
-                        return;
-                    }
-
-                    // printf("Num = %lf | Replacement_num = %lf\n", num_, replacement_num);
-
-                    replacement.tokens[0].num = replacement_num;
-
-                    index_start = i;
-                    index_end = i + 1;
-                }
-            }
-
-            // for num
-            else if (OP_ == '\0' && !isnan(I_exp->tokens[i].num) && i > 0)
-            {
-                // case 1: ( NUM )
-                if (I_exp->tokens[i - 1].operator== '(' && I_exp->tokens[i + 1].operator== ')')
-                {
-                    // puts("NUM - Case 1");
-                    new_changes = true;
-
-                    replacement.tokens[0].num = I_exp->tokens[i].num;
-
-                    index_start = i - 1;
-                    index_end = i + 1;
-                }
-            }
-        }
-
-        if (!new_changes)
-            continue;
-
-        // substitude
-        substitude_result(I_exp, replacement, index_start, index_end);
-        i = -1;
-    }
-
-    // puts("\n[After]\n");
-    // display_infix_exp(*I_exp);
-}
-
-// probalbilistic
-double permutations(int n, int r)
-{
-    // Input validation
-    if (n < 0 || r < 0)
-        return 0.0;
-
-    if (r > n)
-        return 0.0;
-
-    // Special cases
-    if (r == 0)
-        return 1.0;
-
-    if (r == n)
-        return factorial(n); // Use real factorial for consistency
-
-    // Calculate P(n,r) = n! / (n-r)!
-    // More efficient: P(n,r) = n * (n-1) * (n-2) * ... * (n-r+1)
-    double result = 1.0;
-    for (int i = 0; i < r; i++)
-    {
-        result *= (double)(n - i);
-
-        // Check for overflow/infinity
-        if (isinf(result))
-        {
-            return INFINITY; // Return infinity if overflow occurs
-        }
-    }
-
-    return result;
-}
-
-// probalbilistic
-double combinations(int n, int r)
-{
-    // Input validation
-    if (n < 0 || r < 0)
-        return 0.0;
-
-    if (r > n)
-        return 0.0;
-
-    // Special cases
-    if (r == 0 || r == n)
-        return 1.0;
-
-    // Optimization: C(n,r) = C(n,n-r), use smaller r for efficiency
-    if (r > n - r)
-        r = n - r;
-
-    // Calculate C(n,r) = n! / (r! * (n-r)!)
-    // More efficient: C(n,r) = (n * (n-1) * ... * (n-r+1)) / (r * (r-1) * ... * 1)
-    double result = 1.0;
-
-    for (int i = 0; i < r; i++)
-    {
-        result *= (double)(n - i);
-        result /= (double)(i + 1);
-
-        // Check for overflow/infinity
-        if (isinf(result))
-        {
-            return INFINITY; // Return infinity if overflow occurs
-        }
-
-        // Check for underflow (result becoming too small)
-        if (result == 0.0 && (n - i) > 0)
-        {
-            return 0.0; // Underflow occurred
-        }
-    }
-
-    return result;
-}
-
 // sum-sequence OR sigma sum
 double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step)
 {
@@ -9853,53 +7877,6 @@ double product_sequence(__INFIX__ I_function, const char var, const double start
     return product;
 }
 
-double logarithm(const double base, const double expression)
-{
-    // Validate base - must be positive and not equal to 1
-    if (base <= 0 || base == 1 || isnan(base) || isinf(base))
-    {
-        return NAN; // Invalid base
-    }
-
-    // Check if expression is in the domain of logarithm
-    if (isnan(expression) || isinf(expression))
-    {
-        return expression; // Propagate NaN or infinity
-    }
-
-    if (expression < 0)
-    {
-        return NAN; // log(negative) = undefined
-    }
-
-    if (expression == 0)
-    {
-        return -INFINITY; // log(0) = -infinity
-    }
-
-    if (expression == 1)
-    {
-        return 0.0; // log_base(1) = 0 for any valid base
-    }
-
-    // Calculate logarithm using change of base formula: log_base(x) = ln(x) / ln(base)
-    double log_result = log(expression) / log(base);
-
-    // Handle potential numerical issues
-    if (isnan(log_result) || isinf(log_result))
-    {
-        return log_result;
-    }
-
-    // Check for very small results that should be zero
-    if (fabs(log_result) < 1e-15)
-    {
-        return 0.0;
-    }
-
-    return log_result;
-}
-
 __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
 {
     __INFIX__ result;
@@ -10039,418 +8016,6 @@ __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
     }
 
     return result;
-}
-
-/**
- * Merges two numbers with an operator between them
- * @param I_exp Pointer to the infix expression structure
- * @param index Index of the first number in the expression
- */
-void merge_2_num(__INFIX__ *I_exp, const short int index)
-{
-    _infix_ token_num[1] = {NAN, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
-
-    switch (I_exp->tokens[index + 1].operator)
-    {
-    case '+':
-    {
-        if (index >= 1 && I_exp->tokens[index - 1].operator== '-')
-        {
-            if (I_exp->tokens[index + 2].num >= I_exp->tokens[index].num)
-            {
-                replacement.tokens[0].num = I_exp->tokens[index + 2].num - I_exp->tokens[index].num;
-                I_exp->tokens[index - 1].operator= '+';
-            }
-            else
-                replacement.tokens[0].num = I_exp->tokens[index].num - I_exp->tokens[index + 2].num;
-        }
-        else
-            replacement.tokens[0].num = I_exp->tokens[index].num + I_exp->tokens[index + 2].num;
-
-        break;
-    }
-    case '-':
-    {
-        if (index >= 1 && I_exp->tokens[index - 1].operator== '-')
-            replacement.tokens[0].num = I_exp->tokens[index].num + I_exp->tokens[index + 2].num;
-        else
-        {
-            replacement.tokens[0].num = I_exp->tokens[index].num - I_exp->tokens[index + 2].num;
-
-            if (replacement.tokens[0].num < 0.0 && index >= 1 && I_exp->tokens[index - 1].operator== '-')
-            {
-                I_exp->tokens[index - 1].operator= '-';
-                replacement.tokens[0].num *= -1.0;
-            }
-        }
-        break;
-    }
-    case '*':
-        replacement.tokens[0].num = I_exp->tokens[index].num * I_exp->tokens[index + 2].num;
-        break;
-    case '^':
-        replacement.tokens[0].num = pow(I_exp->tokens[index].num, I_exp->tokens[index + 2].num);
-        break;
-    case '%':
-    {
-        if (is_integer(I_exp->tokens[index].num) && is_integer(I_exp->tokens[index + 2].num))
-            replacement.tokens[0].num = (double)(((int)I_exp->tokens[index].num) % ((int)I_exp->tokens[index + 2].num));
-        break;
-    }
-    default:
-        break;
-    }
-
-    substitude_result(I_exp, replacement, index, index + 2);
-}
-
-/**
- * Merges a number enclosed in brackets by removing the brackets
- */
-void merge_num_and_bracket(__INFIX__ *I_exp, const short int index)
-{
-    _infix_ token_num[1] = {I_exp->tokens[index + 1].num, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
-    substitude_result(I_exp, replacement, index, index + 2);
-}
-
-/**
- * Removes multiplication by 1 from the expression
- */
-void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index)
-{
-    for (short int i = index; i + 2 < I_exp->size; i++)
-    {
-        I_exp->tokens[i].num = I_exp->tokens[i + 2].num;
-        I_exp->tokens[i].variable = I_exp->tokens[i + 2].variable;
-        I_exp->tokens[i].operator= I_exp->tokens[i + 2].operator;
-    }
-
-    _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
-    if (temp == NULL)
-    {
-        perror("merge_multiplier_of_one - oen_first: Failed to realloc temp");
-        return;
-    }
-    I_exp->tokens = temp;
-    I_exp->size -= 2;
-}
-
-/**
- * Handles multiplication by zero, replacing the entire term with 0
- * @param I_exp Pointer to the infix expression structure
- * @param index Index where the multiplication by 0 occurs
- * @param zero_first Boolean indicating if zero is the first operand
- */
-void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first)
-{
-    _infix_ token_num[1] = {0.0, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
-
-    if (zero_first)
-    {
-        short int index_end = -1;
-        short int open_bracket = 0;
-        short int close_bracket = 0;
-
-        for (short int i = index + 2; i < I_exp->size; i++)
-        {
-            if (I_exp->tokens[i].operator== '(')
-                open_bracket++;
-            else if (I_exp->tokens[i].operator== ')')
-                close_bracket++;
-
-            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '+' || I_exp->tokens[i].operator== '-')) || i + 1 == I_exp->size)
-            {
-                if (i + 1 == I_exp->size)
-                    index_end = i;
-                else
-                    index_end = i - 1;
-                break;
-            }
-        }
-
-        if (index_end == -1)
-            return;
-
-        substitude_result(I_exp, replacement, index, index_end);
-    }
-
-    else
-    {
-        short int index_start = -1;
-        short int open_bracket = 0;
-        short int close_bracket = 0;
-
-        for (short int i = index - 1; i >= 0; i--)
-        {
-            if (I_exp->tokens[i].operator== ')')
-                close_bracket++;
-            else if (I_exp->tokens[i].operator== '(')
-                open_bracket++;
-
-            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '-' || I_exp->tokens[i].operator== '+')) || i == 0)
-            {
-                if (i == 0)
-                    index_start = 0;
-                else
-                    index_start = i + 1;
-                break;
-            }
-        }
-
-        if (index_start == -1)
-            return;
-
-        substitude_result(I_exp, replacement, index_start, index - 1);
-    }
-}
-
-/**
- * Removes unnecessary nested brackets from the expression
- */
-bool merge_unused_bracket(__INFIX__ *I_exp, const short int index)
-{
-
-    short int index_next_bracket = index + 1;
-    short int open_bracket = 0;
-    short int close_bracket = 0;
-    short int index_outer_bracket_close = -1;
-
-    for (short int u = index_next_bracket; u < I_exp->size; u++)
-    {
-        if (I_exp->tokens[u].operator== '(')
-            open_bracket++;
-        else if (I_exp->tokens[u].operator== ')')
-            close_bracket++;
-
-        if (open_bracket == close_bracket)
-        {
-            index_outer_bracket_close = u;
-            break;
-        }
-    }
-
-    if (index_outer_bracket_close == -1 || (index_outer_bracket_close + 1 < I_exp->size && I_exp->tokens[index_outer_bracket_close + 1].operator!= '+' && I_exp->tokens[index_outer_bracket_close + 1].operator!= '-' && I_exp->tokens[index_outer_bracket_close + 1].operator!= ')'))
-        return false;
-
-    __INFIX__ replacement = {0, NULL};
-
-    copy_sub_I_exp(&replacement, *I_exp, index_next_bracket, index_outer_bracket_close);
-
-    substitude_result(I_exp, replacement, index_next_bracket, index_outer_bracket_close);
-
-    if (replacement.tokens != NULL)
-        free(replacement.tokens);
-
-    return true;
-}
-
-/**
- * Removes exponentiation by 1 (x^1 becomes x)
- */
-void merge_pow_of_one(__INFIX__ *I_exp, const short int index)
-{
-    for (short int i = index; i + 2 < I_exp->size; i++)
-    {
-        I_exp->tokens[i].num = I_exp->tokens[i + 2].num;
-        I_exp->tokens[i].operator= I_exp->tokens[i + 2].operator;
-        I_exp->tokens[i].variable = I_exp->tokens[i + 2].variable;
-    }
-
-    _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
-    if (temp != NULL)
-    {
-        I_exp->tokens = temp;
-        I_exp->size -= 2;
-    }
-    else
-        perror("merge_pow_of_one: Failed to realloc temp");
-}
-
-/**
- * Handles exponentiation by 0 (x^0 becomes 1)
- */
-void merge_pow_of_zero(__INFIX__ *I_exp, const short int index)
-{
-    _infix_ token_num[1] = {1.0, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
-
-    if (isfinite(I_exp->tokens[index - 1].num))
-    {
-        substitude_result(I_exp, replacement, index - 1, index + 1);
-    }
-    else
-    {
-        short int open_bracket = 0;
-        short int close_bracket = 0;
-        short int index_outer_open_backet = -1;
-        for (short int i = index - 1; i >= 0; i--)
-        {
-            if (I_exp->tokens[i].operator== '(')
-                open_bracket++;
-            else if (I_exp->tokens[i].operator== ')')
-                close_bracket++;
-
-            if ((open_bracket == close_bracket && (I_exp->tokens[i].operator== '+' || I_exp->tokens[i].operator== '-' || I_exp->tokens[i].operator== '*' || I_exp->tokens[i].operator== '/' || I_exp->tokens[i].operator== '^' || I_exp->tokens[i].operator== '!' || I_exp->tokens[i].operator== '%')))
-            {
-                index_outer_open_backet = i + 1;
-
-                break;
-            }
-
-            else if (i == 0)
-            {
-                index_outer_open_backet = 0;
-                break;
-            }
-            else if (open_bracket == close_bracket && i - 1 >= 0 && I_exp->tokens[i - 1].operator== '(')
-            {
-                index_outer_open_backet = i;
-                break;
-            }
-        }
-
-        if (index_outer_open_backet == -1)
-            return;
-
-        substitude_result(I_exp, replacement, index_outer_open_backet, index + 1);
-    }
-}
-
-/**
- * Reformats and simplifies the infix expression for better readability
- * @param I_exp Pointer to the infix expression structure to reformat
- */
-// NOTE:
-// This function does not reduce OR optimze the expression for faster computation. It just makes the expression look better
-void reformat_I_exp(__INFIX__ *I_exp)
-{
-    if (I_exp->size < 2 || I_exp->tokens == NULL)
-        return;
-
-    for (short int i = 0; i < I_exp->size; i++)
-    {
-        double num_ = I_exp->tokens[i].num;
-        char operator_ = I_exp->tokens[i].operator;
-        char variable_ = I_exp->tokens[i].variable;
-
-        // case 1: num + | - | * | ^ | %% | num
-        // except for built-in const & division
-        if (i >= 1 &&
-            I_exp->tokens[i - 1].operator!= '*' && I_exp->tokens[i - 1].operator!= '/' && I_exp->tokens[i - 1].operator!= '^' &&
-            isfinite(num_) &&
-            i + 1 < I_exp->size &&
-            I_exp->tokens[i + 1].operator!= '/' &&
-            i + 2<I_exp->size &&
-            isfinite(I_exp->tokens[i + 2].num) &&
-            i + 3 < I_exp->size &&
-            (I_exp->tokens[i + 3].operator!= '*' && I_exp->tokens[i + 3].operator!= '/' && I_exp->tokens[i + 3].operator!= '^') &&
-            num_ != PI && num_ != EULER_NUMBER && num_ != _G_ && num_ != _C_ && num_ != LN_2 && num_ != SQRT_2 && num_ != SQRT_2_2 && num_ != SQRT_3 &&
-            I_exp->tokens[i + 2].num != PI && I_exp->tokens[i + 2].num != EULER_NUMBER && I_exp->tokens[i + 2].num != _G_ && I_exp->tokens[i + 2].num != _C_ && I_exp->tokens[i + 2].num != LN_2 && I_exp->tokens[i + 2].num != SQRT_2 && I_exp->tokens[i + 2].num != SQRT_2_2 && I_exp->tokens[i + 2].num != SQRT_3)
-        {
-            merge_2_num(I_exp, i);
-            i = -1;
-        }
-
-        // case 2: (num)
-        else if (i >= 1 &&
-                 (I_exp->tokens[i - 1].operator== '+' || I_exp->tokens[i - 1].operator== '-' || I_exp->tokens[i - 1].operator== '*' || I_exp->tokens[i - 1].operator== '/' || I_exp->tokens[i - 1].operator== '^' || I_exp->tokens[i - 1].operator== '%') &&
-                 operator_ == '(' && i + 1 < I_exp->size &&
-                 isfinite(I_exp->tokens[i + 1].num) &&
-                 i + 2 < I_exp->size &&
-                 I_exp->tokens[i + 2].operator== ')')
-        {
-            merge_num_and_bracket(I_exp, i);
-            i = -1;
-        }
-
-        // case 3: 1 * | * 1
-        else if (i + 1 < I_exp->size && ((num_ == 1.0 && I_exp->tokens[i + 1].operator== '*') || (operator_ == '*' && I_exp->tokens[i + 1].num == 1.0)))
-        {
-            merge_multiplier_of_one(I_exp, i);
-            i = -1;
-        }
-
-        // case 4: 0 * | * 0
-        else if (((num_ == 0.0 || fabs(num_) <= __DBL_EPSILON__) &&
-                  i + 1 < I_exp->size &&
-                  I_exp->tokens[i + 1].operator== '*') ||
-                 (operator_ == '*' &&
-                  i + 1 < I_exp->size &&
-                  (I_exp->tokens[i + 1].num == 0.0 || fabs(I_exp->tokens[i + 1].num) <= __DBL_EPSILON__)))
-        {
-            if (operator_ == '*')
-                merge_multiplier_of_zero(I_exp, i, false);
-            else
-                merge_multiplier_of_zero(I_exp, i, true);
-            i = -1;
-        }
-
-        // case 5: (((((...)))))
-        else if (operator_ == '(' && i + 1 < I_exp->size && I_exp->tokens[i + 1].operator== '(')
-        {
-            if (merge_unused_bracket(I_exp, i))
-                i = -1;
-        }
-
-        // case 6: (...) ^ 1
-        else if (operator_ == '^' && I_exp->tokens[i + 1].num == 1.0)
-        {
-            merge_pow_of_one(I_exp, i);
-            i = -1;
-        }
-
-        // case 7: (...) ^ 0
-        else if (operator_ == '^' && (I_exp->tokens[i + 1].num == 0.0 || fabs(I_exp->tokens[i + 1].num) <= __DBL_EPSILON__))
-        {
-            merge_pow_of_zero(I_exp, i);
-            i = -1;
-        }
-    }
-
-    // case 8: (...)
-    {
-        short int open_bracket = 0;
-        short int close_bracket = 0;
-        short int outer_close_bracket = -1;
-        for (short int i = 0; i < I_exp->size; i++)
-        {
-            if (I_exp->tokens[i].operator== '(')
-                open_bracket++;
-            else if (I_exp->tokens[i].operator== ')')
-                close_bracket++;
-
-            if (open_bracket == close_bracket && open_bracket * close_bracket != 0)
-            {
-                outer_close_bracket = i;
-                break;
-            }
-        }
-
-        if (I_exp->tokens[0].operator== '(' && outer_close_bracket == I_exp->size - 1)
-        {
-            for (short int i = 0; i + 1 < I_exp->size; i++)
-            {
-                I_exp->tokens[i].num = I_exp->tokens[i + 1].num;
-                I_exp->tokens[i].operator= I_exp->tokens[i + 1].operator;
-                I_exp->tokens[i].variable = I_exp->tokens[i + 1].variable;
-            }
-
-            _infix_ *temp = (_infix_ *)realloc(I_exp->tokens, (I_exp->size - 2) * sizeof(_infix_));
-            if (temp != NULL)
-            {
-                I_exp->tokens = temp;
-                I_exp->size -= 2;
-            }
-            else
-            {
-                perror("reformat_I_exp - case8: Failed to realloc temp");
-                return;
-            }
-        }
-    }
 }
 
 __INFIX__ copy_infix_expression(const __INFIX__ source)

@@ -1,6 +1,7 @@
 #ifndef SOLVE_EQUATIONS_H
 #define SOLVE_EQUATIONS_H
 
+#include <MY_LIB/lexer_and_format.h>
 #include <MY_LIB/inputsDisplays.h>
 #include <MY_LIB/my_calculator.h>
 #include <gsl/gsl_complex_math.h>
@@ -20,6 +21,8 @@
 #define SE_MAX_ITERATION 150
 #define SE_MAX_RETRIES 5
 #define SE_MAX_VARIABLES 100
+
+
 
 // ====================================================================================================================== //
 // ===============================================FUNCTION DECLARATIONS================================================== //
