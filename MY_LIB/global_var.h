@@ -12,7 +12,7 @@ typedef struct shared_variables
 
 // global set
 // This pointer holds the address of the shared memory block
-static shared_variables *variable_set;
+static shared_variables *variable_set = (void *)0;
 
 // global roots
 // This pointer holds the address of the shared memory block
@@ -20,16 +20,15 @@ static shared_variables *variable_set;
 typedef struct solution_pack
 {
     unsigned short int numof_solutions;
-    double * solutions_array;
-    char * str_function;
+    double *solutions_array;
+    char *str_function;
     unsigned short int str_function_len;
     char var;
     double l_bound;
     double u_bound;
 } solution_pack;
 
-static solution_pack * shared_solution_pack;
-
+static solution_pack *shared_solution_pack;
 
 static bool open_menu;
 

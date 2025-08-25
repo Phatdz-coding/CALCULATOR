@@ -21,7 +21,17 @@
         "input_box.h": "c",
         "compile": "c",
         "cstdlib": "c",
-        "gsl_integration.h": "c"
+        "gsl_integration.h": "c",
+        "quad.c": "cpp",
+        "cmath": "cpp",
+        "numerical_integration.h": "c",
+        "atomic": "c",
+        "vector": "c",
+        "functional": "c",
+        "random": "c",
+        "fstream": "c",
+        "type_traits": "c",
+        "tuple": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

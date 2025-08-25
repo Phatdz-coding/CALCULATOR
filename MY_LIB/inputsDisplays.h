@@ -584,18 +584,7 @@ void display_number(const double number)
 {
     if (isfinite(number))
     {
-        if (is_integer___(number))
-            printf("%.0lf", number);
-
-        else if (is_integer___(10.0 * number))
-            printf("%.1lf", number);
-
-        else if (is_integer___(100.0 * number))
-            printf("%.2lf", number);
-        else if (is_integer___(1000.0 * number))
-            printf("%.3lf", number);
-        else
-            printf("%.17lf", number);
+        printf("%.15g", number);
     }
     else if (isinf(number) && number < 0.0)
         printf("-∞");
