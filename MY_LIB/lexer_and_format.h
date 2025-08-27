@@ -115,13 +115,30 @@ void optimize_I_exp(__INFIX__ *I_exp);
 
 void optimize_P_exp(_POSTFIX__ *P_exp);
 
+bool remove_blanks_in_string(char *string);
+
 __INFIX__ convert_string_to_INFIX(char *expression);
 
+// Lexer Module 1
+__INFIX__ laf_Lexer_old(char *expression);
+
+// Lexer Module 2 - More advanced - Faster
+__INFIX__ laf_Lexer(char *expression);
+
+void laf_encode_math_symbols(char *string, short int *index);
+
 char __operator__(char *expression, int token);
+char ___operate_detector___(char *expression, unsigned short int *increase);
 
 void _increase_(int *token, char op);
 
 void reformat_I_exp(__INFIX__ *I_exp);
+
+__INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression);
+
+bool laf_valid_input_code(const short int input_code);
+
+void laf_delete_input_code(char *string, short int *input_index);
 
 void merge_2_num(__INFIX__ *I_exp, const short int index);
 void merge_num_and_bracket(__INFIX__ *I_exp, const short int index);
@@ -135,6 +152,677 @@ void merge_pow_of_zero(__INFIX__ *I_exp, const short int index);
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
 
+// use for real-time processing
+void laf_encode_math_symbols(char *string, short int *index)
+{
+    // pi
+    if (string[*index - 2] == 'p' && string[*index - 1] == 'i')
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "π");
+
+        *index += 2;
+    }
+
+    // gamma
+    else if (!strncmp(string + (*index - 6), "gamma(", 6))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "Γ(");
+
+        (*index) += 3;
+    }
+
+    // sqrt
+    else if (!strncmp(string + (*index - 5), "sqrt(", 5))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "√(");
+
+        (*index) += 4;
+    }
+
+    // sqrt2
+    else if (!strncmp(string + (*index - 5), "sqrt2", 5))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "√2");
+
+        (*index) += 4;
+    }
+
+    // sqrt3
+    else if (!strncmp(string + (*index - 5), "sqrt3", 5))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "√3");
+
+        (*index) += 4;
+    }
+
+    // cbrt
+    else if (!strncmp(string + (*index - 5), "cbrt(", 5))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "∛(");
+
+        (*index) += 4;
+    }
+
+    // sqrt.5
+    else if (!strncmp(string + (*index - 6), "sqrt.5", 6))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "√0.5");
+
+        (*index) += 6;
+    }
+
+    // lambertW
+    else if (!strncmp(string + (*index - 9), "lambertw(", 9))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "Ꮤ(");
+
+        (*index) += 4;
+    }
+
+    // integral
+    else if (!strncmp(string + (*index - 9), "integral(", 9))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "∫(");
+
+        (*index) += 4;
+    }
+
+    // sigma sum
+    else if (!strncmp(string + (*index - 12), "sumsequence(", 12))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "∑(");
+
+        (*index) += 4;
+    }
+
+    // product of sequence
+    else if (!strncmp(string + (*index - 16), "productsequence(", 16))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "Π(");
+
+        (*index) += 3;
+    }
+}
+
+void laf_delete_input_code(char *string, short int *input_index)
+{
+    switch ((unsigned char)string[*input_index - 1])
+    {
+    case 128:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 154:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 155:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 171:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 147:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 189:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 160:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 145:
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        return;
+    case 148:
+        string[--(*input_index)] = '\0';
+        ;
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        break;
+    default:
+        string[--(*input_index)] = '\0';
+        return;
+    }
+}
+
+bool laf_valid_input_code(const short int input_code)
+{
+    return ((input_code >= 'a' && input_code <= 'z') ||
+            (input_code >= '0' && input_code <= '9') ||
+            (input_code >= 'A' && input_code <= 'Z') ||
+            input_code == '!' ||
+            input_code == '%' ||
+            input_code == '^' ||
+            input_code == '*' ||
+            input_code == '(' ||
+            input_code == ')' ||
+            input_code == '-' ||
+            input_code == '+' ||
+            input_code == '/' ||
+            input_code == '.' ||
+            input_code == ',' ||
+            input_code == ' ' ||
+            input_code == '=' ||
+            input_code == 207 ||
+            input_code == 128 ||
+            input_code == 154 ||
+            input_code == 155 ||
+            input_code == 171 ||
+            input_code == 206 ||
+            input_code == 160 ||
+            input_code == 226 ||
+            input_code == 136 ||
+            input_code == 145 ||
+            input_code == 240 ||
+            input_code == 157 ||
+            input_code == 147 ||
+            input_code == 166 ||
+            input_code == 225 ||
+            input_code == 143 ||
+            input_code == 148);
+}
+
+__INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
+{
+    __INFIX__ I_empty = {0, NULL};
+
+    // check for valid pointer and size
+    if (I_expression.size <= 0 || I_expression.tokens == NULL)
+        return I_empty;
+
+    // check for the last operator
+    if (I_expression.tokens[I_expression.size - 1].operator!= '\0' &&
+        I_expression.tokens[I_expression.size - 1]
+            .operator!= '!' &&
+        I_expression.tokens[I_expression.size - 1]
+            .operator!= ')')
+        return I_empty;
+
+    __INFIX__ I_new_exp;
+
+    unsigned short int LEN = I_expression.size * 5;
+
+    I_new_exp.size = LEN;
+    I_new_exp.tokens = (_infix_ *)calloc(LEN, sizeof(_infix_));
+    if (I_new_exp.tokens == NULL)
+    {
+        perror("laf_handle_errors_in_exp: Failed to calloc I_new_exp.tokens");
+        // system("pause");
+        return I_empty;
+    }
+
+    // init I_new
+    for (unsigned short int i = 0; i < LEN; i++)
+        I_new_exp.tokens[i].num = NAN;
+
+    unsigned short int index_I_new_exp = 0;
+
+    unsigned short int numof_open_bracket = 0;
+    unsigned short int numof_close_bracket = 0;
+
+    for (unsigned short int i = 0; i < I_expression.size; i++)
+    {
+        I_new_exp.tokens[index_I_new_exp].num = I_expression.tokens[i].num;
+        I_new_exp.tokens[index_I_new_exp].variable = I_expression.tokens[i].variable;
+        I_new_exp.tokens[index_I_new_exp++].operator= I_expression.tokens[i].operator;
+
+        // ) | var | num -> num | ( | var | functions
+        if ((isfinite(I_expression.tokens[i].num) || I_expression.tokens[i].variable != '\0' || I_expression.tokens[i].operator== ')') &&
+            i + 1 < I_expression.size &&
+            (isfinite(I_expression.tokens[i + 1].num) ||
+             I_expression.tokens[i + 1].variable != '\0' ||
+             (I_expression.tokens[i + 1].operator!= '\0' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '-' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '+' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '*' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '/' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '^' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '%' &&
+              I_expression.tokens[i + 1]
+                  .operator!= ')' &&
+              I_expression.tokens[i + 1]
+                  .operator!= ',' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '=' &&
+              I_expression.tokens[i + 1]
+                  .operator!= '!')))
+        {
+            I_new_exp.tokens[index_I_new_exp++].operator= '*';
+        }
+
+        // Handle substraction errors
+        else if (I_expression.tokens[i].operator== '-')
+        {
+            // case 1: "-expression"
+            if (i == 0)
+            {
+                I_new_exp.tokens[index_I_new_exp - 1].operator= '\0';
+                I_new_exp.tokens[index_I_new_exp - 1].num = 0.0;
+                I_new_exp.tokens[index_I_new_exp++].operator= '-';
+            }
+
+            // case 2: "(-expression)"
+            else if (i >= 1 && I_expression.tokens[i - 1].operator== '(')
+            {
+                I_new_exp.tokens[index_I_new_exp - 1].operator= '\0';
+                I_new_exp.tokens[index_I_new_exp - 1].num = 0.0;
+                I_new_exp.tokens[index_I_new_exp++].operator= '-';
+            }
+        }
+
+        // Handle addition errors
+        else if (I_expression.tokens[i].operator== '+')
+        {
+            // case 1: "+expression"
+            if (i == 0)
+            {
+                I_new_exp.tokens[--index_I_new_exp].operator== '\0';
+            }
+
+            // case 2: "(+expression)"
+            else if (i >= 1 && I_expression.tokens[i - 1].operator== '(')
+            {
+                I_new_exp.tokens[--index_I_new_exp].operator== '\0';
+            }
+        }
+
+        // count for open bracket
+        if (I_expression.tokens[i].operator== '(')
+        {
+            numof_open_bracket++;
+        }
+
+        // count for close bracket
+        else if (I_expression.tokens[i].operator== ')')
+        {
+            numof_close_bracket++;
+        }
+    }
+
+    // error
+    if (numof_close_bracket > numof_open_bracket)
+    {
+        free(I_new_exp.tokens);
+        return I_empty;
+    }
+
+    // check for valid bracket
+    else if (numof_open_bracket > numof_close_bracket)
+    {
+        // add more close bracket
+        unsigned short int delta = numof_open_bracket - numof_close_bracket;
+        for (unsigned short int i = 0; i < delta; i++)
+            I_new_exp.tokens[index_I_new_exp++].operator= ')';
+    }
+
+    // realloc new_exp
+    _infix_ *i_temp = (_infix_ *)realloc(I_new_exp.tokens, index_I_new_exp * sizeof(_infix_));
+    if (i_temp == NULL)
+    {
+        perror("laf_handle_errors_in_exp: Failed to realloc i_temp");
+        // system("pause");
+        free(I_new_exp.tokens);
+        return I_empty;
+    }
+    I_new_exp.size = index_I_new_exp;
+    I_new_exp.tokens = i_temp;
+
+    return I_new_exp;
+}
+
+/**
+ * Removes all space characters from a string in-place
+ * Optimized for maximum performance using two-pointer technique
+ *
+ * @param string - pointer to the string to modify (must be null-terminated)
+ * @return true if successful, false if string is NULL
+ *
+ */
+bool remove_blanks_in_string(char *string)
+{
+    // Input validation
+    // if (string == NULL) {
+    //     return false;
+    // }
+
+    // Two-pointer approach for O(n) time complexity
+    char *write_ptr = string; // Points to where we write non-space chars
+    char *read_ptr = string;  // Points to current character being read
+
+    // Single pass through the string
+    while (*read_ptr != '\0')
+    {
+        if (*read_ptr != ' ')
+        {
+            *write_ptr = *read_ptr;
+            write_ptr++;
+        }
+        read_ptr++;
+    }
+
+    // Null-terminate the modified string
+    *write_ptr = '\0';
+
+    return true;
+}
+
+/*
+This Lexer is designed specificly for real-time processing math expressions
+
+To add new function:
+1/ add to macro
+2/ add to __operate_detector___
+3/ add to Compute_P_expression
+ */
+__INFIX__ laf_Lexer(char *expression)
+{
+    __INFIX__ I_empty = {0, NULL};
+
+    // check for valid input
+    if (expression == NULL || expression[0] == '\0')
+        return I_empty;
+
+    // make a copy of input
+    unsigned short int len = strlen(expression);
+    char *str_expression = calloc(len + 1, sizeof(char));
+    strcpy(str_expression, expression);
+
+    // alloc token array
+    __INFIX__ I_expression;
+
+    I_expression.size = len;
+    I_expression.tokens = (_infix_ *)malloc(I_expression.size * sizeof(_infix_));
+    if (I_expression.tokens == NULL)
+    {
+        free(str_expression);
+        perror("laf_Lexer: Failed to malloc I_expression.tokens");
+        return I_empty;
+    }
+
+    // init I_expression
+    for (unsigned short int i = 0; i < len; i++)
+    {
+        I_expression.tokens[i].num = NAN;
+        I_expression.tokens[i].variable = '\0';
+        I_expression.tokens[i].operator= '\0';
+    }
+
+    // remove blanks & spaces in str_expression
+    if (!remove_blanks_in_string(str_expression))
+    {
+        free(str_expression);
+        free(I_expression.tokens);
+        return I_empty;
+    }
+    len = strlen(str_expression);
+
+    // check
+    // printf("after clear blanks: %s | Len = %d\n", str_expression, len);
+
+    // tokenize the expression
+    char str_num[101] = {0};
+    unsigned short int index_str_num = 0;
+    unsigned short int index_I_expression = 0;
+
+    // Main lexer
+    // ---------------------------------------------------------------- //
+    for (unsigned short int i = 0; i < len; i++)
+    {
+        // is a digit or a dot
+        if ((isdigit(str_expression[i]) || str_expression[i] == '.') && index_str_num < 101)
+        {
+            str_num[index_str_num++] = str_expression[i];
+
+            if (i == len - 1)
+            {
+                I_expression.tokens[index_I_expression++].num = atof(str_num);
+                break;
+            }
+
+            continue;
+        }
+
+        // turn string to number
+        if (str_num[0] != 0)
+        {
+            I_expression.tokens[index_I_expression++].num = atof(str_num);
+            index_str_num = 0;
+            memset(str_num, 0, 101);
+        }
+
+        // handle built-in constants
+
+        // pi
+        if ((str_expression[i] == 'p' && i + 1 < len && str_expression[i + 1] == 'i') || !strncmp(str_expression + i, "π", 2))
+        {
+            I_expression.tokens[index_I_expression++].num = PI;
+            i++;
+            continue;
+        }
+
+        // e
+        if (str_expression[i] == 'e')
+        {
+            I_expression.tokens[index_I_expression++].num = EULER_NUMBER;
+            continue;
+        }
+
+        // g
+        if (str_expression[i] == 'g' && str_expression[i + 1] != 'a')
+        {
+            I_expression.tokens[index_I_expression++].num = _G_;
+            continue;
+        }
+
+        // c
+        if (str_expression[i] == 'c' && str_expression[i + 1] != 'o' && str_expression[i + 1] != 's' && str_expression[i + 1] != 'b')
+        {
+            I_expression.tokens[index_I_expression++].num = _C_;
+            continue;
+        }
+
+        // sqrt2
+        if (!strncmp(str_expression + i, "sqrt2", 5))
+        {
+            I_expression.tokens[index_I_expression++].num = SQRT_2;
+            i += 4;
+            continue;
+        }
+
+        // √2
+        if (!strncmp(str_expression + i, "√2", 4))
+        {
+            I_expression.tokens[index_I_expression++].num = SQRT_2;
+            i += 3;
+            continue;
+        }
+
+        // sqrt3
+        if (!strncmp(str_expression + i, "sqrt3", 5))
+        {
+            I_expression.tokens[index_I_expression++].num = SQRT_3;
+            i += 4;
+            continue;
+        }
+
+        // √3
+        if (!strncmp(str_expression + i, "√3", 4))
+        {
+            I_expression.tokens[index_I_expression++].num = SQRT_3;
+            i += 3;
+            continue;
+        }
+
+        // sqrt.5 || √0.5
+        if (!strncmp(str_expression + i, "sqrt.5", 6) || !strncmp(str_expression + i, "√0.5", 6))
+        {
+            I_expression.tokens[index_I_expression++].num = SQRT_2_2;
+            i += 5;
+            continue;
+        }
+
+        // ln2
+        if (str_expression[i] == 'l' && i + 1 < len && str_expression[i + 1] == 'n' && i + 2 < len && str_expression[i + 2] == '2')
+        {
+            I_expression.tokens[index_I_expression++].num = LN_2;
+            i += 2;
+            continue;
+        }
+
+        // Special: Percentage
+        if (str_expression[i] == '%' && str_expression[i + 1] != '%')
+        {
+            I_expression.tokens[index_I_expression++].num = 0.01;
+            continue;
+        }
+
+        // operators and variables
+        unsigned short int increase = 0;
+        char _OP_ = ___operate_detector___(str_expression + i, &increase);
+
+        if (_OP_ != '\0')
+        {
+            I_expression.tokens[index_I_expression++].operator= _OP_;
+            i += increase;
+        }
+        else
+            I_expression.tokens[index_I_expression++].variable = str_expression[i];
+    }
+    // ---------------------------------------------------------------- //
+
+    // realloc I_expression
+    _infix_ *i_temp = (_infix_ *)realloc(I_expression.tokens, index_I_expression * sizeof(_infix_));
+    if (i_temp == NULL)
+    {
+        perror("laf_Lexer: Failed to realloc i_temp");
+        free(str_expression);
+        free(I_expression.tokens);
+        return I_empty;
+    }
+    I_expression.size = index_I_expression;
+    I_expression.tokens = i_temp;
+
+    // check
+    // display_infix_exp(I_expression);
+    // printf("I_len = %d\n", index_I_expression);
+
+    free(str_expression);
+
+    return I_expression;
+}
 
 /**
  * Merges two numbers with an operator between them
@@ -414,7 +1102,6 @@ void merge_pow_of_zero(__INFIX__ *I_exp, const short int index)
     }
 }
 
-
 void _increase_(int *token, char op)
 {
     switch (op)
@@ -491,6 +1178,285 @@ void _increase_(int *token, char op)
     default:
         return;
     }
+}
+
+char ___operate_detector___(char *expression, unsigned short int *increase)
+{
+    if (expression[0] == '+')
+        return '+';
+    if (expression[0] == '-')
+        return '-';
+    if (expression[0] == '/')
+        return '/';
+    if (expression[0] == '*')
+        return '*';
+    if (expression[0] == '(')
+        return '(';
+    if (expression[0] == ')')
+        return ')';
+    if (expression[0] == '^')
+        return '^';
+    if (expression[0] == '%' && expression[1] == '%')
+    {
+        (*increase)++;
+        return '%';
+    }
+    if (expression[0] == '!')
+        return '!';
+    if (expression[0] == ',')
+        return ',';
+    if (expression[0] == '=')
+        return '=';
+
+    // sample if statement
+    if (!strncmp(expression, "sin(", 4))
+    {
+        (*increase) += 2; // 2 = 4 - 2
+        return SPECIFIER_OF_SIN;
+    }
+    // start editing here
+    if (!strncmp(expression, "cos(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_COS;
+    }
+    if (!strncmp(expression, "tan(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_TAN;
+    }
+    if (!strncmp(expression, "cot(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_COT;
+    }
+    if (!strncmp(expression, "sec(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_SEC;
+    }
+    if (!strncmp(expression, "sech(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_SECH;
+    }
+    if (!strncmp(expression, "arcsec(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCSEC;
+    }
+    if (!strncmp(expression, "arcsech(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCSECH;
+    }
+    if (!strncmp(expression, "csc(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_CSC;
+    }
+    if (!strncmp(expression, "csch(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_CSCH;
+    }
+    if (!strncmp(expression, "arccsc(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCCSC;
+    }
+    if (!strncmp(expression, "arccsch(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCCSCH;
+    }
+    if (!strncmp(expression, "arcsin(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCSIN;
+    }
+    if (!strncmp(expression, "arccos(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCCOS;
+    }
+    if (!strncmp(expression, "arctan(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCTAN;
+    }
+    if (!strncmp(expression, "arccot(", 7))
+    {
+        (*increase) += 5;
+        return SPECIFIER_OF_ARCCOT;
+    }
+    if (!strncmp(expression, "sqrt(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_SQRT;
+    }
+    if (!strncmp(expression, "√(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_SQRT;
+    }
+    if (!strncmp(expression, "ln(", 3))
+    {
+        (*increase) += 1;
+        return SPECIFIER_OF_LN;
+    }
+    if (!strncmp(expression, "abs(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_ABS;
+    }
+    if (!strncmp(expression, "cbrt(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_CBRT;
+    }
+    if (!strncmp(expression, "∛(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_CBRT;
+    }
+    if (!strncmp(expression, "gamma(", 6))
+    {
+        (*increase) += 4;
+        return SPECIFIER_OF_GAMMA;
+    }
+    if (!strncmp(expression, "Γ(", 3))
+    {
+        (*increase) += 1;
+        return SPECIFIER_OF_GAMMA;
+    }
+    if (!strncmp(expression, "ceil(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_CEIL;
+    }
+    if (!strncmp(expression, "floor(", 6))
+    {
+        (*increase) += 4;
+        return SPECIFIER_OF_FLOOR;
+    }
+    if (!strncmp(expression, "lambertw(", 9))
+    {
+        (*increase) += 7;
+        return SPECIFIER_OF_LAMBERTW;
+    }
+    if (!strncmp(expression, "Ꮤ(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_LAMBERTW;
+    }
+    if (!strncmp(expression, "lg(", 3))
+    {
+        (*increase) += 1;
+        return SPECIFIER_OF_LG;
+    }
+    if (!strncmp(expression, "log(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_LOG;
+    }
+    if (!strncmp(expression, "sinh(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_SINH;
+    }
+    if (!strncmp(expression, "arcsinh(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCSINH;
+    }
+    if (!strncmp(expression, "cosh(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_COSH;
+    }
+    if (!strncmp(expression, "arccosh(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCCOSH;
+    }
+    if (!strncmp(expression, "tanh(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_TANH;
+    }
+    if (!strncmp(expression, "arctanh(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCTANH;
+    }
+    if (!strncmp(expression, "coth(", 5))
+    {
+        (*increase) += 3;
+        return SPECIFIER_OF_COTH;
+    }
+    if (!strncmp(expression, "arccoth(", 8))
+    {
+        (*increase) += 6;
+        return SPECIFIER_OF_ARCCOTH;
+    }
+    if (!strncmp(expression, "dif(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_DIF;
+    }
+    if (!strncmp(expression, "integral(", 9))
+    {
+        (*increase) += 7;
+        return SPECIFIER_OF_INTEGRAL;
+    }
+    if (!strncmp(expression, "∫(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_INTEGRAL;
+    }
+    if (!strncmp(expression, "sumsequence(", 12))
+    {
+        (*increase) += 10;
+        return SPECIFIER_OF_SIGMA_SUM;
+    }
+    if (!strncmp(expression, "∑(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_SIGMA_SUM;
+    }
+    if (!strncmp(expression, "productsequence(", 16))
+    {
+        (*increase) += 14;
+        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
+    }
+    if (!strncmp(expression, "Π(", 3))
+    {
+        (*increase) += 1;
+        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
+    }
+    if (!strncmp(expression, "permutations(", 13))
+    {
+        (*increase) += 11;
+        return SPECIFIER_OF_PERMUTATIONS;
+    }
+    if (!strncmp(expression, "combinations(", 13))
+    {
+        (*increase) += 11;
+        return SPECIFIER_OF_COMBINATIONS;
+    }
+    if (!strncmp(expression, "GCD(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_GCD;
+    }
+    if (!strncmp(expression, "LCM(", 4))
+    {
+        (*increase) += 2;
+        return SPECIFIER_OF_LCM;
+    }
+
+    return '\0';
 }
 
 // Convert operators & functions to specifiers
@@ -1179,12 +2145,21 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
     }
 }
 
+__INFIX__ convert_string_to_INFIX(char *expression)
+{
+    __INFIX__ I_raw = laf_Lexer(expression);
+    __INFIX__ I_exp = laf_handle_errors_in_exp(I_raw);
+    if (I_raw.tokens != NULL)
+        free(I_raw.tokens);
+    return I_exp;
+}
+
 /* To add new functions:
 1/ add to macro
-2/ add to _operator_
-3/ add to _increase
+2/ add to __operator__
+3/ add to _increase_
  */
-__INFIX__ convert_string_to_INFIX(char *expression)
+__INFIX__ laf_Lexer_old(char *expression)
 {
     __INFIX__ specified_exp;
     specified_exp.size = 0;

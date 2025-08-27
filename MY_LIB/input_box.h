@@ -41,7 +41,7 @@ extern "C"
 
     void assign_variables(void);
 
-    short int solve_poly_get_coef(double *coefficient);
+    short int ib_solve_poly_get_coef(double *coefficient);
 
     char *ib_se_get_function(void);
 
@@ -216,7 +216,7 @@ void substitude_variables(__INFIX__ *I_exp)
 
     for (short int i = 0; i < I_exp->size; i++)
     {
-        if (I_exp->tokens[i].variable == '\0')
+        if (I_exp->tokens[i].variable <= 0)
             continue;
 
         bool special_var = false;
@@ -249,7 +249,7 @@ void substitude_variables(__INFIX__ *I_exp)
 
     for (short int i = 0; i < I_exp->size; i++)
     {
-        if (I_exp->tokens[i].variable == '\0')
+        if (I_exp->tokens[i].variable <= 0)
             continue;
 
         I_exp->tokens[i].num = variable_set[index_table[I_exp->tokens[i].variable]].num;
@@ -324,43 +324,31 @@ short int ib_2_3_4_poly_equation(unsigned short int input_line, unsigned short i
 
             printf("%s", str_input);
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
 
-        if (((input_code >= 'a' && input_code <= 'z') ||
-             (input_code >= '0' && input_code <= '9') ||
-             (input_code >= 'A' && input_code <= 'Z') ||
-             input_code == '!' ||
-             input_code == '%' ||
-             input_code == '^' ||
-             input_code == '*' ||
-             input_code == '(' ||
-             input_code == ')' ||
-             input_code == '-' ||
-             input_code == '+' ||
-             input_code == '/' ||
-             input_code == '.' ||
-             input_code == ',' ||
-             input_code == ' ' ||
-             input_code == '=') &&
+        if (laf_valid_input_code(input_code) &&
             input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
             str_input[input_index++] = input_code;
 
+            laf_encode_math_symbols(str_input, &input_index);
+
             new_input = true;
         }
 
         // Backspace - Delete input
-        else if (input_code == 8)
+        else if (input_code == 8 && input_index > 0)
         {
-            if (input_index > 0)
-            {
-                str_input[--input_index] = '\0';
-                new_input = true;
-            }
+            laf_delete_input_code(str_input, &input_index);
+
+            new_input = true;
         }
 
         // assign var & compute [Ctrl + Enter]
@@ -446,7 +434,7 @@ void free_coefficients(double **coefficients)
     }
 }
 
-short int solve_poly_get_coef(double *coefficient)
+short int ib_solve_poly_get_coef(double *coefficient)
 {
     int input_code = 0;
 
@@ -484,43 +472,30 @@ short int solve_poly_get_coef(double *coefficient)
             move_cursor(C_Y, 0);
             printf("%s", str_input);
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
 
-        if (((input_code >= 'a' && input_code <= 'z') ||
-             (input_code >= '0' && input_code <= '9') ||
-             (input_code >= 'A' && input_code <= 'Z') ||
-             input_code == '!' ||
-             input_code == '%' ||
-             input_code == '^' ||
-             input_code == '*' ||
-             input_code == '(' ||
-             input_code == ')' ||
-             input_code == '-' ||
-             input_code == '+' ||
-             input_code == '/' ||
-             input_code == '.' ||
-             input_code == ',' ||
-             input_code == ' ' ||
-             input_code == '=') &&
+        if (laf_valid_input_code(input_code) &&
             input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
             str_input[input_index++] = input_code;
 
+            laf_encode_math_symbols(str_input, &input_index);
+
             new_input = true;
         }
 
         // Backspace - Delete input
-        else if (input_code == 8)
+        else if (input_code == 8 && input_index > 0)
         {
-            if (input_index > 0)
-            {
-                str_input[--input_index] = '\0';
-                new_input = true;
-            }
+            laf_delete_input_code(str_input, &input_index);
+            new_input = true;
         }
 
         // assign var & compute [Ctrl + Enter]
@@ -650,43 +625,30 @@ char *ib_se_get_function()
 
             printf("%s", str_input);
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
 
-        if (((input_code >= 'a' && input_code <= 'z') ||
-             (input_code >= '0' && input_code <= '9') ||
-             (input_code >= 'A' && input_code <= 'Z') ||
-             input_code == '!' ||
-             input_code == '%' ||
-             input_code == '^' ||
-             input_code == '*' ||
-             input_code == '(' ||
-             input_code == ')' ||
-             input_code == '-' ||
-             input_code == '+' ||
-             input_code == '/' ||
-             input_code == '.' ||
-             input_code == ',' ||
-             input_code == ' ' ||
-             input_code == '=') &&
+        if (laf_valid_input_code(input_code) &&
             input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
             str_input[input_index++] = input_code;
 
+            laf_encode_math_symbols(str_input, &input_index);
+
             new_input = true;
         }
 
         // Backspace - Delete input
-        else if (input_code == 8)
+        else if (input_code == 8 && input_index > 0)
         {
-            if (input_index > 0)
-            {
-                str_input[--input_index] = '\0';
-                new_input = true;
-            }
+            laf_delete_input_code(str_input, &input_index);
+            new_input = true;
         }
 
         // assign var & compute [Ctrl + Enter]
@@ -1084,43 +1046,30 @@ short int ib_for_system_o_l_e(int *ptr_input_line, unsigned short int input_colu
 
             printf("%s", str_input);
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
 
-        if (((input_code >= 'a' && input_code <= 'z') ||
-             (input_code >= '0' && input_code <= '9') ||
-             (input_code >= 'A' && input_code <= 'Z') ||
-             input_code == '!' ||
-             input_code == '%' ||
-             input_code == '^' ||
-             input_code == '*' ||
-             input_code == '(' ||
-             input_code == ')' ||
-             input_code == '-' ||
-             input_code == '+' ||
-             input_code == '/' ||
-             input_code == '.' ||
-             input_code == ',' ||
-             input_code == ' ' ||
-             input_code == '=') &&
+        if (laf_valid_input_code(input_code) &&
             input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
             str_input[input_index++] = input_code;
 
+            laf_encode_math_symbols(str_input, &input_index);
+
             new_input = true;
         }
 
         // Backspace - Delete input
-        else if (input_code == 8)
+        else if (input_code == 8 && input_index > 0)
         {
-            if (input_index > 0)
-            {
-                str_input[--input_index] = '\0';
-                new_input = true;
-            }
+            laf_delete_input_code(str_input, &input_index);
+            new_input = true;
         }
 
         // assign var & compute [Ctrl + Enter]
@@ -1249,43 +1198,30 @@ char *ib_ssonle_get_function(int *ptr_input_line, unsigned short int input_colum
 
             printf("%s", str_input);
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
 
-        if (((input_code >= 'a' && input_code <= 'z') ||
-             (input_code >= '0' && input_code <= '9') ||
-             (input_code >= 'A' && input_code <= 'Z') ||
-             input_code == '!' ||
-             input_code == '%' ||
-             input_code == '^' ||
-             input_code == '*' ||
-             input_code == '(' ||
-             input_code == ')' ||
-             input_code == '-' ||
-             input_code == '+' ||
-             input_code == '/' ||
-             input_code == '.' ||
-             input_code == ',' ||
-             input_code == ' ' ||
-             input_code == '=') &&
+        if (laf_valid_input_code(input_code) &&
             input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
             str_input[input_index++] = input_code;
 
+            laf_encode_math_symbols(str_input, &input_index);
+
             new_input = true;
         }
 
         // Backspace - Delete input
-        else if (input_code == 8)
+        else if (input_code == 8 && input_index > 0)
         {
-            if (input_index > 0)
-            {
-                str_input[--input_index] = '\0';
-                new_input = true;
-            }
+            laf_delete_input_code(str_input, &input_index);
+            new_input = true;
         }
 
         // assign var & compute [Ctrl + Enter]

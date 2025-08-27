@@ -2215,7 +2215,7 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
     _TOKENS_DATA_ *new_ptr = (_TOKENS_DATA_ *)malloc(P_expression.size * sizeof(_TOKENS_DATA_));
     if (new_ptr == NULL)
     {
-        perror("Failed to create new_ptr");
+        perror("Compute_P_expression: Failed to create new_ptr");
         return NAN;
     }
     for (int i = 0; i < P_expression.size; i++)
@@ -2234,280 +2234,253 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
     cloned_exp.tokens = new_ptr;
     cloned_exp.size = P_expression.size;
 
-    while (cloned_exp.size > 1)
+    for (unsigned short int i = 0; i < cloned_exp.size && cloned_exp.size > 1; i++)
     {
-        int i;
-        char OP = '\0';
-        for (i = 0; i < cloned_exp.size; i++)
+        char OP = cloned_exp.tokens[i].operator;
+
+        if (OP == '\0')
+            continue;
+
+        bool two_param_OP = false;
+
+        switch (OP)
         {
-            if (cloned_exp.tokens[i].operator== '\0')
-                continue;
-
-            OP = cloned_exp.tokens[i].operator;
-
-            switch (OP)
-            {
-            case '+': // addition
-                cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num + cloned_exp.tokens[i - 1].num;
-                break;
-            case '-': // substraction
-                cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num - cloned_exp.tokens[i - 1].num;
-                break;
-            case '*': // multiplication
-                cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num * cloned_exp.tokens[i - 1].num;
-                break;
-            case '/': // division
-            {
-                if (cloned_exp.tokens[i - 1].num == 0.0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num / cloned_exp.tokens[i - 1].num;
-                break;
-            }
-            case '%': // remainder modulo
-            {
-                if (!is_integer(cloned_exp.tokens[i - 2].num) || !is_integer(cloned_exp.tokens[i - 1].num))
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 2].num = (double)(((int)cloned_exp.tokens[i - 2].num) % ((int)cloned_exp.tokens[i - 1].num));
-                break;
-            }
-            case '^': // exponential
-                cloned_exp.tokens[i - 2].num = pow(cloned_exp.tokens[i - 2].num, cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SIN: // sin
-                cloned_exp.tokens[i - 1].num = sin(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SINH: // sinh
-                cloned_exp.tokens[i - 1].num = sinh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SEC: // sec
-                cloned_exp.tokens[i - 1].num = 1 / cos(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_SECH: // sech
-                cloned_exp.tokens[i - 1].num = 1 / cosh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSEC: // arcsec
-                cloned_exp.tokens[i - 1].num = arcsec(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSECH: // arcsech
-                cloned_exp.tokens[i - 1].num = arcsech(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COS: // cos
-                cloned_exp.tokens[i - 1].num = cos(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COSH: // cosh
-                cloned_exp.tokens[i - 1].num = cosh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_CSC: // csc
-                cloned_exp.tokens[i - 1].num = 1 / sin(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_CSCH: // csch
-                cloned_exp.tokens[i - 1].num = csch(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCSC: // arccsc
-                cloned_exp.tokens[i - 1].num = arccsc(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCSCH: // arccsch
-                cloned_exp.tokens[i - 1].num = arccsch(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_TAN: // tan
-                cloned_exp.tokens[i - 1].num = tan(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_TANH: // tanh
-                cloned_exp.tokens[i - 1].num = tanh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COT: // cot
-                cloned_exp.tokens[i - 1].num = 1 / tan(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_COTH: // coth
-                cloned_exp.tokens[i - 1].num = coth(cloned_exp.tokens[i - 1].num);
-                break;
-            case '!': // factorial
-            {
-                // Check if it's an integer or not
-                if (!is_integer(cloned_exp.tokens[i - 1].num) || cloned_exp.tokens[i - 1].num < 0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                double fac = 1.0;
-                double n = cloned_exp.tokens[i - 1].num;
-                for (double f = 1.0; f <= n; f++)
-                    fac *= f;
-                if (fac > __DBL_MAX__)
-                    cloned_exp.tokens[i - 1].num = NAN;
-                else
-                    cloned_exp.tokens[i - 1].num = (double)fac;
-                break;
-            }
-            case SPECIFIER_OF_ARCSIN: // arcsin
-                cloned_exp.tokens[i - 1].num = asin(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCSINH: // arcsinh
-                cloned_exp.tokens[i - 1].num = asinh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOS: // arccos
-                cloned_exp.tokens[i - 1].num = acos(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOSH: // arccosh
-                cloned_exp.tokens[i - 1].num = acosh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCTAN: // arctan
-                cloned_exp.tokens[i - 1].num = atan(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCTANH: // arctanh
-                cloned_exp.tokens[i - 1].num = atanh(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_ARCCOT: // arccot
-            {
-                if (cloned_exp.tokens[i - 1].num > 0.0)
-                    cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num));
-                else
-                    cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num)) + PI;
-                break;
-            }
-            case SPECIFIER_OF_ARCCOTH: // arccoth
-                cloned_exp.tokens[i - 1].num = arccoth(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_LN: // ln
-            {
-                if (cloned_exp.tokens[i - 1].num <= 0.0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 1].num = log(cloned_exp.tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_LG: // log10
-            {
-                if (cloned_exp.tokens[i - 1].num <= 0.0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 1].num = log10(cloned_exp.tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_SQRT: // sqrt
-            {
-                if (cloned_exp.tokens[i - 1].num < 0.0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 1].num = sqrt(cloned_exp.tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_ABS: // abs
-            {
-                if (cloned_exp.tokens[i - 1].num < 0.0)
-                    cloned_exp.tokens[i - 1].num = -cloned_exp.tokens[i - 1].num;
-                break;
-            }
-            case SPECIFIER_OF_CBRT: // cuberoot
-                cloned_exp.tokens[i - 1].num = cbrt(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_GAMMA: // gamma function
-            {
-                if (cloned_exp.tokens[i - 1].num < 0.0)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 1].num = gamma_function(cloned_exp.tokens[i - 1].num);
-                break;
-            }
-            case SPECIFIER_OF_CEIL: // ceiling function
-                cloned_exp.tokens[i - 1].num = ceil(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_FLOOR: // floor function
-                cloned_exp.tokens[i - 1].num = floor(cloned_exp.tokens[i - 1].num);
-                break;
-            case SPECIFIER_OF_LAMBERTW: // lambert W function
-            {
-                if (cloned_exp.tokens[i - 1].num < -1.0 / EULER_NUMBER)
-                {
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens[i - 1].num = lambertw_real(cloned_exp.tokens[i - 1].num);
-                break;
-            }
-            default:
+        case '+': // addition
+            cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num + cloned_exp.tokens[i - 1].num;
+            two_param_OP = true;
+            break;
+        case '-': // substraction
+            cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num - cloned_exp.tokens[i - 1].num;
+            two_param_OP = true;
+            break;
+        case '*': // multiplication
+            cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num * cloned_exp.tokens[i - 1].num;
+            two_param_OP = true;
+            break;
+        case '/': // division
+        {
+            if (cloned_exp.tokens[i - 1].num == 0.0)
             {
                 free(cloned_exp.tokens);
                 return NAN;
             }
-            }
-
+            cloned_exp.tokens[i - 2].num = cloned_exp.tokens[i - 2].num / cloned_exp.tokens[i - 1].num;
+            two_param_OP = true;
             break;
         }
-
-        if ((OP == '-' || OP == '+' || OP == '*' || OP == '/' || OP == '^' || OP == '^' || OP == '%') && !isfinite(cloned_exp.tokens[i - 2].num))
+        case '%': // remainder modulo
         {
-            // puts("-NAN-\n");
+            if (!is_integer(cloned_exp.tokens[i - 2].num) || !is_integer(cloned_exp.tokens[i - 1].num))
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 2].num = (double)(((int)cloned_exp.tokens[i - 2].num) % ((int)cloned_exp.tokens[i - 1].num));
+            two_param_OP = true;
+            break;
+        }
+        case '^': // exponential
+            cloned_exp.tokens[i - 2].num = pow(cloned_exp.tokens[i - 2].num, cloned_exp.tokens[i - 1].num);
+            two_param_OP = true;
+            break;
+        case SPECIFIER_OF_SIN: // sin
+            cloned_exp.tokens[i - 1].num = sin(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_SINH: // sinh
+            cloned_exp.tokens[i - 1].num = sinh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_SEC: // sec
+            cloned_exp.tokens[i - 1].num = 1 / cos(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_SECH: // sech
+            cloned_exp.tokens[i - 1].num = 1 / cosh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCSEC: // arcsec
+            cloned_exp.tokens[i - 1].num = arcsec(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCSECH: // arcsech
+            cloned_exp.tokens[i - 1].num = arcsech(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_COS: // cos
+            cloned_exp.tokens[i - 1].num = cos(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_COSH: // cosh
+            cloned_exp.tokens[i - 1].num = cosh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_CSC: // csc
+            cloned_exp.tokens[i - 1].num = 1 / sin(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_CSCH: // csch
+            cloned_exp.tokens[i - 1].num = csch(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCCSC: // arccsc
+            cloned_exp.tokens[i - 1].num = arccsc(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCCSCH: // arccsch
+            cloned_exp.tokens[i - 1].num = arccsch(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_TAN: // tan
+            cloned_exp.tokens[i - 1].num = tan(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_TANH: // tanh
+            cloned_exp.tokens[i - 1].num = tanh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_COT: // cot
+            cloned_exp.tokens[i - 1].num = 1 / tan(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_COTH: // coth
+            cloned_exp.tokens[i - 1].num = coth(cloned_exp.tokens[i - 1].num);
+            break;
+        case '!': // factorial
+        {
+            // Check if it's an integer or not
+            if (!is_integer(cloned_exp.tokens[i - 1].num) || cloned_exp.tokens[i - 1].num < 0)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            double fac = 1.0;
+            double n = cloned_exp.tokens[i - 1].num;
+            for (double f = 1.0; f <= n; f++)
+                fac *= f;
+            if (fac > __DBL_MAX__)
+                cloned_exp.tokens[i - 1].num = NAN;
+            else
+                cloned_exp.tokens[i - 1].num = (double)fac;
+            break;
+        }
+        case SPECIFIER_OF_ARCSIN: // arcsin
+            cloned_exp.tokens[i - 1].num = asin(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCSINH: // arcsinh
+            cloned_exp.tokens[i - 1].num = asinh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCCOS: // arccos
+            cloned_exp.tokens[i - 1].num = acos(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCCOSH: // arccosh
+            cloned_exp.tokens[i - 1].num = acosh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCTAN: // arctan
+            cloned_exp.tokens[i - 1].num = atan(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCTANH: // arctanh
+            cloned_exp.tokens[i - 1].num = atanh(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_ARCCOT: // arccot
+        {
+            if (cloned_exp.tokens[i - 1].num > 0.0)
+                cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num));
+            else
+                cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num)) + PI;
+            break;
+        }
+        case SPECIFIER_OF_ARCCOTH: // arccoth
+            cloned_exp.tokens[i - 1].num = arccoth(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_LN: // ln
+        {
+            if (cloned_exp.tokens[i - 1].num <= 0.0)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 1].num = log(cloned_exp.tokens[i - 1].num);
+            break;
+        }
+        case SPECIFIER_OF_LG: // log10
+        {
+            if (cloned_exp.tokens[i - 1].num <= 0.0)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 1].num = log10(cloned_exp.tokens[i - 1].num);
+            break;
+        }
+        case SPECIFIER_OF_SQRT: // sqrt
+        {
+            if (cloned_exp.tokens[i - 1].num < 0.0)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 1].num = sqrt(cloned_exp.tokens[i - 1].num);
+            break;
+        }
+        case SPECIFIER_OF_ABS: // abs
+        {
+            if (cloned_exp.tokens[i - 1].num < 0.0)
+                cloned_exp.tokens[i - 1].num = -cloned_exp.tokens[i - 1].num;
+            break;
+        }
+        case SPECIFIER_OF_CBRT: // cuberoot
+            cloned_exp.tokens[i - 1].num = cbrt(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_GAMMA: // gamma function
+        {
+            if (cloned_exp.tokens[i - 1].num < 0.0)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 1].num = gamma_function(cloned_exp.tokens[i - 1].num);
+            break;
+        }
+        case SPECIFIER_OF_CEIL: // ceiling function
+            cloned_exp.tokens[i - 1].num = ceil(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_FLOOR: // floor function
+            cloned_exp.tokens[i - 1].num = floor(cloned_exp.tokens[i - 1].num);
+            break;
+        case SPECIFIER_OF_LAMBERTW: // lambert W function
+        {
+            if (cloned_exp.tokens[i - 1].num < -1.0 / EULER_NUMBER)
+            {
+                free(cloned_exp.tokens);
+                return NAN;
+            }
+            cloned_exp.tokens[i - 1].num = lambertw_real(cloned_exp.tokens[i - 1].num);
+            break;
+        }
+        default:
+        {
             free(cloned_exp.tokens);
             return NAN;
         }
-        else if (!isfinite(cloned_exp.tokens[i - 1].num))
-        {
-            // puts("-NAN-\n");
-            free(cloned_exp.tokens);
-            return NAN;
         }
 
-        // After completing 1 calculation
+        // after completing 1 calculation
+
+        // 2 parameter operator
+        if (two_param_OP)
         {
-            // Re-allocate memories for stack
-            if (cloned_exp.tokens[i].operator== '-' || cloned_exp.tokens[i].operator== '+' || cloned_exp.tokens[i].operator== '*' || cloned_exp.tokens[i].operator== '/' || cloned_exp.tokens[i].operator== '^' || cloned_exp.tokens[i].operator== '%')
+            // shift the array 2 index down
+            for (unsigned short int k = i - 1; k < cloned_exp.size; k++)
             {
-                // rearrange the stack
-                for (int k = i - 1; k < cloned_exp.size - 2; k++)
-                {
-                    cloned_exp.tokens[k].num = cloned_exp.tokens[k + 2].num;
-                    cloned_exp.tokens[k].operator= cloned_exp.tokens[k + 2].operator;
-                    cloned_exp.tokens[k].variable = cloned_exp.tokens[k + 2].variable;
-                }
-
-                // re-allocate the stack's memories
-                _TOKENS_DATA_ *temp_ptr = (_TOKENS_DATA_ *)realloc(cloned_exp.tokens, (cloned_exp.size - 2) * sizeof(_TOKENS_DATA_));
-                if (temp_ptr == NULL)
-                {
-                    perror("Failed to re-allocate the stack's memories");
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens = temp_ptr;
-                cloned_exp.size -= 2;
+                cloned_exp.tokens[k].num = cloned_exp.tokens[k + 2].num;
+                cloned_exp.tokens[k].variable = cloned_exp.tokens[k + 2].variable;
+                cloned_exp.tokens[k].operator= cloned_exp.tokens[k + 2].operator;
             }
-            else if (cloned_exp.tokens[i].operator!= '\0')
-            {
-                // rearrange the stack
-                for (int k = i; k < cloned_exp.size - 1; k++)
-                {
-                    cloned_exp.tokens[k].num = cloned_exp.tokens[k + 1].num;
-                    cloned_exp.tokens[k].operator= cloned_exp.tokens[k + 1].operator;
-                    cloned_exp.tokens[k].variable = cloned_exp.tokens[k + 1].variable;
-                }
 
-                // re-allocate the stack's memories
-                _TOKENS_DATA_ *temp_ptr = (_TOKENS_DATA_ *)realloc(cloned_exp.tokens, (cloned_exp.size - 1) * sizeof(_TOKENS_DATA_));
-                if (temp_ptr == NULL)
-                {
-                    perror("Failed to re-allocate the stack's memories");
-                    free(cloned_exp.tokens);
-                    return NAN;
-                }
-                cloned_exp.tokens = temp_ptr;
-                cloned_exp.size--;
-            }
+            cloned_exp.size -= 2;
         }
+
+        // 1 parameter operator & function
+        else
+        {
+            for (unsigned short int k = i; k < cloned_exp.size; k++)
+            {
+                cloned_exp.tokens[k].num = cloned_exp.tokens[k + 1].num;
+                cloned_exp.tokens[k].variable = cloned_exp.tokens[k + 1].variable;
+                cloned_exp.tokens[k].operator= cloned_exp.tokens[k + 1].operator;
+            }
+
+            cloned_exp.size--;
+        }
+
+        // reset index to the starting of the array
+        i = -1;
     }
 
     double result = cloned_exp.tokens[0].num;
@@ -4704,7 +4677,6 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
     free(_DV_.tokens);
     return copyof_input;
 }
-
 
 void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos)
 {

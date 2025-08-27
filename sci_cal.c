@@ -56,8 +56,6 @@ int main(const int num_of_arg, const char *arg[])
     while (central_control())
         ;
 
-    // solve_system_of_nonlinear_equation();
-
     CloseHandle(hMapFile);
     return 0;
 }
@@ -228,11 +226,11 @@ void usual_calculation()
     delay(40);
     puts("↓ Type your expression ↓");
 
-    int input_code;
+    short int input_code;
     int input_line = 4, output_line = 7;
     int top_barrier = input_line;
     int win_width, win_height;
-    int input_index = 0;
+    short int input_index = 0;
     int C_X = 0, C_Y = top_barrier;
     bool new_input = false;
 
@@ -240,9 +238,7 @@ void usual_calculation()
 
     int max_input_len = (output_line - input_line) * win_width;
 
-    string_ raw_input;
-    raw_input.Len = 0;
-    raw_input.Content = create_new_buffer_with_sizeof(win_width * (output_line - input_line));
+    char *str_input = create_new_buffer_with_sizeof(max_input_len);
 
     move_cursor(input_line, 0);
     while (1)
@@ -251,7 +247,10 @@ void usual_calculation()
 
         if (new_input)
         {
-            __INFIX__ I_exp = convert_string_to_INFIX(raw_input.Content);
+            __INFIX__ I_raw_exp = laf_Lexer(str_input);
+            __INFIX__ I_exp = laf_handle_errors_in_exp(I_raw_exp);
+            if (I_raw_exp.tokens != NULL)
+                free(I_raw_exp.tokens);
 
             substitude_variables(&I_exp);
 
@@ -263,11 +262,11 @@ void usual_calculation()
             clear_line_in_range(input_line, output_line + 2);
 
             // print out result
-            printf("%s", raw_input.Content);
+            printf("%s", str_input);
 
             get_cursor_position(&C_X, &C_Y);
 
-            if (raw_input.Content[0] != '\0')
+            if (str_input[0] != '\0')
             {
                 putchar('\n');
                 display_number(result);
@@ -276,31 +275,21 @@ void usual_calculation()
             move_cursor(C_Y, C_X);
 
             new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
         }
 
         input_code = _getch();
+        // input_code = 6969;
 
-        if ((input_code >= 'a' && input_code <= 'z') ||
-            (input_code >= '0' && input_code <= '9') ||
-            (input_code >= 'A' && input_code <= 'Z') ||
-            input_code == '!' ||
-            input_code == '%' ||
-            input_code == '^' ||
-            input_code == '*' ||
-            input_code == '(' ||
-            input_code == ')' ||
-            input_code == '-' ||
-            input_code == '+' ||
-            input_code == '/' ||
-            input_code == '.' ||
-            input_code == ',' ||
-            input_code == ' ' ||
-            input_code == '=')
+        if (laf_valid_input_code(input_code))
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
-            raw_input.Content[input_index++] = input_code;
-            raw_input.Len = input_index;
+            str_input[input_index++] = (unsigned char)input_code;
+
+            laf_encode_math_symbols(str_input, &input_index);
 
             new_input = true;
         }
@@ -308,11 +297,9 @@ void usual_calculation()
         // Backspace - Delete input
         else if (input_code == 8)
         {
-
             if (input_index > 0)
             {
-                raw_input.Content[--input_index] = '\0';
-                (raw_input.Len)--;
+                laf_delete_input_code(str_input, &input_index);
                 new_input = true;
             }
         }
@@ -352,7 +339,7 @@ void usual_calculation()
         // Ctrl + D
         else if (input_code == 4)
         {
-            memset(raw_input.Content, 0, raw_input.Len);
+            memset(str_input, 0, max_input_len);
             input_index = 0;
             input_line = top_barrier;
             C_X = 0;
@@ -362,7 +349,7 @@ void usual_calculation()
         }
     }
 
-    free(raw_input.Content);
+    free(str_input);
 }
 
 void derivative_calculator()
@@ -371,14 +358,13 @@ void derivative_calculator()
     delay(40);
     puts("Press [Ctrl + G] For help");
     delay(40);
-    // puts("Function:");
 
     int win_w, win_h;
 
     getWinSize(&win_w, &win_h);
 
     short int input_code = 0;
-    int input_index = 0;
+    short int input_index = 0;
     int max_index = win_w * 2;
     bool new_input = false;
     bool invalid = false;
@@ -421,32 +407,22 @@ void derivative_calculator()
                 printf("%s", str_function);
 
                 new_input = false;
+
+                // safety & create smooth style- put a delay between each process
+                delay(5);
             }
 
             // input_code = 3;
             input_code = _getch();
 
-            if (((input_code >= 'a' && input_code <= 'z') ||
-                 (input_code >= '0' && input_code <= '9') ||
-                 (input_code >= 'A' && input_code <= 'Z') ||
-                 input_code == '!' ||
-                 input_code == '%' ||
-                 input_code == '^' ||
-                 input_code == '*' ||
-                 input_code == '(' ||
-                 input_code == ')' ||
-                 input_code == '-' ||
-                 input_code == '+' ||
-                 input_code == '/' ||
-                 input_code == '.' ||
-                 input_code == ',' ||
-                 input_code == ' ' ||
-                 input_code == '=') &&
+            if (laf_valid_input_code(input_code) &&
                 input_index < max_index - 1)
             {
                 if (input_index == 0 && input_code == ' ')
                     continue;
                 str_function[input_index++] = input_code;
+
+                laf_encode_math_symbols(str_function, &input_index);
 
                 new_input = true;
             }
@@ -454,7 +430,7 @@ void derivative_calculator()
             // del
             else if (input_code == 8 && input_index > 0)
             {
-                str_function[--input_index] = '\0';
+                laf_delete_input_code(str_function, &input_index);
                 new_input = true;
             }
 
@@ -1225,7 +1201,7 @@ void solve_n_degree_poly_equation()
                 get_cursor_position(NULL, &C_Y);
                 printf("a_[%d] = ", i);
 
-                short int input_status = solve_poly_get_coef(coefficients + i);
+                short int input_status = ib_solve_poly_get_coef(coefficients + i);
 
                 // Esc
                 if (input_status == 27)

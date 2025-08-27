@@ -24,7 +24,8 @@
         "lexer_and_format.h": "c",
         "array": "c",
         "initializer_list": "c",
-        "utility": "c"
+        "utility": "c",
+        "string": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
