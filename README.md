@@ -24,7 +24,6 @@ A lightweight, high-performance scientific calculator built to make solving math
 - Additional calculation modes: complex numbers, table, etc.
 - Enhanced precision and optimized performance
 - Expanded library of math functions
-- Dedicated tools for integrals
 - And much more to come...
 
 ---
