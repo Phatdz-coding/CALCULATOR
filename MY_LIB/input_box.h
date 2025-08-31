@@ -7,9 +7,8 @@
 #include <MY_LIB/my_calculator.h>
 #include <MY_LIB/cal_info.h>
 #include <MY_LIB/sovle_equations.h>
+#include <MY_LIB/numerical_integration.h>
 
-static short int index_table[256] = {
-    ['a'] = 0, ['b'] = 1, ['d'] = 2, ['f'] = 3, ['h'] = 4, ['i'] = 5, ['j'] = 6, ['k'] = 7, ['l'] = 8, ['m'] = 9, ['n'] = 10, ['o'] = 11, ['p'] = 12, ['q'] = 13, ['r'] = 14, ['s'] = 15, ['t'] = 16, ['u'] = 17, ['v'] = 18, ['w'] = 19, ['x'] = 20, ['y'] = 21, ['z'] = 22, ['A'] = 23, ['B'] = 24, ['C'] = 25, ['D'] = 26, ['E'] = 27, ['F'] = 28, ['G'] = 29, ['H'] = 30, ['I'] = 31, ['J'] = 32, ['K'] = 33, ['L'] = 34, ['M'] = 35, ['N'] = 36, ['O'] = 37, ['P'] = 38, ['Q'] = 39, ['R'] = 40, ['S'] = 41, ['T'] = 42, ['U'] = 43, ['V'] = 44, ['W'] = 45, ['X'] = 46, ['Y'] = 47, ['Z'] = 48};
 
 // ======================================================================================================= //
 // ======================================================================================================= //
@@ -33,9 +32,21 @@ extern "C"
 
     bool open_new_process(const char *feature, bool wait_for_child_process);
 
+    bool open_new_background_process(const char *feature, bool wait_for_child_process, PROCESS_INFORMATION *process_info);
+
+    bool terminate_child_process(PROCESS_INFORMATION *process_info);
+
+    bool terminate_process_by_id(DWORD process_id);
+
+    bool is_child_process_running(PROCESS_INFORMATION *process_info);
+
+    void cleanup_child_process(PROCESS_INFORMATION *process_info);
+
     void substitude_variables(__INFIX__ *I_exp);
 
     bool initialize_variables(HANDLE *hMapFile);
+
+    void ib_get_valueof_var_set(void);
 
     void free_coefficients(double **coefficients);
 
@@ -44,6 +55,14 @@ extern "C"
     short int ib_solve_poly_get_coef(double *coefficient);
 
     char *ib_se_get_function(void);
+
+    char *ib_ic_get_function();
+
+    void ib_ic_get_var(char *var);
+
+    void ib_integrate_section(char *str_function, const char var, const double a, const double b, unsigned short int method, double *result);
+
+    void ib_integrate_in_the_background();
 
     void start_solving_section(char *str_function,
                                const char var,
@@ -67,6 +86,7 @@ extern "C"
 
 void assign_variables()
 {
+    show_cursor();
     HANDLE av_hMapFile;
 
     {
@@ -262,6 +282,139 @@ void substitude_variables(__INFIX__ *I_exp)
     // display_infix_exp(*I_exp);
 }
 
+bool open_new_background_process(const char *feature, bool wait_for_child_process, PROCESS_INFORMATION *process_info)
+{
+    STARTUPINFOA si = {sizeof(STARTUPINFOA)};
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(pi));
+
+    // Configure startup info to use normal console handles
+    si.dwFlags |= STARTF_USESTDHANDLES;
+    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+
+    char cmdLine[256];
+    snprintf(cmdLine, sizeof(cmdLine), "%s %s", PROGRAM_NAME, feature);
+
+    BOOL success = CreateProcessA(
+        NULL, cmdLine, NULL, NULL, FALSE,
+        CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+
+    if (!success)
+    {
+        perror("open_new_background_process: Failed to create new process, wrong program name OR other errors");
+        return false;
+    }
+
+    // Copy process information to the caller
+    if (process_info != NULL)
+    {
+        *process_info = pi;
+    }
+
+    // Wait for the child process to finish if requested
+    if (wait_for_child_process)
+    {
+        WaitForSingleObject(pi.hProcess, INFINITE);
+
+        // Clean up process handles if we waited
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+
+        // Clear the process info since it's no longer valid
+        if (process_info != NULL)
+        {
+            ZeroMemory(process_info, sizeof(PROCESS_INFORMATION));
+        }
+    }
+
+    return true;
+}
+
+bool terminate_process_by_id(DWORD process_id)
+{
+    HANDLE h_process = OpenProcess(PROCESS_TERMINATE, FALSE, process_id);
+    if (h_process == NULL)
+        return false;
+
+    BOOL success = TerminateProcess(h_process, 0);
+    CloseHandle(h_process);
+    return success;
+}
+
+bool terminate_child_process(PROCESS_INFORMATION *process_info)
+{
+    if (process_info == NULL || process_info->hProcess == NULL)
+    {
+        return false; // No valid process to terminate
+    }
+
+    // Try to terminate gracefully first
+    BOOL success = TerminateProcess(process_info->hProcess, 0);
+
+    if (success)
+    {
+        // Wait a bit for graceful termination
+        DWORD wait_result = WaitForSingleObject(process_info->hProcess, 1); // 1m seconds
+
+        if (wait_result == WAIT_TIMEOUT)
+        {
+            // Force kill if it doesn't terminate gracefully
+            TerminateProcess(process_info->hProcess, 1);
+            WaitForSingleObject(process_info->hProcess, 1);
+        }
+
+        // Clean up
+        cleanup_child_process(process_info);
+        return true;
+    }
+
+    return false;
+}
+
+bool is_child_process_running(PROCESS_INFORMATION *process_info)
+{
+    if (process_info == NULL || process_info->hProcess == NULL)
+        return false;
+
+    DWORD exit_code;
+    if (GetExitCodeProcess(process_info->hProcess, &exit_code))
+    {
+        if (exit_code == STILL_ACTIVE)
+            return true;
+        else
+        {
+            // Process has terminated
+            cleanup_child_process(process_info);
+            return false;
+        }
+    }
+
+    return false;
+}
+
+void cleanup_child_process(PROCESS_INFORMATION *process_info)
+{
+    if (process_info == NULL)
+        return;
+
+    if (process_info->hProcess != NULL)
+    {
+        CloseHandle(process_info->hProcess);
+        process_info->hProcess = NULL;
+    }
+
+    if (process_info->hThread != NULL)
+    {
+        CloseHandle(process_info->hThread);
+        process_info->hThread = NULL;
+    }
+
+    process_info->dwProcessId = 0;
+    process_info->dwThreadId = 0;
+}
+
 bool open_new_process(const char *feature, bool wait_for_child_process)
 {
     STARTUPINFOA si = {sizeof(STARTUPINFOA)};
@@ -275,7 +428,7 @@ bool open_new_process(const char *feature, bool wait_for_child_process)
     si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 
     char cmdLine[256];
-    snprintf(cmdLine, sizeof(cmdLine), "cmd /c \"%s %s\"", PROGRAM_NAME, feature);
+    snprintf(cmdLine, sizeof(cmdLine), "%s %s", PROGRAM_NAME, feature);
 
     BOOL success = CreateProcessA(
         NULL, cmdLine, NULL, NULL, TRUE,
@@ -300,6 +453,7 @@ bool open_new_process(const char *feature, bool wait_for_child_process)
 
 short int ib_2_3_4_poly_equation(unsigned short int input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result, const char *help_panel)
 {
+    show_cursor();
     int input_code = 0;
     short int input_index = 0;
     bool new_input = false;
@@ -1298,6 +1452,623 @@ char *ib_ssonle_get_function(int *ptr_input_line, unsigned short int input_colum
     *ptr_input_line = input_line;
 
     return str_input;
+}
+
+char *ib_ic_get_function()
+{
+    show_cursor();
+    int input_code = 0;
+
+    short int input_index = 0;
+
+    bool new_input = false;
+
+    int C_X, C_Y;
+    get_cursor_position(&C_X, &C_Y);
+
+    int win_w, win_h;
+
+    short int input_column = 0;
+    short int input_line = C_Y + 1;
+
+    short int top_barrier = input_line;
+    short int bottom_barrier = top_barrier + 2;
+
+    getWinSize(&win_w, &win_h);
+
+    short int max_input_len = (bottom_barrier - top_barrier) * win_w;
+
+    char *str_input = create_new_buffer_with_sizeof(max_input_len);
+
+    move_cursor(input_line, input_column);
+    get_cursor_position(&C_X, &C_Y);
+
+    while (1)
+    {
+        if (new_input)
+        {
+            // get for current row
+            get_cursor_position(NULL, &C_Y);
+
+            unsigned short int num_of_line = bottom_barrier - top_barrier;
+            for (unsigned short int i = 1; i <= num_of_line; i++)
+            {
+                // clear current line
+                clear_line_(C_Y + i - 1);
+                putchar('\n');
+            }
+
+            if (win_h - C_Y <= num_of_line)
+            {
+                input_line -= num_of_line - (win_h - C_Y) + 1;
+            }
+
+            // move to input line
+            move_cursor(input_line, 0);
+
+            printf("%s", str_input);
+            new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
+        }
+
+        input_code = _getch();
+
+        if (laf_valid_input_code(input_code) &&
+            input_code != '=' &&
+            input_index < max_input_len)
+        {
+            if (input_index == 0 && input_code == ' ')
+                continue;
+            str_input[input_index++] = input_code;
+
+            laf_encode_math_symbols(str_input, &input_index);
+
+            new_input = true;
+        }
+
+        // Backspace - Delete input
+        else if (input_code == 8 && input_index > 0)
+        {
+            laf_delete_input_code(str_input, &input_index);
+            new_input = true;
+        }
+
+        // assign var & compute [Ctrl + Enter]
+        else if (input_code == 10)
+        {
+            open_new_process("global-assign-variables", true);
+            new_input = true;
+        }
+
+        // enter
+        else if (input_code == 13 && input_index != 0)
+        {
+            break;
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            free_buffer(&str_input);
+            return NULL;
+        }
+
+        // Ctrl + C
+        else if (input_code == 3)
+        {
+            open_new_process("display-const", false);
+        }
+
+        // Ctrl + L
+        else if (input_code == 12)
+        {
+            open_new_process("usualcal-display-func", false);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("solve_equation-display-help", false);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            memset(str_input, 0, max_input_len);
+            input_index = 0;
+            input_line = top_barrier;
+            C_X = 0;
+            C_Y = input_line;
+            clear_line_in_range(top_barrier, bottom_barrier);
+            move_cursor(input_line, 0);
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+
+    clear_line_in_range(top_barrier, bottom_barrier);
+
+    return str_input;
+}
+
+void ib_ic_get_var(char *var)
+{
+    show_cursor();
+    while (1)
+    {
+        (*var) = _getch();
+
+        if (((*var >= 'a' && *var <= 'z') || (*var >= 'A' && *var <= 'Z')) && *var != 'c' && *var != 'e' && *var != 'g')
+        {
+            break;
+        }
+
+        else if ((*var) == 27)
+        {
+            (*var) = 'x';
+            return;
+        }
+    }
+}
+
+void ib_integrate_section(char *str_function, const char var, const double a, const double b, unsigned short int method, double *result)
+{
+    // ==========================================PREPARE========================================== //
+    unsigned short int len = strlen(str_function);
+    char *smem_function = NULL;
+    unsigned short int *smem_len = NULL;
+    char *smem_var = NULL;
+    double *smem_a = NULL;
+    double *smem_b = NULL;
+    unsigned short int *smem_method = NULL;
+    double *smem_result = NULL;
+
+    // function
+    HANDLE h_map_file_function = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(char) * (len + 1),
+        SHARED_MEM_NAME_IC_FUNCTION);
+
+    if (!h_map_file_function || h_map_file_function == INVALID_HANDLE_VALUE)
+    {
+        perror("ib_integrate_section_prepare: Failed to create function handle");
+        return;
+    }
+
+    smem_function = (char *)MapViewOfFile(h_map_file_function, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(char) * (len + 1));
+    if (smem_function == NULL)
+    {
+        CloseHandle(h_map_file_function);
+        return;
+    }
+
+    // len
+    HANDLE h_map_file_len = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(unsigned short int),
+        SHARED_MEM_NAME_IC_LEN);
+
+    if (!h_map_file_len || h_map_file_len == INVALID_HANDLE_VALUE)
+    {
+        perror("ib_integrate_section_prepare: Failed to create function handle");
+        CloseHandle(h_map_file_function);
+        return;
+    }
+
+    smem_function = (char *)MapViewOfFile(h_map_file_function, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(char) * (len + 1));
+    if (smem_function == NULL)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // var
+    HANDLE h_map_file_var = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(char),
+        SHARED_MEM_NAME_IC_VARIABLE);
+
+    if (!h_map_file_var || h_map_file_var == INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_len);
+        perror("ib_integrate_section_prepare: Failed to create var handle");
+        return;
+    }
+
+    smem_var = (char *)MapViewOfFile(h_map_file_var, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(char));
+    if (smem_var == NULL)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // a
+    HANDLE h_map_file_a = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(double),
+        SHARED_MEM_NAME_IC_A);
+
+    if (!h_map_file_a || h_map_file_a == INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_len);
+        perror("ib_integrate_section_prepare: Failed to create \"a\" handle");
+        return;
+    }
+
+    smem_a = (double *)MapViewOfFile(h_map_file_a, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (smem_a == NULL)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // b
+    HANDLE h_map_file_b = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(double),
+        SHARED_MEM_NAME_IC_B);
+
+    if (!h_map_file_b || h_map_file_b == INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_len);
+        perror("ib_integrate_section_prepare: Failed to create \"b\" handle");
+        return;
+    }
+
+    smem_b = (double *)MapViewOfFile(h_map_file_b, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (smem_b == NULL)
+    {
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // method
+    HANDLE h_map_file_method = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(unsigned short int),
+        SHARED_MEM_NAME_IC_METHOD);
+
+    if (!h_map_file_method || h_map_file_method == INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_len);
+        perror("ib_integrate_section_prepare: Failed to create method handle");
+        return;
+    }
+
+    smem_method = (unsigned short int *)MapViewOfFile(h_map_file_method, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(unsigned short int));
+    if (smem_method == NULL)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_method);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // result
+    HANDLE h_map_file_result = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        0,
+        sizeof(double),
+        SHARED_MEM_NAME_IC_RESULT);
+
+    if (!h_map_file_result || h_map_file_result == INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_method);
+        CloseHandle(h_map_file_len);
+        perror("ib_integrate_section_prepare: Failed to create result handle");
+        return;
+    }
+
+    smem_result = (double *)MapViewOfFile(h_map_file_result, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (smem_result == NULL)
+    {
+        CloseHandle(h_map_file_b);
+        CloseHandle(h_map_file_function);
+        CloseHandle(h_map_file_var);
+        CloseHandle(h_map_file_a);
+        CloseHandle(h_map_file_method);
+        CloseHandle(h_map_file_result);
+        CloseHandle(h_map_file_len);
+        return;
+    }
+
+    // coppy data to  shared memories
+    {
+        memcpy(smem_function, str_function, len + 1);
+        *smem_var = var;
+        *smem_a = a;
+        *smem_b = b;
+        *smem_method = method;
+        *smem_result = NAN;
+    }
+
+    // =========================================================================================== //
+
+    // ==========================================INTEGRATE SECTION========================================== //
+
+    // open child process and integrate
+    PROCESS_INFORMATION child_process;
+    open_new_background_process("integral_calculator-integrate", false, &child_process);
+
+    int C_Y;
+    get_cursor_position(NULL, &C_Y);
+    clear_line_in_range(C_Y, C_Y + 4);
+    puts("(╭ರ_•́)✎📄 Working on it . . .");
+
+    // wait for cihld process
+    unsigned int counter = 0;
+    bool cancel = false;
+    while (is_child_process_running(&child_process))
+    {
+        counter++;
+
+        if (counter >= 13000000)
+        {
+            puts("❓ Wait too long?\n👉 Press any key to Cancel . . .");
+
+            while (is_child_process_running(&child_process))
+            {
+                if (kbhit())
+                {
+                    terminate_process_by_id(child_process.dwProcessId);
+                    cleanup_child_process(&child_process);
+                    cancel = true;
+                    break;
+                }
+            }
+
+            if (cancel)
+                break;
+        }
+    }
+
+    if (!cancel)
+    {
+        clear_line_in_range(C_Y, C_Y + 4);
+        *result = *smem_result;
+        puts("✅ Integrated Successfully");
+        printf("▶ Result: I = %.15g\n", *result);
+        puts("ℹ️ Result may have error");
+
+        cleanup_child_process(&child_process);
+    }
+    else
+        puts("❌ Canceled Integration process!");
+
+    // ===================================================================================================== //
+
+    // close handles
+    CloseHandle(h_map_file_function);
+    CloseHandle(h_map_file_len);
+    CloseHandle(h_map_file_var);
+    CloseHandle(h_map_file_a);
+    CloseHandle(h_map_file_method);
+    CloseHandle(h_map_file_b);
+    CloseHandle(h_map_file_result);
+}
+
+void ib_integrate_in_the_background()
+{
+    HANDLE h_function = NULL;
+    HANDLE h_len = NULL;
+    HANDLE h_var = NULL;
+    HANDLE h_a = NULL;
+    HANDLE h_b = NULL;
+    HANDLE h_method = NULL;
+    HANDLE h_result = NULL;
+
+    char *function = NULL;
+    unsigned short int *len = NULL;
+    char *var = NULL;
+    double *a = NULL;
+    double *b = NULL;
+    unsigned short int *method = NULL;
+    double *result = NULL;
+
+    // ==========================================OPEN DATA========================================== //
+
+    // open memory
+    h_len = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_LEN);
+    if (!h_len)
+        goto clean_up;
+
+    // map the memory
+    len = (unsigned short int *)MapViewOfFile(h_len, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(unsigned short int));
+    if (!len)
+        goto clean_up;
+
+    // open memory
+    h_function = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_FUNCTION);
+    if (!h_function)
+        goto clean_up;
+
+    // map the memory
+    function = (char *)MapViewOfFile(h_function, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(char) * (*len));
+    if (!function)
+        goto clean_up;
+
+    // open memory
+    h_var = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_VARIABLE);
+    if (!h_var)
+        goto clean_up;
+
+    // map the memory
+    var = (char *)MapViewOfFile(h_var, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(char));
+    if (!var)
+        goto clean_up;
+
+    // open memory
+    h_a = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_A);
+    if (!h_a)
+        goto clean_up;
+
+    // map the memory
+    a = (double *)MapViewOfFile(h_a, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (!a)
+        goto clean_up;
+
+    // open memory
+    h_b = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_B);
+    if (!h_b)
+        goto clean_up;
+
+    // map the memory
+    b = (double *)MapViewOfFile(h_b, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (!b)
+        goto clean_up;
+
+    // open memory
+    h_method = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_METHOD);
+    if (!h_method)
+        goto clean_up;
+
+    // map the memory
+    method = (unsigned short int *)MapViewOfFile(h_method, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(unsigned short int));
+    if (!method)
+        goto clean_up;
+
+    // open memory
+    h_result = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME_IC_RESULT);
+    if (!h_result)
+        goto clean_up;
+
+    // map the memory
+    result = (double *)MapViewOfFile(h_result, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(double));
+    if (!result)
+        goto clean_up;
+
+    // ============================================================================================= //
+
+    // ==========================================INTEGRATE========================================== //
+
+    __INFIX__ I_function = convert_string_to_INFIX(function);
+
+    ib_get_valueof_var_set();
+
+    const char exception[2] = {*var, '\0'};
+    ni_substitude_variables(&I_function, exception);
+
+    (*result) = ni_integrate(I_function, *var, *a, *b, method);
+
+    free(I_function.tokens);
+
+    // ============================================================================================= //
+
+clean_up:
+    if (h_function)
+        CloseHandle(h_function);
+    if (h_len)
+        CloseHandle(h_len);
+    if (h_var)
+        CloseHandle(h_var);
+    if (h_a)
+        CloseHandle(h_a);
+    if (h_b)
+        CloseHandle(h_b);
+    if (h_method)
+        CloseHandle(h_method);
+    if (h_result)
+        CloseHandle(h_result);
+
+    CloseHandle(handle_var_set);
+
+    if (function)
+        UnmapViewOfFile(function);
+    if (len)
+        UnmapViewOfFile(len);
+    if (var)
+        UnmapViewOfFile(var);
+    if (a)
+        UnmapViewOfFile(a);
+    if (b)
+        UnmapViewOfFile(b);
+    if (method)
+        UnmapViewOfFile(method);
+    if (result)
+        UnmapViewOfFile(result);
+
+    UnmapViewOfFile(variable_set);
+}
+
+void ib_get_valueof_var_set(void)
+{
+    // Open the existing shared memory block
+    handle_var_set = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, SHARED_MEM_NAME);
+    if (!handle_var_set || handle_var_set == INVALID_HANDLE_VALUE)
+    {
+        // If shared memory doesn't exist, variable_set remains NULL
+        variable_set = NULL;
+        return;
+    }
+
+    // Map the shared memory to the global variable_set pointer
+    variable_set = (shared_variables *)MapViewOfFile(handle_var_set,
+                                                     FILE_MAP_ALL_ACCESS,
+                                                     0,
+                                                     0,
+                                                     sizeof(shared_variables) * NUM_OF_VARIABLES);
+
+    // Close the handle as we only need the mapped view
+    CloseHandle(handle_var_set);
+
+    // If mapping failed, set variable_set to NULL
+    if (!variable_set)
+    {
+        variable_set = NULL;
+    }
 }
 
 #endif

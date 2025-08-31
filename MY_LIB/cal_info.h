@@ -31,6 +31,8 @@ void solve_system_of_linear_equation_display_help();
 
 void solve_system_of_nonlinear_equation_display_help();
 
+void integral_calculator_display_help();
+
 // ======================================================================================================= //
 // ======================================================================================================= //
 // ======================================================================================================= //
@@ -333,12 +335,13 @@ void solve_quartic_display_help()
 
 void display_menu()
 {
+    hide_cursor();
     system("cls");
     const char *mode_list[] = {
         "0/ Close window",
         "1/ Usual Calculation",
         "2/ Derivative Calculator",
-        "3/ Integral Calculator (in-dev)",
+        "3/ Integral Calculator",
         "4/ Solve Quadratic Equation (2-degree polynomial equation)",
         "5/ Solve Cubic Equation (3-degree polynomial equation)",
         "6/ Solve Quartic Equation (4-degree polynomial equation)",
@@ -352,6 +355,7 @@ void display_menu()
         puts(mode_list[i]);
         delay(40);
     }
+    show_cursor();
 }
 
 void usualcal_display_func()
@@ -506,6 +510,83 @@ void derivative_calculator_display_func()
         puts(list_of_func[i]);
 
     puts("\n### NOTE: These functions are available in this mode");
+
+    system("pause >nul");
+}
+
+void integral_calculator_display_help()
+{
+    const char *help[] = {
+        "🔢 Numerical Integration Calculator\n",
+        "This feature calculates the definite integral of a function over a specified interval.",
+        "\n❓ How to use",
+        "1. Press [F1] to input your function f(x).",
+        "2. Press [F2] to specify the variable of integration (default: x).",
+        "3. Press [F3] to set the lower bound (a) of the integration interval.",
+        "4. Press [F4] to set the upper bound (b) of the integration interval.",
+        "5. Press [F5] to calculate the integral ∫ₐᵇ f(x) dx.",
+        "\n⌨  Shortcut keys",
+        "Esc                    : Go to menu",
+        "F1                     : Input the function f(x)",
+        "F2                     : Define the variable of integration",
+        "F3                     : Set the lower bound (a)",
+        "F4                     : Set the upper bound (b)",
+        "F5                     : Calculate the integral",
+        "Ctrl + G               : Show this help panel",
+        "Ctrl + D               : Refresh screen and clear all inputs",
+        "\n🔧 Integration Methods",
+        "• Default - Let the calculator decide  [Shift + 0]\n",
+        "• Gaussian Quadrature with 700 nodes   [Shift + 1]",
+        " - Performance: Extremely fast",
+        " - Accuracy: High",
+        " - Best for general use, polynomial function, large interval, below strong oscillatory function",
+        " - Examples: sin(100x) on [0, 10] ; x^10 - 3x^5 + pix^7 on [-1, 1] . . .\n",
+        "• Double Tanh-Sinh Quadrature          [Shift + 2]",
+        " - Performance: Moderate",
+        " - Accuracy: High",
+        " - Design specificly for improper integral, intervals that have singularities at endpoints, semifinite and infinite intervals",
+        " - Examples: e^(-x^2) on [0, +∞] ; 4/(16 + x^2) on [-∞, +∞] ; cos(x) / (5cbrt(x)) on [0, 1] . . .\n",
+        "• Adaptive Quadrature                  [Shift + 3]",
+        " - Perfomance: Slow or extremely slow in bad case",
+        " - Accuracy: Extreme",
+        " - Good for general use, but design specificly for trigonometric function, large interval, strong oscillatory function",
+        " - Examples: cos(1000x) on [0, 10] ; pi * sin(pix - pi/3) on [0, 5] . . .\n",
+        "• Simpson's Rule with 1.000.000 sub-intervals   [Shift + 4]",
+        " - Performance: Slow",
+        " - Accuracy Moderate (due to machine precision limit, not suitable for casual function) and extremely precesion with some functions below",
+        " - Design specificly for extreme oscillatory function",
+        " - Examples: sin(10000x) on [0, 10] ; cos(20000x) on [0, 10]",
+        "\nℹ️ Input-specified shortcuts",
+        "While inputting function, bounds:",
+        "  Ctrl + L             : See list of available functions",
+        "  Ctrl + C             : See list of available constants & variables",
+        "  Ctrl + Enter         : Assign value for variables",
+        "\n「 ✦ Example ✦  」",
+        "Calculate ∫₀¹ x² dx",
+        "1. Press [F1] and type: x^2",
+        "2. Press [F2] and type: x (or leave default)",
+        "3. Press [F3] and type: 0",
+        "4. Press [F4] and type: 1",
+        "5. Press [F5] to calculate",
+        "   Result: ∫₀¹ x² dx = 0.3333...",
+        "\n「 ✦ Another Example ✦  」",
+        "Calculate ∫₀^π sin(x) dx",
+        "1. Function: sin(x)",
+        "2. Variable: x",
+        "3. Lower bound: 0",
+        "4. Upper bound: pi",
+        "5. Press [F5]",
+        "   Result: ∫₀^π sin(x) dx = 2",
+        "\n✨ Tip",
+        "Highlight the text and then right-click to copy",
+        "Right-click to paste the copy"};
+
+    unsigned short int help_size = sizeof(help) / sizeof(help[0]);
+
+    for (unsigned short int i = 0; i < help_size; i++)
+    {
+        puts(help[i]);
+    }
 
     system("pause >nul");
 }

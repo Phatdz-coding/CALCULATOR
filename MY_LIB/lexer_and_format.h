@@ -20,8 +20,6 @@
 
 #define PI 3.14159265358979323846
 #define EULER_NUMBER 2.718281828459045
-#define VARIABLE -INFINITY
-#define _EMPTY_ INFINITY
 #define SQRT_2 1.41421356237309504880
 #define SQRT_2_2 0.707106781186547524
 #define SQRT_3 1.73205080756887729353
@@ -155,6 +153,8 @@ void merge_pow_of_zero(__INFIX__ *I_exp, const short int index);
 // use for real-time processing
 void laf_encode_math_symbols(char *string, short int *index)
 {
+    char *temp_string = string + (*index);
+
     // pi
     if (string[*index - 2] == 'p' && string[*index - 1] == 'i')
     {
@@ -167,7 +167,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // gamma
-    else if (!strncmp(string + (*index - 6), "gamma(", 6))
+    else if (!strncmp(temp_string - 6, "gamma(", 6))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -182,7 +182,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // sqrt
-    else if (!strncmp(string + (*index - 5), "sqrt(", 5))
+    else if (!strncmp(temp_string - 5, "sqrt(", 5))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -196,7 +196,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // sqrt2
-    else if (!strncmp(string + (*index - 5), "sqrt2", 5))
+    else if (!strncmp(temp_string - 5, "sqrt2", 5))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -210,7 +210,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // sqrt3
-    else if (!strncmp(string + (*index - 5), "sqrt3", 5))
+    else if (!strncmp(temp_string - 5, "sqrt3", 5))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -224,7 +224,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // cbrt
-    else if (!strncmp(string + (*index - 5), "cbrt(", 5))
+    else if (!strncmp(temp_string - 5, "cbrt(", 5))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -238,7 +238,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // sqrt.5
-    else if (!strncmp(string + (*index - 6), "sqrt.5", 6))
+    else if (!strncmp(temp_string - 6, "sqrt.5", 6))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -252,8 +252,25 @@ void laf_encode_math_symbols(char *string, short int *index)
         (*index) += 6;
     }
 
+    // infinity
+    else if (!strncmp(temp_string - 8, "infinity", 8))
+    {
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+        string[--(*index)] = '\0';
+
+        strcat(string, "∞");
+
+        (*index) += 3;
+    }
+
     // lambertW
-    else if (!strncmp(string + (*index - 9), "lambertw(", 9))
+    else if (!strncmp(temp_string - 9, "lambertw(", 9))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -271,7 +288,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // integral
-    else if (!strncmp(string + (*index - 9), "integral(", 9))
+    else if (!strncmp(temp_string - 9, "integral(", 9))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -289,7 +306,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // sigma sum
-    else if (!strncmp(string + (*index - 12), "sumsequence(", 12))
+    else if (!strncmp(temp_string - 12, "sumsequence(", 12))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -310,7 +327,7 @@ void laf_encode_math_symbols(char *string, short int *index)
     }
 
     // product of sequence
-    else if (!strncmp(string + (*index - 16), "productsequence(", 16))
+    else if (!strncmp(temp_string - 16, "productsequence(", 16))
     {
         string[--(*index)] = '\0';
         string[--(*index)] = '\0';
@@ -382,7 +399,11 @@ void laf_delete_input_code(char *string, short int *input_index)
         return;
     case 148:
         string[--(*input_index)] = '\0';
-        ;
+        string[--(*input_index)] = '\0';
+        string[--(*input_index)] = '\0';
+        break;
+    case 0x9E:
+        string[--(*input_index)] = '\0';
         string[--(*input_index)] = '\0';
         string[--(*input_index)] = '\0';
         break;
@@ -426,7 +447,10 @@ bool laf_valid_input_code(const short int input_code)
             input_code == 166 ||
             input_code == 225 ||
             input_code == 143 ||
-            input_code == 148);
+            input_code == 148 ||
+            input_code == 0xE2 ||
+            input_code == 0x88 ||
+            input_code == 0x9E);
 }
 
 __INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
@@ -537,6 +561,13 @@ __INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
             {
                 I_new_exp.tokens[--index_I_new_exp].operator== '\0';
             }
+        }
+
+        // ^ --> ope
+        else if (I_expression.tokens[i].operator== '^' && I_expression.tokens[i + 1].operator!= '\0' && I_expression.tokens[i + 1].operator!= '(')
+        {
+            free(I_new_exp.tokens);
+            return I_empty;
         }
 
         // count for open bracket
@@ -705,8 +736,10 @@ __INFIX__ laf_Lexer(char *expression)
 
         // handle built-in constants
 
+        char *str_temp = str_expression + i;
+
         // pi
-        if ((str_expression[i] == 'p' && i + 1 < len && str_expression[i + 1] == 'i') || !strncmp(str_expression + i, "π", 2))
+        if ((str_expression[i] == 'p' && i + 1 < len && str_expression[i + 1] == 'i') || !strncmp(str_temp, "π", 2))
         {
             I_expression.tokens[index_I_expression++].num = PI;
             i++;
@@ -735,7 +768,7 @@ __INFIX__ laf_Lexer(char *expression)
         }
 
         // sqrt2
-        if (!strncmp(str_expression + i, "sqrt2", 5))
+        if (!strncmp(str_temp, "sqrt2", 5))
         {
             I_expression.tokens[index_I_expression++].num = SQRT_2;
             i += 4;
@@ -743,7 +776,7 @@ __INFIX__ laf_Lexer(char *expression)
         }
 
         // √2
-        if (!strncmp(str_expression + i, "√2", 4))
+        if (!strncmp(str_temp, "√2", 4))
         {
             I_expression.tokens[index_I_expression++].num = SQRT_2;
             i += 3;
@@ -751,7 +784,7 @@ __INFIX__ laf_Lexer(char *expression)
         }
 
         // sqrt3
-        if (!strncmp(str_expression + i, "sqrt3", 5))
+        if (!strncmp(str_temp, "sqrt3", 5))
         {
             I_expression.tokens[index_I_expression++].num = SQRT_3;
             i += 4;
@@ -759,7 +792,7 @@ __INFIX__ laf_Lexer(char *expression)
         }
 
         // √3
-        if (!strncmp(str_expression + i, "√3", 4))
+        if (!strncmp(str_temp, "√3", 4))
         {
             I_expression.tokens[index_I_expression++].num = SQRT_3;
             i += 3;
@@ -767,7 +800,7 @@ __INFIX__ laf_Lexer(char *expression)
         }
 
         // sqrt.5 || √0.5
-        if (!strncmp(str_expression + i, "sqrt.5", 6) || !strncmp(str_expression + i, "√0.5", 6))
+        if (!strncmp(str_temp, "sqrt.5", 6) || !strncmp(str_temp, "√0.5", 6))
         {
             I_expression.tokens[index_I_expression++].num = SQRT_2_2;
             i += 5;
@@ -782,6 +815,21 @@ __INFIX__ laf_Lexer(char *expression)
             continue;
         }
 
+        // infinity
+        if (!strncmp(str_temp, "infinity", 8))
+        {
+            I_expression.tokens[index_I_expression++].num = INFINITY;
+            i += 7;
+            continue;
+        }
+
+        if (!strncmp(str_temp, "∞", 3))
+        {
+            I_expression.tokens[index_I_expression++].num = INFINITY;
+            i += 2;
+            continue;
+        }
+
         // Special: Percentage
         if (str_expression[i] == '%' && str_expression[i + 1] != '%')
         {
@@ -791,7 +839,7 @@ __INFIX__ laf_Lexer(char *expression)
 
         // operators and variables
         unsigned short int increase = 0;
-        char _OP_ = ___operate_detector___(str_expression + i, &increase);
+        char _OP_ = ___operate_detector___(str_temp, &increase);
 
         if (_OP_ != '\0')
         {

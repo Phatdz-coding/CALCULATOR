@@ -11,8 +11,6 @@
 #include <gsl/sys/minmax.c>
 #include <gsl/poly/zsolve_init.c>
 #include <gsl/poly/zsolve.c>
-// #include <gsl/vector/vector.c>
-// #include <gsl/matrix/gsl_matrix.h>
 
 // determine the minimum value of a number or expression that is likely to be zero
 #define SE_EPSILON 1e-12

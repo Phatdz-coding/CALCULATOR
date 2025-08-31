@@ -25,7 +25,11 @@
         "array": "c",
         "initializer_list": "c",
         "utility": "c",
-        "string": "c"
+        "string": "c",
+        "numerical_integration.h": "c",
+        "extra_math_function.h": "c",
+        "gmp-impl.h": "c",
+        "mini-gmp.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -58,6 +58,8 @@ void print_super_script_number(const int number);
 void free_buffer(char **buffer);
 void display_infix_exp(const __INFIX__ expression);
 void display_postfix_exp(_POSTFIX__ P_exp);
+void hide_cursor();
+void show_cursor();
 
 // ============================================================================ //
 // ==========================FUNCTION DEFINITIONS============================== //
@@ -701,6 +703,30 @@ void print_super_script_number(const int number)
             printf("⁻"); // Unicode superscript minus
         }
     }
+}
+
+void hide_cursor()
+{
+    CONSOLE_CURSOR_INFO ci;
+    HANDLE h_cursor = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    GetConsoleCursorInfo(h_cursor, &ci);
+
+    ci.bVisible = FALSE;
+
+    SetConsoleCursorInfo(h_cursor, &ci);
+}
+
+void show_cursor()
+{
+    CONSOLE_CURSOR_INFO ci;
+    HANDLE h_cursor = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    GetConsoleCursorInfo(h_cursor, &ci);
+
+    ci.bVisible = TRUE;
+
+    SetConsoleCursorInfo(h_cursor, &ci);
 }
 
 #endif

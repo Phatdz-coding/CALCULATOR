@@ -85,6 +85,7 @@ _POSTFIX__ submodule_Parse(__INFIX__ specified_expression);
 double Compute_P_expression(const _POSTFIX__ P_expression);
 double Compute_P_function(_POSTFIX__ function, char *_variables_, ...);
 double evaluate_function(char *_function_, const char *_variables_, ...);
+double evaluate_I_1_var_function(const __INFIX__ I_function, const char var, const double value);
 double evaluate(char *expression);
 double evaluate_I_exp(__INFIX__ I_exp);
 
@@ -2208,30 +2209,28 @@ double average_slope(_postfix_ *P_function, const int output_index, const double
 
 double Compute_P_expression(const _POSTFIX__ P_expression)
 {
-    if (P_expression.tokens == NULL || P_expression.size == 0)
-        return NAN;
     // Make a copy of P_expression
     _POSTFIX__ cloned_exp;
-    _TOKENS_DATA_ *new_ptr = (_TOKENS_DATA_ *)malloc(P_expression.size * sizeof(_TOKENS_DATA_));
-    if (new_ptr == NULL)
+
+    cloned_exp.tokens = (_TOKENS_DATA_ *)malloc(P_expression.size * sizeof(_TOKENS_DATA_));
+    if (cloned_exp.tokens == NULL)
     {
-        perror("Compute_P_expression: Failed to create new_ptr");
+        perror("Compute_P_expression: Failed to malloc cloned_exp.tokens");
         return NAN;
     }
     for (int i = 0; i < P_expression.size; i++)
     {
-        new_ptr[i].num = P_expression.tokens[i].num;
-        new_ptr[i].operator= P_expression.tokens[i].operator;
-        new_ptr[i].variable = P_expression.tokens[i].variable;
+        cloned_exp.tokens[i].num = P_expression.tokens[i].num;
+        cloned_exp.tokens[i].operator= P_expression.tokens[i].operator;
+        cloned_exp.tokens[i].variable = P_expression.tokens[i].variable;
 
         // Variable without value
-        if (P_expression.tokens[i].variable != '\0' && isnan(new_ptr[i].num))
+        if (P_expression.tokens[i].variable != '\0' && isnan(cloned_exp.tokens[i].num))
         {
-            new_ptr[i].num = 0;
-            new_ptr[i].variable = '\0';
+            cloned_exp.tokens[i].num = 0;
+            cloned_exp.tokens[i].variable = '\0';
         }
     }
-    cloned_exp.tokens = new_ptr;
     cloned_exp.size = P_expression.size;
 
     for (unsigned short int i = 0; i < cloned_exp.size && cloned_exp.size > 1; i++)
@@ -8001,12 +8000,7 @@ __INFIX__ copy_infix_expression(const __INFIX__ source)
         return copyof_source;
     }
 
-    for (short int i = 0; i < source.size; i++)
-    {
-        copyof_source.tokens[i].num = source.tokens[i].num;
-        copyof_source.tokens[i].variable = source.tokens[i].variable;
-        copyof_source.tokens[i].operator= source.tokens[i].operator;
-    }
+    memcpy(copyof_source.tokens, source.tokens, sizeof(_infix_) * source.size);
 
     return copyof_source;
 }
@@ -8022,14 +8016,31 @@ _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source)
         return copyof_source;
     }
 
-    for (short int i = 0; i < source.size; i++)
-    {
-        copyof_source.tokens[i].num = source.tokens[i].num;
-        copyof_source.tokens[i].variable = source.tokens[i].variable;
-        copyof_source.tokens[i].operator= source.tokens[i].operator;
-    }
+    memcpy(copyof_source.tokens, source.tokens, sizeof(_infix_) * source.size);
 
     return copyof_source;
+}
+
+double evaluate_I_1_var_function(const __INFIX__ I_function, const char var, const double value)
+{
+    // Parse to postfix type
+    _POSTFIX__ P_function = submodule_Parse(I_function);
+
+    // substitude variable
+    for (unsigned short int i = 0; i < P_function.size; i++)
+    {
+        if (P_function.tokens[i].variable == var)
+        {
+            P_function.tokens[i].num = value;
+            P_function.tokens[i].variable = '\0';
+        }
+    }
+
+    double result = Compute_P_expression(P_function);
+
+    free(P_function.tokens);
+
+    return result;
 }
 
 #endif

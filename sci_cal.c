@@ -5,6 +5,7 @@
 #include <MY_LIB/sovle_equations.h>
 #include <MY_LIB/cal_info.h>
 #include <MY_LIB/input_box.h>
+#include <MY_LIB/numerical_integration.h>
 
 // --------------functions and menu------------- //
 
@@ -64,6 +65,7 @@ int main(const int num_of_arg, const char *arg[])
 
 void handle_child_process(const char *arg[])
 {
+    hide_cursor();
     if (!strcmp(arg[1], "display-const"))
         display_const();
     else if (!strcmp(arg[1], "usualcal-display-func"))
@@ -92,74 +94,90 @@ void handle_child_process(const char *arg[])
         solve_system_of_linear_equation_display_help();
     else if (!strcmp(arg[1], "solve_system_of_nonlinear_equation-display-help"))
         solve_system_of_nonlinear_equation_display_help();
+    else if (!strcmp(arg[1], "integral_calculator-integrate"))
+        ib_integrate_in_the_background();
+    else if (!strcmp(arg[1], "integral_calculator-display-help"))
+        integral_calculator_display_help();
 }
 
 void display_const()
 {
     puts("════════🔍📖 Available constants════════\n");
+    puts("\n▶ Built-in Constants\n");
+    const char *list_of_const[] = {
+        "e = 2.718281828459045\n",
+        "pi = 3.14159265358979323846\n",
+        "g = 9.80665\n",
+        "c = 299792458\n",
+        "ln2 = 0.69314718055994530942\n",
+        "sqrt3 = 1.73205080756887729353\n",
+        "sqrt2 = 1.41421356237309504880\n",
+        "sqrt.5 = 0.707106781186547524\n"};
+
+    short int list_size = sizeof(list_of_const) / sizeof(list_of_const[0]);
+
+    for (short int i = 0; i < list_size; i++)
+        puts(list_of_const[i]);
+
+    puts("\n▶ User-defined variables\n");
+
+    ib_get_valueof_var_set();
+
+    if (variable_set == NULL)
     {
-        const char *list_of_const[] = {
-            "e = 2.718281828459045\n",
-            "pi = 3.14159265358979323846\n",
-            "g = 9.80665\n",
-            "c = 299792458\n",
-            "ln2 = 0.69314718055994530942\n",
-            "sqrt3 = 1.73205080756887729353\n",
-            "sqrt2 = 1.41421356237309504880\n",
-            "sqrt.5 = 0.707106781186547524\n"};
-
-        short int list_size = sizeof(list_of_const) / sizeof(list_of_const[0]);
-
-        for (short int i = 0; i < list_size; i++)
-            puts(list_of_const[i]);
-
-        puts("\nPress V to see user-define variables . . .\n");
-    }
-
-    int input_code = _getch();
-
-    if (input_code != 'v' && input_code != 'V')
+        puts("❌  Failed to extract variables");
         return;
-
-    puts("\n▤▤▤ Stored variables\n");
-
-    {
-        HANDLE dc_hMapFile;
-        shared_variables *stored_var;
-
-        dc_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, SHARED_MEM_NAME);
-        if (!dc_hMapFile || dc_hMapFile == INVALID_HANDLE_VALUE)
-            return;
-
-        stored_var = (shared_variables *)MapViewOfFile(dc_hMapFile,
-                                                       FILE_MAP_ALL_ACCESS,
-                                                       0,
-                                                       0,
-                                                       sizeof(shared_variables) * NUM_OF_VARIABLES);
-        //
-        if (!stored_var)
-        {
-            CloseHandle(dc_hMapFile);
-            return;
-        }
-
-        // for (short int i = 0; i < NUM_OF_VARIABLES; i++)
-        //     printf("  %c = %.10lf\n", stored_var[i].var_name, stored_var[i].num);
-
-        for (unsigned short int i = 0; i < NUM_OF_VARIABLES; i++)
-        {
-            if (is_zero(stored_var[i].num))
-                continue;
-
-            printf("\n  %c = ", stored_var[i].var_name);
-            display_number(stored_var[i].num);
-        }
-
-        puts("\nOther variables are equal to zero");
-
-        UnmapViewOfFile(stored_var);
-        CloseHandle(dc_hMapFile);
     }
+
+    for (unsigned short int i = 0; i < NUM_OF_VARIABLES; i++)
+    {
+        if (is_zero(variable_set[i].num))
+            continue;
+
+        printf("\n  %c = ", variable_set[i].var_name);
+        display_number(variable_set[i].num);
+    }
+
+    CloseHandle(handle_var_set);
+    UnmapViewOfFile(variable_set);
+
+    // {
+    //     HANDLE dc_hMapFile;
+    //     shared_variables *stored_var;
+
+    //     dc_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, SHARED_MEM_NAME);
+    //     if (!dc_hMapFile || dc_hMapFile == INVALID_HANDLE_VALUE)
+    //         return;
+
+    //     stored_var = (shared_variables *)MapViewOfFile(dc_hMapFile,
+    //                                                    FILE_MAP_ALL_ACCESS,
+    //                                                    0,
+    //                                                    0,
+    //                                                    sizeof(shared_variables) * NUM_OF_VARIABLES);
+    //     //
+    //     if (!stored_var)
+    //     {
+    //         CloseHandle(dc_hMapFile);
+    //         return;
+    //     }
+
+    //     // for (short int i = 0; i < NUM_OF_VARIABLES; i++)
+    //     //     printf("  %c = %.10lf\n", stored_var[i].var_name, stored_var[i].num);
+
+    //     for (unsigned short int i = 0; i < NUM_OF_VARIABLES; i++)
+    //     {
+    //         if (is_zero(stored_var[i].num))
+    //             continue;
+
+    //         printf("\n  %c = ", stored_var[i].var_name);
+    //         display_number(stored_var[i].num);
+    //     }
+
+    //     puts("\nOther variables are equal to zero");
+
+    //     UnmapViewOfFile(stored_var);
+    //     CloseHandle(dc_hMapFile);
+    // }
 
     system("pause >nul");
 }
@@ -174,6 +192,8 @@ bool central_control()
 
     print_each_char(30, "\nChoose mode: ");
     int user_option = input_int();
+
+    hide_cursor();
 
     system("cls");
 
@@ -225,6 +245,8 @@ void usual_calculation()
     puts("Press [ Ctrl + G ] For help\n");
     delay(40);
     puts("↓ Type your expression ↓");
+
+    show_cursor();
 
     short int input_code;
     int input_line = 4, output_line = 7;
@@ -339,6 +361,7 @@ void usual_calculation()
         // Ctrl + D
         else if (input_code == 4)
         {
+            hide_cursor();
             memset(str_input, 0, max_input_len);
             input_index = 0;
             input_line = top_barrier;
@@ -346,6 +369,12 @@ void usual_calculation()
             C_Y = input_line;
             clear_line_in_range(top_barrier, win_height - 2);
             move_cursor(input_line, 0);
+            show_cursor();
+        }
+
+        else
+        {
+            _getch();
         }
     }
 
@@ -358,6 +387,8 @@ void derivative_calculator()
     delay(40);
     puts("Press [Ctrl + G] For help");
     delay(40);
+
+    show_cursor();
 
     int win_w, win_h;
 
@@ -486,6 +517,7 @@ void derivative_calculator()
             // clear screen
             else if (input_code == 4)
             {
+                hide_cursor();
                 system("cls");
 
                 puts("🔢 Derivative Calculator");
@@ -512,6 +544,7 @@ void derivative_calculator()
                 str_derivative.Content = NULL;
 
                 use_result = false;
+                show_cursor();
             }
 
             // ctrl + g
@@ -737,7 +770,151 @@ void derivative_calculator()
     }
 }
 
-void integral_calculator() {}
+void integral_calculator()
+{
+    puts("🔢 Numerical Integration Calculator");
+    delay(40);
+    puts("Press [Ctrl + G] For help\n");
+    delay(40);
+    puts("╔══════════════════════════════════╗");
+    puts("║  Integral form: I = ∫ₐᵇ f(x) dx  ║");
+    puts("╚══════════════════════════════════╝");
+
+    char *str_function = create_new_buffer_with_sizeof(1);
+    double a = -1.0, b = 1.0;
+    char var = 'x';
+    unsigned short int integration_method = 0;
+
+    const char *str_integration_method[] = {
+        "Let the calculator decide",
+        "Gaussian Quadrature",
+        "Double Tanh-Sinh Quadrature",
+        "Apdative Quadrature",
+        "Simpson's Rule"};
+
+    unsigned short int line_function = 7;
+    unsigned short int line_var = line_function + 3;
+    unsigned short int line_a = line_var + 2;
+    unsigned short int line_b = line_a + 2;
+
+    while (1)
+    {
+        hide_cursor();
+        clear_line_in_range(line_function, line_b + 2);
+        printf("f(%c) = %s\n\n\n\n", var, str_function);
+        printf("Variale of Integration: %c\n", var);
+        printf("a = ");
+        display_number(a);
+        printf("\n\nb = ");
+        display_number(b);
+        printf("\n\nIntegration Method: %s\n\n", str_integration_method[integration_method]);
+
+        short int input_code = _getch();
+
+        // F1
+        if (input_code == 59)
+        {
+            free_buffer(&str_function);
+
+            move_cursor(line_function, 0);
+            str_function = ib_ic_get_function();
+        }
+
+        // F2
+        else if (input_code == 60)
+        {
+            move_cursor(line_var + 1, 24);
+
+            ib_ic_get_var(&var);
+        }
+
+        // F3
+        else if (input_code == 61)
+        {
+            move_cursor(line_a + 1, 0);
+            ib_2_3_4_poly_equation(line_a + 1, 0, line_a + 3, &a, "integral_calculator-display-help");
+        }
+
+        // F4
+        else if (input_code == 62)
+        {
+            move_cursor(line_b + 1, 0);
+            ib_2_3_4_poly_equation(line_b + 1, 0, line_b + 3, &b, "integral_calculator-display-help");
+        }
+
+        // F5
+        else if (input_code == 63)
+        {
+            double result = NAN;
+            ib_integrate_section(str_function, var, a, b, integration_method, &result);
+        }
+
+        // Shift + 1
+        else if (input_code == '!')
+        {
+            integration_method = 1;
+        }
+
+        // Shift + 2
+        else if (input_code == '@')
+        {
+            integration_method = 2;
+        }
+
+        // Shift + 3
+        else if (input_code == '#')
+        {
+            integration_method = 3;
+        }
+
+        // Shift + 4
+        else if (input_code == '$')
+        {
+            integration_method = 4;
+        }
+
+        // Shift + 0
+        else if (input_code == ')')
+        {
+            integration_method = 0;
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            open_menu = true;
+            break;
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("integral_calculator-display-help", false);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            system("cls");
+
+            memset(str_function, '\0', strlen(str_function));
+            a = -1.0;
+            b = 1.0;
+            var = 'x';
+            integration_method = 0;
+
+            puts("🔢 Numerical Integration Calculator");
+            delay(40);
+            puts("Press [Ctrl + G] For help\n");
+            delay(40);
+            puts("╔══════════════════════════════════╗");
+            puts("║  Integral form: I = ∫ₐᵇ f(x) dx  ║");
+            puts("╚══════════════════════════════════╝");
+        }
+    }
+
+    free_buffer(&str_function);
+}
 
 void solve_quadratic_equation()
 {
@@ -756,6 +933,7 @@ void solve_quadratic_equation()
 
     while (1)
     {
+        hide_cursor();
         input_code = _getch();
 
         if (input_code == 'A')
@@ -874,6 +1052,7 @@ void solve_cubic_equation()
 
     while (1)
     {
+        hide_cursor();
         input_code = _getch();
 
         if (input_code == 'A')
@@ -1008,6 +1187,7 @@ void solve_quartic_equation()
 
     while (1)
     {
+        hide_cursor();
         input_code = _getch();
 
         if (input_code == 'A')
@@ -1172,10 +1352,14 @@ void solve_n_degree_poly_equation()
 
     while (1)
     {
+        hide_cursor();
         short int input_code = _getch();
 
+        // F1
         if (input_code == 59)
         {
+            show_cursor();
+
             printf("Enter degree: ");
             degree = (short int)input_int();
             if (degree <= 4)
@@ -1334,6 +1518,8 @@ void solve_equation()
 
     while (1)
     {
+        hide_cursor();
+
         move_cursor(fx_line - 1, 0);
         printf("Equation form: f(%c) = 0\nf(%c) = %s\n\n\n\nSolve for: %c\nSolve the equation in range:\nLower bound = %.6lf\n\n\nUpper bound = %.6lf\n\n\n", var, var, str_function, var, l_bound, u_bound);
 
@@ -1348,6 +1534,7 @@ void solve_equation()
             // F1
             if (input_code == 59)
             {
+                show_cursor();
                 clear_line_in_range(fx_line, variable_line - 1);
                 printf("f(%c) = ", var);
                 free_buffer(&str_function);
@@ -1358,6 +1545,7 @@ void solve_equation()
             else if (input_code == 60)
             {
                 move_cursor(variable_line, 11);
+                show_cursor();
                 while (1)
                 {
                     var = _getch();
@@ -1448,6 +1636,7 @@ void solve_system_of_linear_equation()
     while (1)
     {
     main_loop:
+        hide_cursor();
         n = 0;
 
         input_code = _getch();
@@ -1456,6 +1645,7 @@ void solve_system_of_linear_equation()
         if (input_code == 59)
         {
         get_n:
+            show_cursor();
             get_cursor_position(&C_X, &C_Y);
             move_cursor(++C_Y, 0);
             printf("Number of unknown n = ");
@@ -1633,12 +1823,14 @@ void solve_system_of_nonlinear_equation()
     while (1)
     {
     main_loop:
+        hide_cursor();
         get_cursor_position(&C_X, &C_Y);
         int input_code = _getch();
 
         // F1
         if (input_code == 59)
         {
+            show_cursor();
             short int n = 0;
             char **str_functions = NULL;
             char *var_set = NULL;
