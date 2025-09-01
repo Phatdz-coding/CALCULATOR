@@ -60,6 +60,8 @@ extern "C"
 
     void ib_ic_get_var(char *var);
 
+    short int ib_ic_get_bounds(unsigned short int input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result);
+
     void ib_integrate_section(char *str_function, const char var, const double a, const double b, unsigned short int method, double *result);
 
     void ib_integrate_in_the_background();
@@ -1614,6 +1616,134 @@ void ib_ic_get_var(char *var)
             return;
         }
     }
+}
+
+short int ib_ic_get_bounds(unsigned short int input_line, unsigned short int input_column, unsigned short int bottom_barrier, double *result)
+{
+    show_cursor();
+    int input_code = 0;
+    short int input_index = 0;
+    bool new_input = false;
+    int C_X, C_Y;
+    int win_w, win_h;
+    short int top_barrier = input_line;
+
+    getWinSize(&win_w, &win_h);
+
+    short int max_input_len = (bottom_barrier - top_barrier) * win_w;
+
+    char *str_input = create_new_buffer_with_sizeof(max_input_len);
+
+    move_cursor(input_line, input_column);
+    get_cursor_position(&C_X, &C_Y);
+
+    while (1)
+    {
+        if (new_input)
+        {
+            clear_line_in_range(top_barrier, bottom_barrier);
+
+            printf("%s", str_input);
+            new_input = false;
+
+            // safety & create smooth style- put a delay between each process
+            delay(5);
+        }
+
+        input_code = _getch();
+
+        if (laf_valid_input_code(input_code) &&
+            input_index < max_input_len)
+        {
+            if (input_index == 0 && input_code == ' ')
+                continue;
+            str_input[input_index++] = input_code;
+
+            laf_encode_math_symbols(str_input, &input_index);
+
+            new_input = true;
+        }
+
+        // Backspace - Delete input
+        else if (input_code == 8 && input_index > 0)
+        {
+            laf_delete_input_code(str_input, &input_index);
+
+            new_input = true;
+        }
+
+        // assign var & compute [Ctrl + Enter]
+        else if (input_code == 10)
+        {
+            open_new_process("global-assign-variables", true);
+            new_input = true;
+        }
+
+        // enter
+        else if (input_code == 13 && input_index != 0)
+        {
+            break;
+        }
+
+        // Esc
+        else if (input_code == 27)
+        {
+            open_menu = true;
+            *result = 0.0;
+            return 27;
+        }
+
+        // Ctrl + C
+        else if (input_code == 3)
+        {
+            open_new_process("display-const", false);
+        }
+
+        // Ctrl + L
+        else if (input_code == 12)
+        {
+            open_new_process("--der-cal-display-func", false);
+        }
+
+        // Ctrl + G
+        else if (input_code == 7)
+        {
+            open_new_process("integral_calculator-display-help", false);
+        }
+
+        // Ctrl + D
+        else if (input_code == 4)
+        {
+            memset(str_input, 0, max_input_len);
+            input_index = 0;
+            input_line = top_barrier;
+            C_X = 0;
+            C_Y = input_line;
+            clear_line_in_range(top_barrier, bottom_barrier);
+            move_cursor(input_line, 0);
+        }
+
+        else if (input_code == 224)
+        {
+            _getch();
+        }
+    }
+
+    // compute input
+    __INFIX__ I_input = convert_string_to_INFIX(str_input);
+
+    substitude_variables(&I_input);
+    (*result) = evaluate_I_exp(I_input);
+
+    free(str_input);
+    free(I_input.tokens);
+
+    if (!isfinite(*result))
+        return -1;
+
+    clear_line_(input_line);
+
+    return 0;
 }
 
 void ib_integrate_section(char *str_function, const char var, const double a, const double b, unsigned short int method, double *result)
