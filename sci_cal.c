@@ -832,14 +832,14 @@ void integral_calculator()
         else if (input_code == 61)
         {
             move_cursor(line_a + 1, 0);
-            ib_2_3_4_poly_equation(line_a + 1, 0, line_a + 3, &a, "integral_calculator-display-help");
+            ib_ic_get_bounds(line_a + 1, 0, line_a + 3, &a);
         }
 
         // F4
         else if (input_code == 62)
         {
             move_cursor(line_b + 1, 0);
-            ib_2_3_4_poly_equation(line_b + 1, 0, line_b + 3, &b, "integral_calculator-display-help");
+            ib_ic_get_bounds(line_b, 0, line_b + 3, &b);
         }
 
         // F5
