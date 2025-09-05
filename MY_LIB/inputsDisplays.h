@@ -60,10 +60,44 @@ void display_infix_exp(const __INFIX__ expression);
 void display_postfix_exp(_POSTFIX__ P_exp);
 void hide_cursor();
 void show_cursor();
+void delete_substring(char *string, const short int start_index, const short int end_index, const unsigned short int len);
+void display_message_without_move_the_cursor(const int C_X, const int C_Y, char *message, const int output_line);
 
 // ============================================================================ //
 // ==========================FUNCTION DEFINITIONS============================== //
 // ============================================================================ //
+
+void display_message_without_move_the_cursor(const int C_X, const int C_Y, char *message, const int output_line)
+{
+    move_cursor(output_line, 0); // Move to output line
+    printf("%s", message);       // Print message
+    move_cursor(C_Y, C_X);       // Restore original cursor position
+}
+
+void delete_substring(char *string, const short int start_index, const short int end_index, const unsigned short int len)
+{
+    // Fast early exit for invalid parameters
+    if (!string || start_index < 0 || end_index < start_index || start_index >= len)
+    {
+        return;
+    }
+
+    // Clamp end_index to prevent buffer overrun
+    const short int actual_end = (end_index >= len) ? len - 1 : end_index;
+
+    // Calculate deletion parameters in one pass
+    const short int delete_count = actual_end - start_index + 1;
+    const short int remaining_chars = len - actual_end - 1;
+
+    // Single optimized memory move operation
+    if (remaining_chars > 0)
+    {
+        memmove(string + start_index, string + actual_end + 1, remaining_chars);
+    }
+
+    // Null-terminate at new end position
+    string[len - delete_count] = '\0';
+}
 
 void display_postfix_exp(_POSTFIX__ P_exp)
 {

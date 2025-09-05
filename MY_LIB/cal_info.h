@@ -77,9 +77,10 @@ void solve_system_of_nonlinear_equation_display_help()
         "1. Press [F1] enter n = 3",
         "2. Type in the functions",
         "3. Enter variables: xyz",
-        "4. Lower bound = -2",
-        "5. Upper bound = 2",
+        "4. Lower bound = 0",
+        "5. Upper bound = 5",
         "   ➢ Solutions: x = 0.5; y ≈ 0; z = -0.5235...",
+        "   • Change the boundary to [-5, 0] to find other solutions",
         "\n✨ Tip",
         "Highlight the text and then right-click to copy",
         "Right-click to paste the copy"};
@@ -162,13 +163,13 @@ void solve_equation_display_help()
         "  Ctrl + C             : See a list of available constants and variables.",
         "  Ctrl + Enter         : Assign a value to a variable.",
         "\n「 ✦ Example ✦  」",
-        "Let's solve the equation: x³ - x - 2 = 0",
-        "1. Press [F1] and type: x^3 - x - 2",
+        "Let's solve the equation: cos(e^x) - ln2 = 0",
+        "1. Press [F1] and type: cos(e^x) - ln2",
         "2. Press [F2] and type: x",
-        "3. Press [F3] and type: 1",
-        "4. Press [F4] and type: 2",
-        "5. Press [F5] to solve. The calculator will find a root between 1 and 2.",
-        "   The approximate solution is x ≈ 1.521.",
+        "3. Press [F3] and type: -5",
+        "4. Press [F4] and type: 5",
+        "5. Press [F5] to solve. The calculator will find a root between -5 and 5.",
+        "   The approximate solution are x₁ ≈ -0.21697 . . . x₄₅ ≈ 4.97893",
         "\n✨ Tip",
         "Highlight text and right-click to copy.",
         "Right-click in the input area to paste."};
@@ -350,16 +351,22 @@ void display_menu()
     system("cls");
     const char *mode_list[] = {
         "0/ Close window",
-        "1/ Usual Calculation",
+        "\n✦︎ Scientific ✦︎",
+        "1/ Scientific Calculator",
+        "\n✦︎ Calculus ✦︎",
         "2/ Derivative Calculator",
         "3/ Integral Calculator",
+        "\n✦︎ Equation ✦︎",
+        "\n▶ Polynomial Equation",
         "4/ Solve Quadratic Equation (2-degree polynomial equation)",
         "5/ Solve Cubic Equation (3-degree polynomial equation)",
         "6/ Solve Quartic Equation (4-degree polynomial equation)",
         "7/ Solve nᵗʰ Degree Polynomial Equation",
-        "8/ Solve any Equation",
-        "9/ Solve System of Linear Equations",
-        "10/ Solve System of Non-linear Equations"};
+        "\n▶ Systme of Equations",
+        "8/ Solve System of Linear Equations",
+        "9/ Solve System of Non-linear Equations",
+        "\n▶ Other Equation",
+        "10/ Solve any Equations"};
     int size = sizeof(mode_list) / sizeof(mode_list[0]);
     for (int i = 0; i < size; i++)
     {

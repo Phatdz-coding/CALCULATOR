@@ -9,7 +9,6 @@
 #include <MY_LIB/sovle_equations.h>
 #include <MY_LIB/numerical_integration.h>
 
-
 // ======================================================================================================= //
 // ======================================================================================================= //
 // ======================================================================================================= //
@@ -175,6 +174,22 @@ void assign_variables()
         }
     }
 
+    // write to file
+    FILE *file = fopen("saves.dat", "wb");
+    if (file == NULL)
+    {
+        perror("Assign variables: Failed to open saves");
+        exit(1);
+    }
+
+    size_t write_status = fwrite(variable_set, sizeof(shared_variables), NUM_OF_VARIABLES, file);
+    if (write_status != NUM_OF_VARIABLES)
+    {
+        perror("Assign variables: Failed to write to saves");
+        exit(0);
+    }
+
+    fclose(file);
     UnmapViewOfFile(variable_set);
     CloseHandle(av_hMapFile);
 }
@@ -210,12 +225,25 @@ bool initialize_variables(HANDLE *hMapFile)
     }
 
     // initialize value for variables
-    const char var_set_name[] = "abdfhijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for (short int i = 0; i < NUM_OF_VARIABLES; i++)
+    // const char var_set_name[] = "abdfhijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // for (short int i = 0; i < NUM_OF_VARIABLES; i++)
+    // {
+    //     variable_set[i].num = 0;
+    //     variable_set[i].var_name = var_set_name[i];
+    // }
+
+    // read saves
+    FILE *file;
+    file = fopen("saves.dat", "rb");
+
+    size_t read_status = fread(variable_set, sizeof(shared_variables), NUM_OF_VARIABLES, file);
+    if (read_status != NUM_OF_VARIABLES)
     {
-        variable_set[i].num = 0;
-        variable_set[i].var_name = var_set_name[i];
+        perror("Init variables: Failed to read saves");
+        return false;
     }
+
+    fclose(file);
 
     return true;
 }

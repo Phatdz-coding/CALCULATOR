@@ -1567,14 +1567,6 @@ short int se_solve_system_of_nonlinear_equation(
     _POSTFIX__ **P_J_x = NULL;
     double **J_x_k = NULL;
 
-    // Seed randomness once
-    static int seeded = 0;
-    if (!seeded)
-    {
-        srand((unsigned int)time(NULL));
-        seeded = 1;
-    }
-
     // Main retry loop
     while (retry_count < SE_MAX_RETRIES)
     {
@@ -1694,9 +1686,10 @@ short int se_solve_system_of_nonlinear_equation(
         }
 
         // Initialize solutions with random values
+        double init_step = (u_bound - l_bound) / (double) num_of_sol;
         for (unsigned short int i = 0; i < num_of_sol; i++)
         {
-            se_solutions[i] = random_in_range_double(l_bound, u_bound);
+            se_solutions[i] = l_bound + ((double) i * init_step) + init_step / 2.0;
         }
 
         // Newton-Raphson iteration
