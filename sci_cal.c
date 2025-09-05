@@ -221,13 +221,13 @@ bool central_control()
         solve_n_degree_poly_equation();
         break;
     case 8:
-        solve_equation();
-        break;
-    case 9:
         solve_system_of_linear_equation();
         break;
-    case 10:
+    case 9:
         solve_system_of_nonlinear_equation();
+        break;
+    case 10:
+        solve_equation();
         break;
     default:
         return false;
@@ -1932,6 +1932,7 @@ void solve_system_of_nonlinear_equation()
                     display_number(solutions[i]);
                     putchar('\n');
                 }
+                puts("\nℹ️ The equation may have more solutions. Change the boundary to find them");
             }
             else if (solving_status == -1)
             {
