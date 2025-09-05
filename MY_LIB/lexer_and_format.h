@@ -556,7 +556,23 @@ __INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
             }
 
             // case 2: "(-expression)"
-            else if (i >= 1 && I_expression.tokens[i - 1].operator== '(')
+            else if (I_expression.tokens[i - 1].operator== '(')
+            {
+                I_new_exp.tokens[index_I_new_exp - 1].operator= '\0';
+                I_new_exp.tokens[index_I_new_exp - 1].num = 0.0;
+                I_new_exp.tokens[index_I_new_exp++].operator= '-';
+            }
+
+            // case 3: , - expression
+            else if (I_expression.tokens[i - 1].operator== ',')
+            {
+                I_new_exp.tokens[index_I_new_exp - 1].operator= '\0';
+                I_new_exp.tokens[index_I_new_exp - 1].num = 0.0;
+                I_new_exp.tokens[index_I_new_exp++].operator= '-';
+            }
+
+            // case 4: = - expression
+            else if (I_expression.tokens[i - 1].operator== '=')
             {
                 I_new_exp.tokens[index_I_new_exp - 1].operator= '\0';
                 I_new_exp.tokens[index_I_new_exp - 1].num = 0.0;
