@@ -43,7 +43,7 @@ static bool open_menu;
 
 // ---------------------------------------------------------------- //
 
-#define PROGRAM_NAME "sci_cal.exe" // This macro must have the exact name of the program
+#define PROGRAM_NAME "Scientific Calculator En.exe" // This macro must have the exact name of the program
 #define NUM_OF_VARIABLES 49
 #define SHARED_MEM_NAME "Local\\Shared_Variables"
 

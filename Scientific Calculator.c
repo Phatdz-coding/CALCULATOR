@@ -39,6 +39,7 @@ void display_const();
 
 int main(const int num_of_arg, const char *arg[])
 {
+    SetConsoleTitle("Scientific Calculator");
     turn_on_advanced_character_mode();
 
     // get signal and work on child processes
@@ -58,6 +59,7 @@ int main(const int num_of_arg, const char *arg[])
         ;
 
     CloseHandle(hMapFile);
+    show_cursor();
     return 0;
 }
 
@@ -98,6 +100,7 @@ void handle_child_process(const char *arg[])
         ib_integrate_in_the_background();
     else if (!strcmp(arg[1], "integral_calculator-display-help"))
         integral_calculator_display_help();
+    show_cursor();
 }
 
 void display_const()
@@ -112,7 +115,8 @@ void display_const()
         "ln2 = 0.69314718055994530942\n",
         "sqrt3 = 1.73205080756887729353\n",
         "sqrt2 = 1.41421356237309504880\n",
-        "sqrt.5 = 0.707106781186547524\n"};
+        "sqrt.5 = 0.707106781186547524\n",
+        "infinity = ∞\n"};
 
     short int list_size = sizeof(list_of_const) / sizeof(list_of_const[0]);
 
@@ -240,7 +244,7 @@ bool central_control()
 
 void usual_calculation()
 {
-    puts("🔢 Usual Calculation");
+    puts("🔢 Scientific Mode");
     delay(40);
     puts("Press [ Ctrl + G ] For help\n");
     delay(40);
@@ -303,9 +307,8 @@ void usual_calculation()
         }
 
         input_code = _getch();
-        // input_code = 6969;
 
-        if (laf_valid_input_code(input_code))
+        if (laf_valid_input_code(input_code) && input_index < max_input_len)
         {
             if (input_index == 0 && input_code == ' ')
                 continue;
@@ -367,7 +370,7 @@ void usual_calculation()
             input_line = top_barrier;
             C_X = 0;
             C_Y = input_line;
-            clear_line_in_range(top_barrier, win_height - 2);
+            clear_line_in_range(top_barrier, top_barrier + 10);
             move_cursor(input_line, 0);
             show_cursor();
         }

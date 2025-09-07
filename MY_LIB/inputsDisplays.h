@@ -62,10 +62,53 @@ void hide_cursor();
 void show_cursor();
 void delete_substring(char *string, const short int start_index, const short int end_index, const unsigned short int len);
 void display_message_without_move_the_cursor(const int C_X, const int C_Y, char *message, const int output_line);
+void setup_fixed_console(int width, int height, int posX, int posY);
 
 // ============================================================================ //
 // ==========================FUNCTION DEFINITIONS============================== //
 // ============================================================================ //
+
+// Set up a fixed console window that cannot be resized
+void setup_fixed_console(int width, int height, int posX, int posY)
+{
+    HWND consoleWindow = GetConsoleWindow();
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    
+    // Set console title (optional)
+    char title[100];
+    sprintf(title, "Scientific Calculator", width, height);
+    SetConsoleTitle(title);
+    
+    // Set screen buffer size
+    COORD bufferSize = {width, height};
+    SetConsoleScreenBufferSize(hConsole, bufferSize);
+    
+    // Set window size
+    SMALL_RECT windowSize = {0, 0, width - 1, height - 1};
+    SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
+    
+    // Remove resize and maximize capabilities
+    LONG style = GetWindowLong(consoleWindow, GWL_STYLE);
+    style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX | WS_SIZEBOX);
+    SetWindowLong(consoleWindow, GWL_STYLE, style);
+    
+    // Set window position and size
+    SetWindowPos(consoleWindow, NULL, posX, posY, 
+                 width * 8, height * 16,  // Approximate pixel size
+                 SWP_NOZORDER | SWP_FRAMECHANGED);
+    
+    // Center the window (optional)
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    int windowWidth = width * 8;
+    int windowHeight = height * 16;
+    int centerX = (screenWidth - windowWidth) / 2;
+    int centerY = (screenHeight - windowHeight) / 2;
+    
+    SetWindowPos(consoleWindow, NULL, centerX + posX, centerY + posY, 
+                 windowWidth, windowHeight, 
+                 SWP_NOZORDER | SWP_FRAMECHANGED);
+}
 
 void display_message_without_move_the_cursor(const int C_X, const int C_Y, char *message, const int output_line)
 {

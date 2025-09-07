@@ -458,7 +458,7 @@ bool open_new_process(const char *feature, bool wait_for_child_process)
     si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 
     char cmdLine[256];
-    snprintf(cmdLine, sizeof(cmdLine), "%s %s", PROGRAM_NAME, feature);
+    snprintf(cmdLine, sizeof(cmdLine), "\"%s\" %s", PROGRAM_NAME, feature);
 
     BOOL success = CreateProcessA(
         NULL, cmdLine, NULL, NULL, TRUE,
