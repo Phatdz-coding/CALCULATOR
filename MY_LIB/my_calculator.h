@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <limits.h>
+#include <MY_LIB/types_and_specifiers.h>
+#include <MY_LIB/support_function.h>
 #include <MY_LIB/inputsDisplays.h>
 #include <MY_LIB/lexer_and_format.h>
 #include <MY_LIB/extra_math_function.h>
@@ -47,8 +49,6 @@ double V_Sphere(double radius);
 double S_Triangle_3_sides(double a, double b, double c);
 double S_Triangle_height_base(double height, double base);
 double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
-
-int estimate_upper_bound(int n);
 
 int *find_prime_factors(int n, int *num_of_fac);
 
@@ -97,9 +97,6 @@ void add_single_token(__INFIX__ *destination, const double num, const char varia
 __INFIX__ differentiate_I_exp(__INFIX__, const char);
 void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos);
 
-void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replacement, const int index_start, const int index_end);
-
-void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int index_start, const short int index_end);
 __INFIX__ copy_infix_expression(const __INFIX__ source);
 _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source);
 
@@ -279,13 +276,6 @@ double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3,
     return 0.5 * fabs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1));
 }
 
-// Function to estimate the upper bound for the nth prime
-int estimate_upper_bound(int n)
-{
-    if (n < 6)
-        return 15;
-    return (int)(n * (log(n) + log(log(n))));
-}
 
 /*
 Function to find all prime factors of an integer
@@ -2847,7 +2837,7 @@ _POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
     if (infix_exp == NULL)
     {
         perror("submodule_Parse: Failed to malloc infix_exp");
-        _POSTFIX__ empty_expression = {0, NULL};
+        _POSTFIX__ empty_expression = {NULL, 0};
         return empty_expression;
     }
     memcpy(infix_exp, specified_expression.tokens, infix_len * sizeof(_infix_));
@@ -5142,78 +5132,6 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
     return str_exp;
 }
 
-void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replacement, const int index_start, const int index_end)
-{
-    int old_size = I_exp_tobe_replaced->size;
-    /* Validate indices */
-    if (index_start < 0 || index_end < index_start || index_end >= old_size)
-        return;
-
-    int remove_count = index_end - index_start + 1;
-    int new_size = old_size - remove_count + replacement.size;
-
-    /* Allocate new token array */
-    _infix_ *new_tokens = malloc(new_size * sizeof(_infix_));
-    if (!new_tokens)
-    {
-        return; /* out of memory */
-    }
-
-    /* 1. Copy tokens before index_start */
-    if (index_start > 0)
-    {
-        memcpy(new_tokens,
-               I_exp_tobe_replaced->tokens,
-               index_start * sizeof(_infix_));
-    }
-
-    /* 2. Copy replacement tokens */
-    if (replacement.size > 0)
-    {
-        memcpy(new_tokens + index_start,
-               replacement.tokens,
-               replacement.size * sizeof(_infix_));
-    }
-
-    /* 3. Copy tokens after index_end */
-    int tail_count = old_size - (index_end + 1);
-    if (tail_count > 0)
-    {
-        memcpy(new_tokens + index_start + replacement.size,
-               I_exp_tobe_replaced->tokens + index_end + 1,
-               tail_count * sizeof(_infix_));
-    }
-
-    // free old memory
-    free(I_exp_tobe_replaced->tokens);
-    I_exp_tobe_replaced->tokens = new_tokens;
-    I_exp_tobe_replaced->size = new_size;
-}
-
-void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int index_start, const short int index_end)
-{
-    if (destination->tokens == NULL)
-    {
-        destination->size = index_end - index_start - 1;
-        if (destination->size == 0)
-            return;
-        destination->tokens = (_infix_ *)calloc(destination->size, sizeof(_infix_));
-        if (destination->tokens == NULL)
-        {
-            perror("Copy_sub_I_exp: Failed to malloc destination->tokens");
-            return;
-        }
-    }
-
-    int j = 0;
-    for (int i = index_start + 1; i < index_end && j < (index_end - index_start + 1); i++, j++)
-    {
-        destination->tokens[j].num = source.tokens[i].num;
-        destination->tokens[j].variable = source.tokens[i].variable;
-        destination->tokens[j].operator= source.tokens[i].operator;
-    }
-}
-
 bool handle_special_functions_(__INFIX__ *I_exp)
 {
     /* no need for checking null pointer */
@@ -7496,7 +7414,7 @@ double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var
 double integral_definite_infix(__INFIX__ infix_function, const char var, const double lower_bound, const double upper_bound)
 {
     double result;
-    _POSTFIX__ P_function = {0, NULL};
+    _POSTFIX__ P_function = {NULL, 0};
 
     // Validate input
     if (infix_function.size == 0 || infix_function.tokens == NULL)

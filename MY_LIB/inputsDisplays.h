@@ -12,6 +12,7 @@
 #include <conio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <MY_LIB/support_function.h>
 #include <MY_LIB/lexer_and_format.h>
 
 #define MAX_STRING_INPUT_SIZE 2048
@@ -57,7 +58,6 @@ void print_sub_script_number(const int number);
 void print_super_script_number(const int number);
 void free_buffer(char **buffer);
 void display_infix_exp(const __INFIX__ expression);
-void display_postfix_exp(_POSTFIX__ P_exp);
 void hide_cursor();
 void show_cursor();
 void delete_substring(char *string, const short int start_index, const short int end_index, const unsigned short int len);
@@ -140,29 +140,6 @@ void delete_substring(char *string, const short int start_index, const short int
 
     // Null-terminate at new end position
     string[len - delete_count] = '\0';
-}
-
-void display_postfix_exp(_POSTFIX__ P_exp)
-{
-    if (P_exp.size < 1 || P_exp.tokens == NULL)
-        return;
-
-    double num_;
-    char var_, op_;
-
-    for (short int i = 0; i < P_exp.size; i++)
-    {
-        num_ = P_exp.tokens[i].num;
-        var_ = P_exp.tokens[i].variable;
-        op_ = P_exp.tokens[i].operator;
-
-        if (!isnan(num_))
-            printf("Num: %.17lf\n", num_);
-        else if (var_ != '\0')
-            printf("Var: %c\n", var_);
-        else
-            printf("Op: %c\n", op_);
-    }
 }
 
 void display_infix_exp(const __INFIX__ expression)

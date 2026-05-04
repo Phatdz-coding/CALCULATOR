@@ -53,6 +53,9 @@ double gamma_function(double n);
 
 unsigned long long factorial(int n);
 
+// Function to estimate the upper bound for the nth prime
+int estimate_upper_bound(int n);
+
 int generate_nth_prime(int n);
 
 int fibonacci(int n);
@@ -101,6 +104,14 @@ int fibonacci(int n)
         b = fib;
     }
     return fib;
+}
+
+// Function to estimate the upper bound for the nth prime
+int estimate_upper_bound(int n)
+{
+    if (n < 6)
+        return 15;
+    return (int)(n * (log(n) + log(log(n))));
 }
 
 // Function to generate the nth prime number | Fast prime generator
