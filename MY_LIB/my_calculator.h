@@ -42,13 +42,13 @@ int count_digit_of(const int integer);
 int Sovle_Quadratic_Equation(double a, double b, double c, double *x1, double *x2);
 int Sovle_Cubic_Polinomial_Equation(double a, double b, double c, double d, double *x1, double *x2, double *x3);
 
-double P_Circle(double radius);
-double S_Circle(double radius);
-double S_Surface_Sphere(double radius);
-double V_Sphere(double radius);
-double S_Triangle_3_sides(double a, double b, double c);
-double S_Triangle_height_base(double height, double base);
-double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
+double Perimeter_Circle(double radius);
+double Surface_Area_Circle(double radius);
+double Surface_Area_Sphere(double radius);
+double Volume_Sphere(double radius);
+double Surface_Area_Triangle_3_sides(double a, double b, double c);
+double Surface_Area_Triangle_height_base(double height, double base);
+double Surface_Area_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
 
 int *find_prime_factors(int n, int *num_of_fac);
 
@@ -79,8 +79,8 @@ void sort_double_array(double *arr, int size);
 int compare_ints(const void *a, const void *b);
 int compare_doubles(const void *a, const void *b);
 
-_POSTFIX__ Parse(char *expression);
-_POSTFIX__ submodule_Parse(__INFIX__ specified_expression);
+_POSTFIX__ Parse_Infix_To_Postfix(char *expression);
+_POSTFIX__ Parse_Infix_To_Postfix(__INFIX__ specified_expression);
 
 double Compute_P_expression(const _POSTFIX__ P_expression);
 double Compute_P_function(_POSTFIX__ function, char *_variables_, ...);
@@ -234,44 +234,44 @@ int Sovle_Cubic_Polinomial_Equation(double a, double b, double c, double d, doub
 }
 
 // compute the perimeter of a circle based on its radius
-double P_Circle(double radius)
+double Perimeter_Circle(double radius)
 {
     return 2 * PI * radius;
 }
 
 // compute the square of a circle based on its radius
-double S_Circle(double radius)
+double Surface_Area_Circle(double radius)
 {
     return PI * radius * radius;
 }
 
 // compute the square of the sphere's surface
-double S_Surface_Sphere(double radius)
+double Surface_Area_Sphere(double radius)
 {
     return 4 * PI * radius * radius;
 }
 
 // compute the volume of a sphere
-double V_Sphere(double radius)
+double Volume_Sphere(double radius)
 {
     return (4 * PI * radius * radius * radius) / 3;
 }
 
 // compute the square of a triangle based 3 known sides
-double S_Triangle_3_sides(double a, double b, double c)
+double Surface_Area_Triangle_3_sides(double a, double b, double c)
 {
     double p = (a + b + c) / 2;
     return sqrt(p * (p - a) * (p - b) * (p - c));
 }
 
 // compute the square of a triangle based on its height and base
-double S_Triangle_height_base(double height, double base)
+double Surface_Area_Triangle_height_base(double height, double base)
 {
     return 0.5 * height * base;
 }
 
 // compute the square of a triangle based on its peak's coordinates
-double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3)
+double Surface_Area_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3)
 {
     return 0.5 * fabs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1));
 }
@@ -748,7 +748,7 @@ Step 4: add to precedent_of
 Step 5: add to Compute_POSTFIX_expression
 Step 6: add to Compute_P_function
 */
-_POSTFIX__ Parse(char *expression)
+_POSTFIX__ Parse_Infix_To_Postfix(char *expression)
 {
     _POSTFIX__ parsed_expression;
     parsed_expression.size = 0;
@@ -1367,7 +1367,7 @@ double evaluate_I_exp(__INFIX__ I_exp)
         return NAN;
     }
 
-    _POSTFIX__ P_exp = submodule_Parse(copyof_I_exp);
+    _POSTFIX__ P_exp = Parse_Infix_To_Postfix(copyof_I_exp);
     double result = Compute_P_expression(P_exp);
 
     free(copyof_I_exp.tokens);
@@ -1455,7 +1455,7 @@ double L = limit_left("cos(x)/x", 0)
 */
 double limit_left(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1505,7 +1505,7 @@ double L = limit_right("cos(x/e)/x", 0);
 */
 double limit_right(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1555,7 +1555,7 @@ double L = limit("sin(x)/x");
 */
 double limit(char *function, const char _variable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1776,7 +1776,7 @@ double result = integral("e^x", 1, 2);
 double integral_definite(char *function, const char var, const double lower_bound, const double upper_bound)
 {
     double result;
-    _POSTFIX__ P_function = Parse(function);
+    _POSTFIX__ P_function = Parse_Infix_To_Postfix(function);
 
     if (P_function.size == 0 || P_function.tokens == NULL)
         return NAN;
@@ -2799,7 +2799,7 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
 
 double evaluate_function(char *_function_, const char *_variables_, ...)
 {
-    _POSTFIX__ function = Parse(_function_);
+    _POSTFIX__ function = Parse_Infix_To_Postfix(_function_);
 
     if (function.size == 0 || function.tokens == NULL)
         return NAN;
@@ -2830,13 +2830,13 @@ double evaluate_function(char *_function_, const char *_variables_, ...)
     return result;
 }
 
-_POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
+_POSTFIX__ Parse_Infix_To_Postfix(__INFIX__ specified_expression)
 {
     int infix_len = specified_expression.size;
     _infix_ *infix_exp = (_infix_ *)malloc(infix_len * sizeof(_infix_));
     if (infix_exp == NULL)
     {
-        perror("submodule_Parse: Failed to malloc infix_exp");
+        perror("Parse_Infix_To_Postfix: Failed to malloc infix_exp");
         _POSTFIX__ empty_expression = {NULL, 0};
         return empty_expression;
     }
@@ -3339,7 +3339,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
 
                     // if (!extern_var)
                     // {
-                    //     double the_const = Compute_P_expression(submodule_Parse(_V_));
+                    //     double the_const = Compute_P_expression(Parse_Infix_To_Postfix(_V_));
                     //     if (is_integer(the_const))
                     //     {
                     //         if ((the_const == 0.0 || fabs(the_const) <= __DBL_EPSILON__))
@@ -3388,7 +3388,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     double the_const;
                     if (_U_.size > 1)
-                        the_const = Compute_P_expression(submodule_Parse(_U_));
+                        the_const = Compute_P_expression(Parse_Infix_To_Postfix(_U_));
                     else
                         the_const = _U_.tokens[0].num;
 
@@ -3414,7 +3414,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 // u ^ const = const * du * u^(const - 1)
                 else if (_DV_.size == 1 && _DV_.tokens[0].num == 0.0)
                 {
-                    double the_const = Compute_P_expression(submodule_Parse(_V_));
+                    double the_const = Compute_P_expression(Parse_Infix_To_Postfix(_V_));
                     if (is_integer(the_const))
                     {
                         add_single_token(&copyof_input, the_const, '\0', '\0');
@@ -3451,7 +3451,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     double the_const;
                     if (_U_.size > 1)
-                        the_const = Compute_P_expression(submodule_Parse(_U_));
+                        the_const = Compute_P_expression(Parse_Infix_To_Postfix(_U_));
                     else
                         the_const = _U_.tokens[0].num;
 
@@ -5289,7 +5289,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
             // printf("[__Result = %lf__]\n", result);
 
             // calculate the derivative & substitude to the expression
-            _POSTFIX__ P_derivative = submodule_Parse(derivative);
+            _POSTFIX__ P_derivative = Parse_Infix_To_Postfix(derivative);
             I_result.tokens[0].num = Compute_P_expression(P_derivative);
             free(P_derivative.tokens);
 
@@ -7377,7 +7377,7 @@ double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var
         0.9999391798145371,
         0.9999884567522129};
 
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    _POSTFIX__ P_function = Parse_Infix_To_Postfix(I_function);
     double sum = 0.0;
     double _A_ = (b - a) / 2.0;
     double _B_ = (b + a) / 2.0;
@@ -7424,7 +7424,7 @@ double integral_definite_infix(__INFIX__ infix_function, const char var, const d
     optimize_I_exp(&infix_function);
 
     // Convert infix to postfix for computation
-    P_function = submodule_Parse(infix_function);
+    P_function = Parse_Infix_To_Postfix(infix_function);
 
     if (P_function.size == 0 || P_function.tokens == NULL)
         return NAN;
@@ -7942,7 +7942,7 @@ _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source)
 double evaluate_I_1_var_function(const __INFIX__ I_function, const char var, const double value)
 {
     // Parse to postfix type
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    _POSTFIX__ P_function = Parse_Infix_To_Postfix(I_function);
 
     // substitude variable
     for (unsigned short int i = 0; i < P_function.size; i++)
