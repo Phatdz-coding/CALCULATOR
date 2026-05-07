@@ -42,13 +42,13 @@ int count_digit_of(const int integer);
 int Sovle_Quadratic_Equation(double a, double b, double c, double *x1, double *x2);
 int Sovle_Cubic_Polinomial_Equation(double a, double b, double c, double d, double *x1, double *x2, double *x3);
 
-double P_Circle(double radius);
-double S_Circle(double radius);
-double S_Surface_Sphere(double radius);
-double V_Sphere(double radius);
-double S_Triangle_3_sides(double a, double b, double c);
-double S_Triangle_height_base(double height, double base);
-double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
+double Perimeter_Circle(double radius);
+double Surface_Area_Circle(double radius);
+double Surface_Area_Sphere(double radius);
+double Volume_Sphere(double radius);
+double Surface_Area_Triangle_3_sides(double a, double b, double c);
+double Surface_Area_Triangle_height_base(double height, double base);
+double Surface_Area_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3);
 
 int *find_prime_factors(int n, int *num_of_fac);
 
@@ -234,44 +234,44 @@ int Sovle_Cubic_Polinomial_Equation(double a, double b, double c, double d, doub
 }
 
 // compute the perimeter of a circle based on its radius
-double P_Circle(double radius)
+double Perimeter_Circle(double radius)
 {
     return 2 * PI * radius;
 }
 
 // compute the square of a circle based on its radius
-double S_Circle(double radius)
+double Surface_Area_Circle(double radius)
 {
     return PI * radius * radius;
 }
 
 // compute the square of the sphere's surface
-double S_Surface_Sphere(double radius)
+double Surface_Area_Sphere(double radius)
 {
     return 4 * PI * radius * radius;
 }
 
 // compute the volume of a sphere
-double V_Sphere(double radius)
+double Volume_Sphere(double radius)
 {
     return (4 * PI * radius * radius * radius) / 3;
 }
 
 // compute the square of a triangle based 3 known sides
-double S_Triangle_3_sides(double a, double b, double c)
+double Surface_Area_Triangle_3_sides(double a, double b, double c)
 {
     double p = (a + b + c) / 2;
     return sqrt(p * (p - a) * (p - b) * (p - c));
 }
 
 // compute the square of a triangle based on its height and base
-double S_Triangle_height_base(double height, double base)
+double Surface_Area_Triangle_height_base(double height, double base)
 {
     return 0.5 * height * base;
 }
 
 // compute the square of a triangle based on its peak's coordinates
-double S_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3)
+double Surface_Area_Triangle_3_coord(double x1, double y1, double x2, double y2, double x3, double y3)
 {
     return 0.5 * fabs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1));
 }
