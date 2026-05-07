@@ -76,7 +76,7 @@ double sigmoid(const double x)
 // Function to check if a number is a prime
 bool prime_checker(const int number)
 {
-    if (number < 2 return false;
+    if (number < 2) return false;
     for (int i = 2; i * i <= number; i++)
         if (number % i == 0) return false;
     return true;
