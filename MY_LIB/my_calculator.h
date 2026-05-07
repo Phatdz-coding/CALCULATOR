@@ -79,36 +79,36 @@ void sort_double_array(double *arr, int size);
 int compare_ints(const void *a, const void *b);
 int compare_doubles(const void *a, const void *b);
 
-_POSTFIX__ Parse(char *expression);
-_POSTFIX__ submodule_Parse(__INFIX__ specified_expression);
+POSTFIX Parse_string_to_postfix(char *expression);
+POSTFIX Parse_infix_to_postfix(INFIX specified_expression);
 
-double Compute_P_expression(const _POSTFIX__ P_expression);
-double Compute_P_function(_POSTFIX__ function, char *_variables_, ...);
+double Compute_P_expression(const POSTFIX P_expression);
+double Compute_P_function(POSTFIX function, char *_variables_, ...);
 double evaluate_function(char *_function_, const char *_variables_, ...);
-double evaluate_I_1_var_function(const __INFIX__ I_function, const char var, const double value);
+double evaluate_I_1_var_function(const INFIX I_function, const char var, const double value);
 double evaluate(char *expression);
-double evaluate_I_exp(__INFIX__ I_exp);
+double evaluate_I_exp(INFIX I_exp);
 
-void check_for_valid_braket(__INFIX__ *copyof_input);
+void check_for_valid_braket(INFIX *copyof_input);
 
-void add_many_tokens(__INFIX__ *destination, const __INFIX__ source);
-void add_single_token(__INFIX__ *destination, const double num, const char variable, const char operator);
+void add_many_tokens(INFIX *destination, const INFIX source);
+void add_single_token(INFIX *destination, const double num, const char variable, const char operator);
 
-__INFIX__ differentiate_I_exp(__INFIX__, const char);
-void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos);
+INFIX differentiate_I_exp(INFIX, const char);
+void find_LPO(INFIX specified_expression, char *LPO, int *LPO_pos);
 
-__INFIX__ copy_infix_expression(const __INFIX__ source);
-_POSTFIX__ copy_postfix_expression(const _POSTFIX__ source);
+INFIX copy_infix_expression(const INFIX source);
+POSTFIX copy_postfix_expression(const POSTFIX source);
 
-bool handle_special_functions_(__INFIX__ *I_exp);
+bool handle_special_functions_(INFIX *I_exp);
 
 double integral_definite(char *function, const char, const double lower_bound, const double upper_bound);
-double integral_definite_infix(__INFIX__ infix_function, const char var, const double lower_bound, const double upper_bound);
-double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var, double a, double b);
+double integral_definite_infix(INFIX infix_function, const char var, const double lower_bound, const double upper_bound);
+double integral_GaussianQuadrature500(const INFIX I_function, const char var, double a, double b);
 
 double sum(double start, double end, double step);
-double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
-double product_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step);
+double sum_sequence(INFIX I_function, const char var, const double start, const double end, const double step);
+double product_sequence(INFIX I_function, const char var, const double start, const double end, const double step);
 
 double random_in_range_double(const double a, const double b);
 
@@ -691,39 +691,39 @@ int precedent_of(char op)
     {
     case '^':
     case '!':
-    case SPECIFIER_OF_SIN:
-    case SPECIFIER_OF_SINH:
-    case SPECIFIER_OF_ARCSIN:
-    case SPECIFIER_OF_ARCSINH:
-    case SPECIFIER_OF_COS:
-    case SPECIFIER_OF_COSH:
-    case SPECIFIER_OF_ARCCOS:
-    case SPECIFIER_OF_ARCCOSH:
-    case SPECIFIER_OF_TAN:
-    case SPECIFIER_OF_TANH:
-    case SPECIFIER_OF_ARCTAN:
-    case SPECIFIER_OF_ARCTANH:
-    case SPECIFIER_OF_COT:
-    case SPECIFIER_OF_COTH:
-    case SPECIFIER_OF_ARCCOT:
-    case SPECIFIER_OF_ARCCOTH:
-    case SPECIFIER_OF_SEC:
-    case SPECIFIER_OF_SECH:
-    case SPECIFIER_OF_ARCSEC:
-    case SPECIFIER_OF_ARCSECH:
-    case SPECIFIER_OF_CSC:
-    case SPECIFIER_OF_CSCH:
-    case SPECIFIER_OF_ARCCSC:
-    case SPECIFIER_OF_ARCCSCH:
-    case SPECIFIER_OF_SQRT:
-    case SPECIFIER_OF_CBRT:
-    case SPECIFIER_OF_ABS:
-    case SPECIFIER_OF_LN:
-    case SPECIFIER_OF_LG:
-    case SPECIFIER_OF_GAMMA:
-    case SPECIFIER_OF_CEIL:
-    case SPECIFIER_OF_FLOOR:
-    case SPECIFIER_OF_LAMBERTW:
+    case SFUNCTION_SIN:
+    case SFUNCTION_SINH:
+    case SFUNCTION_ARCSIN:
+    case SFUNCTION_ARCSINH:
+    case SFUNCTION_COS:
+    case SFUNCTION_COSH:
+    case SFUNCTION_ARCCOS:
+    case SFUNCTION_ARCCOSH:
+    case SFUNCTION_TAN:
+    case SFUNCTION_TANH:
+    case SFUNCTION_ARCTAN:
+    case SFUNCTION_ARCTANH:
+    case SFUNCTION_COT:
+    case SFUNCTION_COTH:
+    case SFUNCTION_ARCCOT:
+    case SFUNCTION_ARCCOTH:
+    case SFUNCTION_SEC:
+    case SFUNCTION_SECH:
+    case SFUNCTION_ARCSEC:
+    case SFUNCTION_ARCSECH:
+    case SFUNCTION_CSC:
+    case SFUNCTION_CSCH:
+    case SFUNCTION_ARCCSC:
+    case SFUNCTION_ARCCSCH:
+    case SFUNCTION_SQRT:
+    case SFUNCTION_CBRT:
+    case SFUNCTION_ABS:
+    case SFUNCTION_LN:
+    case SFUNCTION_LG:
+    case SFUNCTION_GAMMA:
+    case SFUNCTION_CEIL:
+    case SFUNCTION_FLOOR:
+    case SFUNCTION_LAMBERTW:
         return 3;
     case '/':
     case '*':
@@ -748,9 +748,9 @@ Step 4: add to precedent_of
 Step 5: add to Compute_POSTFIX_expression
 Step 6: add to Compute_P_function
 */
-_POSTFIX__ Parse(char *expression)
+POSTFIX Parse_string_to_postfix(char *expression)
 {
-    _POSTFIX__ parsed_expression;
+    POSTFIX parsed_expression;
     parsed_expression.size = 0;
     parsed_expression.tokens = NULL;
 
@@ -1344,12 +1344,12 @@ _POSTFIX__ Parse(char *expression)
     return parsed_expression;
 }
 
-double evaluate_I_exp(__INFIX__ I_exp)
+double evaluate_I_exp(INFIX I_exp)
 {
     if (I_exp.tokens == NULL || I_exp.size < 1)
         return NAN;
     // safety: make a copy
-    __INFIX__ copyof_I_exp;
+    INFIX copyof_I_exp;
     copyof_I_exp.size = I_exp.size;
     copyof_I_exp.tokens = (_infix_ *)calloc(I_exp.size, sizeof(_infix_));
     if (!copyof_I_exp.tokens)
@@ -1367,7 +1367,7 @@ double evaluate_I_exp(__INFIX__ I_exp)
         return NAN;
     }
 
-    _POSTFIX__ P_exp = submodule_Parse(copyof_I_exp);
+    POSTFIX P_exp = Parse_infix_to_postfix(copyof_I_exp);
     double result = Compute_P_expression(P_exp);
 
     free(copyof_I_exp.tokens);
@@ -1413,7 +1413,7 @@ double evaluate(char *expression)
     if (expression == NULL || expression[0] == '\0')
         return NAN;
 
-    __INFIX__ I_exp = convert_string_to_INFIX(expression);
+    INFIX I_exp = convert_string_to_INFIX(expression);
 
     double result = evaluate_I_exp(I_exp);
 
@@ -1455,7 +1455,7 @@ double L = limit_left("cos(x)/x", 0)
 */
 double limit_left(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    POSTFIX P_expression = Parse_string_to_postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1505,7 +1505,7 @@ double L = limit_right("cos(x/e)/x", 0);
 */
 double limit_right(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    POSTFIX P_expression = Parse_string_to_postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1555,7 +1555,7 @@ double L = limit("sin(x)/x");
 */
 double limit(char *function, const char _variable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse(function);
+    POSTFIX P_expression = Parse_string_to_postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1776,7 +1776,7 @@ double result = integral("e^x", 1, 2);
 double integral_definite(char *function, const char var, const double lower_bound, const double upper_bound)
 {
     double result;
-    _POSTFIX__ P_function = Parse(function);
+    POSTFIX P_function = Parse_string_to_postfix(function);
 
     if (P_function.size == 0 || P_function.tokens == NULL)
         return NAN;
@@ -1987,15 +1987,15 @@ double *solutions = sovle("x^(-x) = 1.3", 0.5, 2);
                 P_equation[i]
                     .operator!= '^' &&
                 P_equation[i]
-                    .operator!= SPECIFIER_OF_ABS &&
+                    .operator!= SFUNCTION_ABS &&
                 P_equation[i]
-                    .operator!= SPECIFIER_OF_SQRT &&
+                    .operator!= SFUNCTION_SQRT &&
                 P_equation[i]
-                    .operator!= SPECIFIER_OF_CBRT &&
+                    .operator!= SFUNCTION_CBRT &&
                 P_equation[i]
-                    .operator!= SPECIFIER_OF_LN &&
+                    .operator!= SFUNCTION_LN &&
                 P_equation[i]
-                    .operator!= SPECIFIER_OF_LG &&
+                    .operator!= SFUNCTION_LG &&
                 P_equation[i]
                     .operator!= '\0')
             {
@@ -2197,10 +2197,10 @@ double average_slope(_postfix_ *P_function, const int output_index, const double
     }
 } */
 
-double Compute_P_expression(const _POSTFIX__ P_expression)
+double Compute_P_expression(const POSTFIX P_expression)
 {
     // Make a copy of P_expression
-    _POSTFIX__ cloned_exp;
+    POSTFIX cloned_exp;
 
     cloned_exp.tokens = (_TOKENS_DATA_ *)malloc(P_expression.size * sizeof(_TOKENS_DATA_));
     if (cloned_exp.tokens == NULL)
@@ -2272,52 +2272,52 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
             cloned_exp.tokens[i - 2].num = pow(cloned_exp.tokens[i - 2].num, cloned_exp.tokens[i - 1].num);
             two_param_OP = true;
             break;
-        case SPECIFIER_OF_SIN: // sin
+        case SFUNCTION_SIN: // sin
             cloned_exp.tokens[i - 1].num = sin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SINH: // sinh
+        case SFUNCTION_SINH: // sinh
             cloned_exp.tokens[i - 1].num = sinh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SEC: // sec
+        case SFUNCTION_SEC: // sec
             cloned_exp.tokens[i - 1].num = 1 / cos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SECH: // sech
+        case SFUNCTION_SECH: // sech
             cloned_exp.tokens[i - 1].num = 1 / cosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSEC: // arcsec
+        case SFUNCTION_ARCSEC: // arcsec
             cloned_exp.tokens[i - 1].num = arcsec(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSECH: // arcsech
+        case SFUNCTION_ARCSECH: // arcsech
             cloned_exp.tokens[i - 1].num = arcsech(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COS: // cos
+        case SFUNCTION_COS: // cos
             cloned_exp.tokens[i - 1].num = cos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COSH: // cosh
+        case SFUNCTION_COSH: // cosh
             cloned_exp.tokens[i - 1].num = cosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_CSC: // csc
+        case SFUNCTION_CSC: // csc
             cloned_exp.tokens[i - 1].num = 1 / sin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_CSCH: // csch
+        case SFUNCTION_CSCH: // csch
             cloned_exp.tokens[i - 1].num = csch(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCSC: // arccsc
+        case SFUNCTION_ARCCSC: // arccsc
             cloned_exp.tokens[i - 1].num = arccsc(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCSCH: // arccsch
+        case SFUNCTION_ARCCSCH: // arccsch
             cloned_exp.tokens[i - 1].num = arccsch(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_TAN: // tan
+        case SFUNCTION_TAN: // tan
             cloned_exp.tokens[i - 1].num = tan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_TANH: // tanh
+        case SFUNCTION_TANH: // tanh
             cloned_exp.tokens[i - 1].num = tanh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COT: // cot
+        case SFUNCTION_COT: // cot
             cloned_exp.tokens[i - 1].num = 1 / tan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COTH: // coth
+        case SFUNCTION_COTH: // coth
             cloned_exp.tokens[i - 1].num = coth(cloned_exp.tokens[i - 1].num);
             break;
         case '!': // factorial
@@ -2338,25 +2338,25 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
                 cloned_exp.tokens[i - 1].num = (double)fac;
             break;
         }
-        case SPECIFIER_OF_ARCSIN: // arcsin
+        case SFUNCTION_ARCSIN: // arcsin
             cloned_exp.tokens[i - 1].num = asin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSINH: // arcsinh
+        case SFUNCTION_ARCSINH: // arcsinh
             cloned_exp.tokens[i - 1].num = asinh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOS: // arccos
+        case SFUNCTION_ARCCOS: // arccos
             cloned_exp.tokens[i - 1].num = acos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOSH: // arccosh
+        case SFUNCTION_ARCCOSH: // arccosh
             cloned_exp.tokens[i - 1].num = acosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCTAN: // arctan
+        case SFUNCTION_ARCTAN: // arctan
             cloned_exp.tokens[i - 1].num = atan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCTANH: // arctanh
+        case SFUNCTION_ARCTANH: // arctanh
             cloned_exp.tokens[i - 1].num = atanh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOT: // arccot
+        case SFUNCTION_ARCCOT: // arccot
         {
             if (cloned_exp.tokens[i - 1].num > 0.0)
                 cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num));
@@ -2364,10 +2364,10 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
                 cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num)) + PI;
             break;
         }
-        case SPECIFIER_OF_ARCCOTH: // arccoth
+        case SFUNCTION_ARCCOTH: // arccoth
             cloned_exp.tokens[i - 1].num = arccoth(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_LN: // ln
+        case SFUNCTION_LN: // ln
         {
             if (cloned_exp.tokens[i - 1].num <= 0.0)
             {
@@ -2377,7 +2377,7 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
             cloned_exp.tokens[i - 1].num = log(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_LG: // log10
+        case SFUNCTION_LG: // log10
         {
             if (cloned_exp.tokens[i - 1].num <= 0.0)
             {
@@ -2387,7 +2387,7 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
             cloned_exp.tokens[i - 1].num = log10(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_SQRT: // sqrt
+        case SFUNCTION_SQRT: // sqrt
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
             {
@@ -2397,16 +2397,16 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
             cloned_exp.tokens[i - 1].num = sqrt(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_ABS: // abs
+        case SFUNCTION_ABS: // abs
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
                 cloned_exp.tokens[i - 1].num = -cloned_exp.tokens[i - 1].num;
             break;
         }
-        case SPECIFIER_OF_CBRT: // cuberoot
+        case SFUNCTION_CBRT: // cuberoot
             cloned_exp.tokens[i - 1].num = cbrt(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_GAMMA: // gamma function
+        case SFUNCTION_GAMMA: // gamma function
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
             {
@@ -2416,13 +2416,13 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
             cloned_exp.tokens[i - 1].num = gamma_function(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_CEIL: // ceiling function
+        case SFUNCTION_CEIL: // ceiling function
             cloned_exp.tokens[i - 1].num = ceil(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_FLOOR: // floor function
+        case SFUNCTION_FLOOR: // floor function
             cloned_exp.tokens[i - 1].num = floor(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_LAMBERTW: // lambert W function
+        case SFUNCTION_LAMBERTW: // lambert W function
         {
             if (cloned_exp.tokens[i - 1].num < -1.0 / EULER_NUMBER)
             {
@@ -2478,10 +2478,10 @@ double Compute_P_expression(const _POSTFIX__ P_expression)
     return result;
 }
 
-double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
+double Compute_P_function(POSTFIX function, char *_variables_, ...)
 {
     // Make a copy
-    _POSTFIX__ cloned_function;
+    POSTFIX cloned_function;
     _TOKENS_DATA_ *new_ptr = (_TOKENS_DATA_ *)malloc(function.size * sizeof(_TOKENS_DATA_));
     if (new_ptr == NULL)
     {
@@ -2580,52 +2580,52 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
             case '^': // exponential
                 cloned_function.tokens[i - 2].num = pow(cloned_function.tokens[i - 2].num, cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SIN: // sin
+            case SFUNCTION_SIN: // sin
                 cloned_function.tokens[i - 1].num = sin(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SINH: // sinh
+            case SFUNCTION_SINH: // sinh
                 cloned_function.tokens[i - 1].num = sinh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SEC: // sec
+            case SFUNCTION_SEC: // sec
                 cloned_function.tokens[i - 1].num = 1 / cos(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SECH: // sech
+            case SFUNCTION_SECH: // sech
                 cloned_function.tokens[i - 1].num = 1 / cosh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSEC: // arcsec
+            case SFUNCTION_ARCSEC: // arcsec
                 cloned_function.tokens[i - 1].num = arcsec(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSECH: // arcsech
+            case SFUNCTION_ARCSECH: // arcsech
                 cloned_function.tokens[i - 1].num = arcsech(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COS: // cos
+            case SFUNCTION_COS: // cos
                 cloned_function.tokens[i - 1].num = cos(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COSH: // cosh
+            case SFUNCTION_COSH: // cosh
                 cloned_function.tokens[i - 1].num = cosh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSC: // csc
+            case SFUNCTION_CSC: // csc
                 cloned_function.tokens[i - 1].num = 1 / sin(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSCH: // csch
+            case SFUNCTION_CSCH: // csch
                 cloned_function.tokens[i - 1].num = csch(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSC: // arccsc
+            case SFUNCTION_ARCCSC: // arccsc
                 cloned_function.tokens[i - 1].num = arccsc(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSCH: // arccsch
+            case SFUNCTION_ARCCSCH: // arccsch
                 cloned_function.tokens[i - 1].num = arccsch(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TAN: // tan
+            case SFUNCTION_TAN: // tan
                 cloned_function.tokens[i - 1].num = tan(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TANH: // tanh
+            case SFUNCTION_TANH: // tanh
                 cloned_function.tokens[i - 1].num = tanh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COT: // cot
+            case SFUNCTION_COT: // cot
                 cloned_function.tokens[i - 1].num = 1 / tan(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COTH: // coth
+            case SFUNCTION_COTH: // coth
                 cloned_function.tokens[i - 1].num = coth(cloned_function.tokens[i - 1].num);
                 break;
             case '!': // factorial
@@ -2643,25 +2643,25 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                 cloned_function.tokens[i - 1].num = (double)fac;
                 break;
             }
-            case SPECIFIER_OF_ARCSIN: // arcsin
+            case SFUNCTION_ARCSIN: // arcsin
                 cloned_function.tokens[i - 1].num = asin(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSINH: // arcsinh
+            case SFUNCTION_ARCSINH: // arcsinh
                 cloned_function.tokens[i - 1].num = asinh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOS: // arccos
+            case SFUNCTION_ARCCOS: // arccos
                 cloned_function.tokens[i - 1].num = acos(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOSH: // arccosh
+            case SFUNCTION_ARCCOSH: // arccosh
                 cloned_function.tokens[i - 1].num = acosh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTAN: // arctan
+            case SFUNCTION_ARCTAN: // arctan
                 cloned_function.tokens[i - 1].num = atan(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTANH: // arctanh
+            case SFUNCTION_ARCTANH: // arctanh
                 cloned_function.tokens[i - 1].num = atanh(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOT: // arccot
+            case SFUNCTION_ARCCOT: // arccot
             {
                 if (cloned_function.tokens[i - 1].num > 0)
                     cloned_function.tokens[i - 1].num = atan(1 / (cloned_function.tokens[i - 1].num));
@@ -2669,10 +2669,10 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                     cloned_function.tokens[i - 1].num = atan(1 / (cloned_function.tokens[i - 1].num)) + PI;
                 break;
             }
-            case SPECIFIER_OF_ARCCOTH: // arccoth
+            case SFUNCTION_ARCCOTH: // arccoth
                 cloned_function.tokens[i - 1].num = arccoth(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LN: // ln
+            case SFUNCTION_LN: // ln
             {
                 if (cloned_function.tokens[i - 1].num <= 0)
                 {
@@ -2682,7 +2682,7 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                 cloned_function.tokens[i - 1].num = log(cloned_function.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_LG: // log10
+            case SFUNCTION_LG: // log10
             {
                 if (cloned_function.tokens[i - 1].num <= 0)
                 {
@@ -2692,7 +2692,7 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                 cloned_function.tokens[i - 1].num = log10(cloned_function.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_SQRT: // sqrt
+            case SFUNCTION_SQRT: // sqrt
             {
                 if (cloned_function.tokens[i - 1].num < 0)
                 {
@@ -2702,16 +2702,16 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                 cloned_function.tokens[i - 1].num = sqrt(cloned_function.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_ABS: // abs
+            case SFUNCTION_ABS: // abs
             {
                 if (cloned_function.tokens[i - 1].num < 0)
                     cloned_function.tokens[i - 1].num = -cloned_function.tokens[i - 1].num;
                 break;
             }
-            case SPECIFIER_OF_CBRT: // cuberoot
+            case SFUNCTION_CBRT: // cuberoot
                 cloned_function.tokens[i - 1].num = cbrt(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_GAMMA: // gamma function
+            case SFUNCTION_GAMMA: // gamma function
             {
                 if (cloned_function.tokens[i - 1].num < 0)
                 {
@@ -2721,13 +2721,13 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
                 cloned_function.tokens[i - 1].num = gamma_function(cloned_function.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_CEIL: // ceiling function
+            case SFUNCTION_CEIL: // ceiling function
                 cloned_function.tokens[i - 1].num = ceil(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_FLOOR: // floor function
+            case SFUNCTION_FLOOR: // floor function
                 cloned_function.tokens[i - 1].num = floor(cloned_function.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LAMBERTW: // lambert W function
+            case SFUNCTION_LAMBERTW: // lambert W function
             {
                 if (cloned_function.tokens[i - 1].num < -1 / EULER_NUMBER)
                 {
@@ -2799,7 +2799,7 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
 
 double evaluate_function(char *_function_, const char *_variables_, ...)
 {
-    _POSTFIX__ function = Parse(_function_);
+    POSTFIX function = Parse_string_to_postfix(_function_);
 
     if (function.size == 0 || function.tokens == NULL)
         return NAN;
@@ -2830,19 +2830,19 @@ double evaluate_function(char *_function_, const char *_variables_, ...)
     return result;
 }
 
-_POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
+POSTFIX Parse_infix_to_postfix(INFIX specified_expression)
 {
     int infix_len = specified_expression.size;
     _infix_ *infix_exp = (_infix_ *)malloc(infix_len * sizeof(_infix_));
     if (infix_exp == NULL)
     {
         perror("submodule_Parse: Failed to malloc infix_exp");
-        _POSTFIX__ empty_expression = {NULL, 0};
+        POSTFIX empty_expression = {NULL, 0};
         return empty_expression;
     }
     memcpy(infix_exp, specified_expression.tokens, infix_len * sizeof(_infix_));
 
-    _POSTFIX__ parsed_expression;
+    POSTFIX parsed_expression;
     parsed_expression.size = 0;
     parsed_expression.tokens = NULL;
 
@@ -2884,7 +2884,7 @@ _POSTFIX__ submodule_Parse(__INFIX__ specified_expression)
             free(ope_stack);
             free(P_expression);
             free(parsed_expression.tokens);
-            _POSTFIX__ empty = {NULL, 0};
+            POSTFIX empty = {NULL, 0};
             return empty;
         }
         char _var_ = infix_exp[i].variable;
@@ -2992,13 +2992,13 @@ This module compute the derivative of an Infix & specified function of x (or any
 +g
 +ln2
 */
-__INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
+INFIX differentiate_I_exp(INFIX specified_expression, const char var)
 {
-    __INFIX__ empty_expression = {0, NULL};
+    INFIX empty_expression = {0, NULL};
     if (specified_expression.size < 1 || specified_expression.tokens == NULL || var == '\0')
         return empty_expression;
 
-    __INFIX__ copyof_input;
+    INFIX copyof_input;
 
     // make a copy of the input
     {
@@ -3078,8 +3078,8 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
     // printf("LPO: %c | Pos = %d\n", LPO, pos);
 
     // step 3
-    __INFIX__ _U_, _V_;
-    __INFIX__ _DU_, _DV_;
+    INFIX _U_, _V_;
+    INFIX _DU_, _DV_;
     {
         // _U_ //
         _U_.size = pos;
@@ -3339,7 +3339,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
 
                     // if (!extern_var)
                     // {
-                    //     double the_const = Compute_P_expression(submodule_Parse(_V_));
+                    //     double the_const = Compute_P_expression(Parse_infix_to_postfix(_V_));
                     //     if (is_integer(the_const))
                     //     {
                     //         if ((the_const == 0.0 || fabs(the_const) <= __DBL_EPSILON__))
@@ -3388,7 +3388,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     double the_const;
                     if (_U_.size > 1)
-                        the_const = Compute_P_expression(submodule_Parse(_U_));
+                        the_const = Compute_P_expression(Parse_infix_to_postfix(_U_));
                     else
                         the_const = _U_.tokens[0].num;
 
@@ -3400,7 +3400,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     }
                     else
                     {
-                        add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                        add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                         add_single_token(&copyof_input, NAN, '\0', '(');
                         add_many_tokens(&copyof_input, _U_);
                         add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3414,7 +3414,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 // u ^ const = const * du * u^(const - 1)
                 else if (_DV_.size == 1 && _DV_.tokens[0].num == 0.0)
                 {
-                    double the_const = Compute_P_expression(submodule_Parse(_V_));
+                    double the_const = Compute_P_expression(Parse_infix_to_postfix(_V_));
                     if (is_integer(the_const))
                     {
                         add_single_token(&copyof_input, the_const, '\0', '\0');
@@ -3451,7 +3451,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     double the_const;
                     if (_U_.size > 1)
-                        the_const = Compute_P_expression(submodule_Parse(_U_));
+                        the_const = Compute_P_expression(Parse_infix_to_postfix(_U_));
                     else
                         the_const = _U_.tokens[0].num;
 
@@ -3466,7 +3466,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
 
                     else
                     {
-                        add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                        add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                         add_single_token(&copyof_input, NAN, '\0', '(');
                         add_many_tokens(&copyof_input, _U_);
                         add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3492,7 +3492,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                         add_single_token(&copyof_input, NAN, var, '\0');
                         add_single_token(&copyof_input, NAN, '\0', '*');
                         add_single_token(&copyof_input, NAN, '\0', '(');
-                        add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                        add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                         add_single_token(&copyof_input, NAN, '\0', '(');
                         add_single_token(&copyof_input, NAN, var, '\0');
                         add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3516,7 +3516,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                         add_single_token(&copyof_input, NAN, '\0', '(');
                         add_many_tokens(&copyof_input, _DV_);
                         add_single_token(&copyof_input, NAN, '\0', '*');
-                        add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                        add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                         add_single_token(&copyof_input, NAN, '\0', '(');
                         add_many_tokens(&copyof_input, _U_);
                         add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3543,7 +3543,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
         }
 
         // functions
-        else if (LPO != '!' && LPO != '(' && LPO != ')' && LPO != SPECIFIER_OF_FLOOR && LPO != SPECIFIER_OF_CEIL)
+        else if (LPO != '!' && LPO != '(' && LPO != ')' && LPO != SFUNCTION_FLOOR && LPO != SFUNCTION_CEIL)
         {
             // store to _V_ //
             for (int i = pos + 1, v = 0; i < copyof_input.size; i++, v++)
@@ -3565,12 +3565,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
 
             // ============================================================================ //
 
-            if (LPO == SPECIFIER_OF_SIN)
+            if (LPO == SFUNCTION_SIN)
             {
                 // sin(var)' = cos(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3579,20 +3579,20 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_COS)
+            else if (LPO == SFUNCTION_COS)
             {
                 // cos(var)' = -sin(var)
                 add_single_token(&copyof_input, NAN, '\0', '(');
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SIN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SIN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3602,20 +3602,20 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SIN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SIN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_TAN)
+            else if (LPO == SFUNCTION_TAN)
             {
                 // tan(var)' = sec(var)^2
                 add_single_token(&copyof_input, NAN, '\0', '(');
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SEC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SEC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3626,7 +3626,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SEC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SEC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3635,14 +3635,14 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_COT)
+            else if (LPO == SFUNCTION_COT)
             {
                 // cot(var)' = -csc(var)^2
                 add_single_token(&copyof_input, NAN, '\0', '(');
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3654,7 +3654,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3663,17 +3663,17 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_SEC)
+            else if (LPO == SFUNCTION_SEC)
             {
                 // sec(var)' = sec(var) * tan(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SEC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SEC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_TAN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_TAN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3682,30 +3682,30 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SEC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SEC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_TAN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_TAN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_CSC)
+            else if (LPO == SFUNCTION_CSC)
             {
                 // csc(var)' = -csc(var) * cot(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3717,12 +3717,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSC);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSC);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3733,12 +3733,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
             // Add these cases to the function differentiation section in differentiate_I_exp function
             // Insert after the existing trigonometric function cases
 
-            else if (LPO == SPECIFIER_OF_SINH)
+            else if (LPO == SFUNCTION_SINH)
             {
                 // sinh(var)' = cosh(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COSH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COSH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3747,18 +3747,18 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COSH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COSH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_COSH)
+            else if (LPO == SFUNCTION_COSH)
             {
                 // cosh(var)' = sinh(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SINH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SINH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3769,19 +3769,19 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SINH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SINH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_TANH)
+            else if (LPO == SFUNCTION_TANH)
             {
                 // tanh(var)' = sech(var)^2 = 1 - tanh(var)^2
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '(');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SECH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SECH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3794,7 +3794,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SECH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SECH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3803,14 +3803,14 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_COTH)
+            else if (LPO == SFUNCTION_COTH)
             {
                 // coth(var)' = -csch(var)^2
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSCH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSCH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3824,7 +3824,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSCH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSCH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3833,19 +3833,19 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_SECH)
+            else if (LPO == SFUNCTION_SECH)
             {
                 // sech(var)' = -sech(var) * tanh(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SECH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SECH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_TANH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_TANH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3857,31 +3857,31 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SECH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SECH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_TANH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_TANH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_CSCH)
+            else if (LPO == SFUNCTION_CSCH)
             {
                 // csch(var)' = -csch(var) * coth(var)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, '\0', '-');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSCH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSCH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COTH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COTH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -3893,19 +3893,19 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_CSCH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_CSCH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_COTH);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_COTH);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCSIN)
+            else if (LPO == SFUNCTION_ARCSIN)
             {
                 // arcsin(var)' = 1/sqrt(1-var^2)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -3913,7 +3913,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -3928,7 +3928,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -3939,7 +3939,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCCOS)
+            else if (LPO == SFUNCTION_ARCCOS)
             {
                 // arccos(var)' = -1/sqrt(1-var^2)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -3948,7 +3948,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -3964,7 +3964,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '-');
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -3975,7 +3975,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCTAN)
+            else if (LPO == SFUNCTION_ARCTAN)
             {
                 // arctan(var)' = 1/(1+var^2)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4005,7 +4005,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCCOT)
+            else if (LPO == SFUNCTION_ARCCOT)
             {
                 // arccot(var)' = -1/(1+var^2)
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -4039,7 +4039,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCSEC)
+            else if (LPO == SFUNCTION_ARCSEC)
             {
                 // arcsec(var)' = 1/((x^2)*sqrt(1-1/(x^2)))
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4054,7 +4054,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, 2.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -4079,7 +4079,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, 2.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -4095,7 +4095,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCCSC)
+            else if (LPO == SFUNCTION_ARCCSC)
             {
                 // arccsc(var)' = -1/(|var|*sqrt(var^2-1))
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -4105,12 +4105,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
                     add_single_token(&copyof_input, NAN, '\0', '(');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4128,12 +4128,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
                     add_single_token(&copyof_input, NAN, '\0', '(');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4145,7 +4145,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCSINH)
+            else if (LPO == SFUNCTION_ARCSINH)
             {
                 // arcsinh(var)' = 1/sqrt(var^2+1)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4153,7 +4153,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4166,7 +4166,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4177,7 +4177,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCCOSH)
+            else if (LPO == SFUNCTION_ARCCOSH)
             {
                 // arccosh(var)' = 1/sqrt(var^2-1)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4185,7 +4185,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4198,7 +4198,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4209,7 +4209,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCTANH)
+            else if (LPO == SFUNCTION_ARCTANH)
             {
                 // arctanh(var)' = 1/(1-var^2)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4239,7 +4239,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCCOTH)
+            else if (LPO == SFUNCTION_ARCCOTH)
             {
                 // arccoth(var)' = 1/(1-var^2)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4269,7 +4269,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ARCSECH)
+            else if (LPO == SFUNCTION_ARCSECH)
             {
                 // arcsech(var)' = -1/(var*sqrt(1-var^2))
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -4281,7 +4281,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -4301,7 +4301,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '-');
@@ -4313,7 +4313,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_ARCCSCH)
+            else if (LPO == SFUNCTION_ARCCSCH)
             {
                 // arccsch(var)' = -1/(|var|*sqrt(var^2+1))
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
@@ -4323,12 +4323,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
                     add_single_token(&copyof_input, NAN, '\0', '(');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4346,12 +4346,12 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
                     add_single_token(&copyof_input, NAN, '\0', '(');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '^');
@@ -4363,7 +4363,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_SQRT)
+            else if (LPO == SFUNCTION_SQRT)
             {
                 // sqrt(var)' = 1/(2*sqrt(var))
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4374,7 +4374,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 2.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4387,7 +4387,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 2.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_SQRT);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_SQRT);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4395,7 +4395,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_CBRT)
+            else if (LPO == SFUNCTION_CBRT)
             {
                 // cbrt(var)' = 1/(3*cbrt(var^2)) = 1/(3*var^(2/3))
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4433,7 +4433,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_ABS)
+            else if (LPO == SFUNCTION_ABS)
             {
                 // abs(var)' = var/|var| = sign(var)
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4441,7 +4441,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4452,14 +4452,14 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '*');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '/');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_ABS);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_ABS);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_LN)
+            else if (LPO == SFUNCTION_LN)
             {
                 // ln(var)' = 1/var
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4477,7 +4477,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_LG)
+            else if (LPO == SFUNCTION_LG)
             {
                 // log10(var)' = 1/(var*ln(10))
                 add_single_token(&copyof_input, NAN, '\0', '(');
@@ -4488,7 +4488,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 10.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4501,7 +4501,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 10.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4509,18 +4509,18 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 }
                 add_single_token(&copyof_input, NAN, '\0', ')');
             }
-            else if (LPO == SPECIFIER_OF_GAMMA)
+            else if (LPO == SFUNCTION_GAMMA)
             {
                 // gamma(var)' = gamma(var) * digamma(var)
                 // For simplicity, we'll use the approximation: gamma'(x) ≈ gamma(x) * ln(x) for x > 0
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_GAMMA);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_GAMMA);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4529,23 +4529,23 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_GAMMA);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_GAMMA);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LN);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LN);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
                 }
             }
-            else if (LPO == SPECIFIER_OF_LAMBERTW)
+            else if (LPO == SFUNCTION_LAMBERTW)
             {
                 // lambertw(var)' = lambertw(var) / (var * (1 + lambertw(var)))
                 if (_DV_.size == 1 && _DV_.tokens[0].num == 1.0)
                 {
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LAMBERTW);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LAMBERTW);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4556,7 +4556,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '+');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LAMBERTW);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LAMBERTW);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, NAN, var, '\0');
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4567,7 +4567,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                 {
                     add_many_tokens(&copyof_input, _DV_);
                     add_single_token(&copyof_input, NAN, '\0', '*');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LAMBERTW);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LAMBERTW);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4578,7 +4578,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_single_token(&copyof_input, 1.0, '\0', '\0');
                     add_single_token(&copyof_input, NAN, '\0', '+');
-                    add_single_token(&copyof_input, NAN, '\0', SPECIFIER_OF_LAMBERTW);
+                    add_single_token(&copyof_input, NAN, '\0', SFUNCTION_LAMBERTW);
                     add_single_token(&copyof_input, NAN, '\0', '(');
                     add_many_tokens(&copyof_input, _V_);
                     add_single_token(&copyof_input, NAN, '\0', ')');
@@ -4667,7 +4667,7 @@ __INFIX__ differentiate_I_exp(__INFIX__ specified_expression, const char var)
     return copyof_input;
 }
 
-void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos)
+void find_LPO(INFIX specified_expression, char *LPO, int *LPO_pos)
 {
     (*LPO) = '\0';
     (*LPO_pos) = 0;
@@ -4840,7 +4840,7 @@ void find_LPO(__INFIX__ specified_expression, char *LPO, int *LPO_pos)
     return;
 }
 
-void add_single_token(__INFIX__ *destination, const double num, const char variable, const char operator)
+void add_single_token(INFIX *destination, const double num, const char variable, const char operator)
 {
     // new size
     size_t new_size = (size_t)destination->size + 1;
@@ -4871,7 +4871,7 @@ void add_single_token(__INFIX__ *destination, const double num, const char varia
     new_tok->operator= operator;
 }
 
-void add_many_tokens(__INFIX__ *destination, const __INFIX__ source)
+void add_many_tokens(INFIX *destination, const INFIX source)
 {
     if (source.size <= 0 || source.tokens == NULL)
         return;
@@ -4908,7 +4908,7 @@ void add_many_tokens(__INFIX__ *destination, const __INFIX__ source)
     }
 }
 
-void check_for_valid_braket(__INFIX__ *copyof_input)
+void check_for_valid_braket(INFIX *copyof_input)
 {
     int open_bracket = 0, close_bracket = 0;
     for (int i = 0; i < copyof_input->size; i++)
@@ -4956,7 +4956,7 @@ void check_for_valid_braket(__INFIX__ *copyof_input)
     }
 }
 
-string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
+string_ convert_INFIX_to_string(const INFIX infix_exp)
 {
     string_ empty_string = {0, NULL};
 
@@ -4980,75 +4980,75 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
             str_exp.Content[j++] = variable_;
         else if (operator_ != '\0')
         {
-            if (operator_ == SPECIFIER_OF_ABS)
+            if (operator_ == SFUNCTION_ABS)
                 strcat(str_exp.Content, "abs");
-            else if (operator_ == SPECIFIER_OF_SQRT)
+            else if (operator_ == SFUNCTION_SQRT)
                 strcat(str_exp.Content, "sqrt");
-            else if (operator_ == SPECIFIER_OF_CBRT)
+            else if (operator_ == SFUNCTION_CBRT)
                 strcat(str_exp.Content, "cbrt");
-            else if (operator_ == SPECIFIER_OF_SIN)
+            else if (operator_ == SFUNCTION_SIN)
                 strcat(str_exp.Content, "sin");
-            else if (operator_ == SPECIFIER_OF_COS)
+            else if (operator_ == SFUNCTION_COS)
                 strcat(str_exp.Content, "cos");
-            else if (operator_ == SPECIFIER_OF_TAN)
+            else if (operator_ == SFUNCTION_TAN)
                 strcat(str_exp.Content, "tan");
-            else if (operator_ == SPECIFIER_OF_COT)
+            else if (operator_ == SFUNCTION_COT)
                 strcat(str_exp.Content, "cot");
-            else if (operator_ == SPECIFIER_OF_SEC)
+            else if (operator_ == SFUNCTION_SEC)
                 strcat(str_exp.Content, "sec");
-            else if (operator_ == SPECIFIER_OF_CSC)
+            else if (operator_ == SFUNCTION_CSC)
                 strcat(str_exp.Content, "csc");
-            else if (operator_ == SPECIFIER_OF_ARCSIN)
+            else if (operator_ == SFUNCTION_ARCSIN)
                 strcat(str_exp.Content, "arcsin");
-            else if (operator_ == SPECIFIER_OF_ARCCOS)
+            else if (operator_ == SFUNCTION_ARCCOS)
                 strcat(str_exp.Content, "arccos");
-            else if (operator_ == SPECIFIER_OF_ARCTAN)
+            else if (operator_ == SFUNCTION_ARCTAN)
                 strcat(str_exp.Content, "arctan");
-            else if (operator_ == SPECIFIER_OF_ARCCOT)
+            else if (operator_ == SFUNCTION_ARCCOT)
                 strcat(str_exp.Content, "arccot");
-            else if (operator_ == SPECIFIER_OF_ARCSEC)
+            else if (operator_ == SFUNCTION_ARCSEC)
                 strcat(str_exp.Content, "arcsec");
-            else if (operator_ == SPECIFIER_OF_ARCCSC)
+            else if (operator_ == SFUNCTION_ARCCSC)
                 strcat(str_exp.Content, "arccsc");
-            else if (operator_ == SPECIFIER_OF_SINH)
+            else if (operator_ == SFUNCTION_SINH)
                 strcat(str_exp.Content, "sinh");
-            else if (operator_ == SPECIFIER_OF_COSH)
+            else if (operator_ == SFUNCTION_COSH)
                 strcat(str_exp.Content, "cosh");
-            else if (operator_ == SPECIFIER_OF_TANH)
+            else if (operator_ == SFUNCTION_TANH)
                 strcat(str_exp.Content, "tanh");
-            else if (operator_ == SPECIFIER_OF_COTH)
+            else if (operator_ == SFUNCTION_COTH)
                 strcat(str_exp.Content, "coth");
-            else if (operator_ == SPECIFIER_OF_SECH)
+            else if (operator_ == SFUNCTION_SECH)
                 strcat(str_exp.Content, "sech");
-            else if (operator_ == SPECIFIER_OF_CSCH)
+            else if (operator_ == SFUNCTION_CSCH)
                 strcat(str_exp.Content, "csch");
-            else if (operator_ == SPECIFIER_OF_ARCSINH)
+            else if (operator_ == SFUNCTION_ARCSINH)
                 strcat(str_exp.Content, "arcsinh");
-            else if (operator_ == SPECIFIER_OF_ARCCOSH)
+            else if (operator_ == SFUNCTION_ARCCOSH)
                 strcat(str_exp.Content, "arccosh");
-            else if (operator_ == SPECIFIER_OF_ARCTANH)
+            else if (operator_ == SFUNCTION_ARCTANH)
                 strcat(str_exp.Content, "arctanh");
-            else if (operator_ == SPECIFIER_OF_ARCCOTH)
+            else if (operator_ == SFUNCTION_ARCCOTH)
                 strcat(str_exp.Content, "arccoth");
-            else if (operator_ == SPECIFIER_OF_ARCSECH)
+            else if (operator_ == SFUNCTION_ARCSECH)
                 strcat(str_exp.Content, "arcsech");
-            else if (operator_ == SPECIFIER_OF_ARCCSCH)
+            else if (operator_ == SFUNCTION_ARCCSCH)
                 strcat(str_exp.Content, "arccsch");
-            else if (operator_ == SPECIFIER_OF_LN)
+            else if (operator_ == SFUNCTION_LN)
                 strcat(str_exp.Content, "ln");
-            else if (operator_ == SPECIFIER_OF_LG)
+            else if (operator_ == SFUNCTION_LG)
                 strcat(str_exp.Content, "log");
-            else if (operator_ == SPECIFIER_OF_GAMMA)
+            else if (operator_ == SFUNCTION_GAMMA)
                 strcat(str_exp.Content, "gamma");
-            else if (operator_ == SPECIFIER_OF_CEIL)
+            else if (operator_ == SFUNCTION_CEIL)
                 strcat(str_exp.Content, "ceil");
-            else if (operator_ == SPECIFIER_OF_FLOOR)
+            else if (operator_ == SFUNCTION_FLOOR)
                 strcat(str_exp.Content, "floor");
-            else if (operator_ == SPECIFIER_OF_LAMBERTW)
+            else if (operator_ == SFUNCTION_LAMBERTW)
                 strcat(str_exp.Content, "lambertw");
-            else if (operator_ == SPECIFIER_OF_DIF)
+            else if (operator_ == SFUNCTION_DIF)
                 strcat(str_exp.Content, "dif");
-            else if (operator_ == SPECIFIER_OF_INTEGRAL)
+            else if (operator_ == SFUNCTION_INTEGRAL)
                 strcat(str_exp.Content, "integral");
             else
             {
@@ -5132,17 +5132,17 @@ string_ convert_INFIX_to_string(const __INFIX__ infix_exp)
     return str_exp;
 }
 
-bool handle_special_functions_(__INFIX__ *I_exp)
+bool handle_special_functions_(INFIX *I_exp)
 {
     /* no need for checking null pointer */
 
     _infix_ token_num[1] = {{NAN, '\0', '\0'}};
-    __INFIX__ I_result = {1, token_num};
+    INFIX I_result = {1, token_num};
 
     for (int i = 0; i < I_exp->size; i++)
     {
         // ------------------ DERIVATIVE ------------------ //
-        if (I_exp->tokens[i].operator== SPECIFIER_OF_DIF)
+        if (I_exp->tokens[i].operator== SFUNCTION_DIF)
         {
             short int index_ddx = i;
             short int index_outer_bracket_open = i + 1;
@@ -5191,25 +5191,25 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LOG ||
+                                     .operator== SFUNCTION_LOG ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon++;
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                                     .operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                     }
                 }
@@ -5227,7 +5227,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
             }
 
             char var;
-            __INFIX__ function = {0, NULL}, valueOfVar = {0, NULL}, derivative;
+            INFIX function = {0, NULL}, valueOfVar = {0, NULL}, derivative;
             {
                 // Extract the variable
                 var = I_exp->tokens[index_colon + 1].variable;
@@ -5289,7 +5289,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
             // printf("[__Result = %lf__]\n", result);
 
             // calculate the derivative & substitude to the expression
-            _POSTFIX__ P_derivative = submodule_Parse(derivative);
+            POSTFIX P_derivative = Parse_infix_to_postfix(derivative);
             I_result.tokens[0].num = Compute_P_expression(P_derivative);
             free(P_derivative.tokens);
 
@@ -5302,7 +5302,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ INTEGRAL ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_INTEGRAL)
+        else if (I_exp->tokens[i].operator== SFUNCTION_INTEGRAL)
         {
             // integral(,,,)
             short int index_integral = i;
@@ -5341,21 +5341,21 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                     short int skip_colon = 0;
                     for (short int k = index_outerbracket_open + 1; k < index_outer_bracket_close; k++)
                     {
-                        if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_GCD ||
+                                .operator== SFUNCTION_GCD ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LCM ||
+                                .operator== SFUNCTION_LCM ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                .operator== SFUNCTION_PERMUTATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_COMBINATIONS ||
+                                .operator== SFUNCTION_COMBINATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LOG)
+                                .operator== SFUNCTION_LOG)
                             skip_colon++;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5378,21 +5378,21 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                     short int skip_colon = 0;
                     for (short int k = index_second_colon + 1; k < index_outer_bracket_close; k++)
                     {
-                        if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_GCD ||
+                                .operator== SFUNCTION_GCD ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LCM ||
+                                .operator== SFUNCTION_LCM ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                .operator== SFUNCTION_PERMUTATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_COMBINATIONS ||
+                                .operator== SFUNCTION_COMBINATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LOG)
+                                .operator== SFUNCTION_LOG)
                             skip_colon++;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5412,7 +5412,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
             // printf("integral = %d | open_ = %d | 1colon = %d | 2colon = %d | 3colon = %d | close_ = %d\n", index_integral, index_outerbracket_open, index_first_colon, index_second_colon, index_third_colon, index_outer_bracket_close);
 
             // Extract the function
-            __INFIX__ function = {0, NULL};
+            INFIX function = {0, NULL};
             copy_sub_I_exp(&function, *I_exp, index_outerbracket_open, index_first_colon);
 
             // handle nested special functions
@@ -5426,11 +5426,11 @@ bool handle_special_functions_(__INFIX__ *I_exp)
             char var = I_exp->tokens[index_first_colon + 1].variable;
 
             // Extract the lower bound
-            __INFIX__ lower_bound = {0, NULL};
+            INFIX lower_bound = {0, NULL};
             copy_sub_I_exp(&lower_bound, *I_exp, index_second_colon, index_third_colon);
 
             // Extract the upper bound
-            __INFIX__ upper_bound = {0, NULL};
+            INFIX upper_bound = {0, NULL};
             copy_sub_I_exp(&upper_bound, *I_exp, index_third_colon, index_outer_bracket_close);
 
             // check
@@ -5466,7 +5466,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ SIGMA-SUM || SUM-SEQUENCE ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_SIGMA_SUM)
+        else if (I_exp->tokens[i].operator== SFUNCTION_SIGMA_SUM)
         {
             short int index_sumsequence = i;
             short int index_outer_bracket_open = i + 1;
@@ -5502,21 +5502,21 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                     short int skip_colon = 0;
                     for (short int k = index_outer_bracket_open + 1; k < index_outer_bracket_close; k++)
                     {
-                        if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_GCD ||
+                                .operator== SFUNCTION_GCD ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LCM ||
+                                .operator== SFUNCTION_LCM ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                .operator== SFUNCTION_PERMUTATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_COMBINATIONS ||
+                                .operator== SFUNCTION_COMBINATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LOG)
+                                .operator== SFUNCTION_LOG)
                             skip_colon++;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5545,19 +5545,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5575,19 +5575,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5600,11 +5600,11 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // check
                 // printf("sum = %d | open = %d | c1 = %d | c2 = %d | c3 = %d | c4 = %d | close = %d\n", index_sumsequence, index_outer_bracket_open, index_colon_1, index_colon_2, index_colon_3, index_colon_4, index_outer_bracket_close);
 
-                __INFIX__ function = {0, NULL};
+                INFIX function = {0, NULL};
                 char var;
-                __INFIX__ I_start = {0, NULL};
-                __INFIX__ I_end = {0, NULL};
-                __INFIX__ I_step = {0, NULL};
+                INFIX I_start = {0, NULL};
+                INFIX I_end = {0, NULL};
+                INFIX I_step = {0, NULL};
 
                 double start, end, step, result;
 
@@ -5659,7 +5659,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ PRODUCT-SEQUENCE ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+        else if (I_exp->tokens[i].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
         {
             short int index_productsequence = i;
             short int index_outer_bracket_open = i + 1;
@@ -5695,21 +5695,21 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                     short int skip_colon = 0;
                     for (short int k = index_outer_bracket_open + 1; k < index_outer_bracket_close; k++)
                     {
-                        if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_GCD ||
+                                .operator== SFUNCTION_GCD ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LCM ||
+                                .operator== SFUNCTION_LCM ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                .operator== SFUNCTION_PERMUTATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_COMBINATIONS ||
+                                .operator== SFUNCTION_COMBINATIONS ||
                             I_exp->tokens[k]
-                                .operator== SPECIFIER_OF_LOG)
+                                .operator== SFUNCTION_LOG)
                             skip_colon++;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5738,19 +5738,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5768,19 +5768,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5793,11 +5793,11 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // check
                 // printf("sum = %d | open = %d | c1 = %d | c2 = %d | c3 = %d | c4 = %d | close = %d\n", index_sumsequence, index_outer_bracket_open, index_colon_1, index_colon_2, index_colon_3, index_colon_4, index_outer_bracket_close);
 
-                __INFIX__ function = {0, NULL};
+                INFIX function = {0, NULL};
                 char var;
-                __INFIX__ I_start = {0, NULL};
-                __INFIX__ I_end = {0, NULL};
-                __INFIX__ I_step = {0, NULL};
+                INFIX I_start = {0, NULL};
+                INFIX I_end = {0, NULL};
+                INFIX I_step = {0, NULL};
 
                 double start, end, step, result;
 
@@ -5852,7 +5852,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ Greatest Common Divisor ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_GCD)
+        else if (I_exp->tokens[i].operator== SFUNCTION_GCD)
         {
             short int index_GCD = i;
             short int index_outer_bracket_open = i + 1;
@@ -5894,19 +5894,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -5917,8 +5917,8 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                     return false;
             }
 
-            __INFIX__ I_value1 = {0, NULL};
-            __INFIX__ I_value2 = {0, NULL};
+            INFIX I_value1 = {0, NULL};
+            INFIX I_value2 = {0, NULL};
             double value1, value2;
 
             // extract the expressions
@@ -5949,7 +5949,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ Least Common Multiplier ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_LCM)
+        else if (I_exp->tokens[i].operator== SFUNCTION_LCM)
         {
             short int index_LCM = i;
             short int index_outer_bracket_open = i + 1;
@@ -5991,19 +5991,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -6017,8 +6017,8 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // printf("INDEX: LCM = %d | open = %d | colon = %d | close = %d\n", index_LCM, index_outer_bracket_open, index_colon, index_outer_bracket_close);
             }
 
-            __INFIX__ I_value1 = {0, NULL};
-            __INFIX__ I_value2 = {0, NULL};
+            INFIX I_value1 = {0, NULL};
+            INFIX I_value2 = {0, NULL};
             double value1, value2;
 
             // extract the first expression
@@ -6049,7 +6049,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ Permutations ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_PERMUTATIONS)
+        else if (I_exp->tokens[i].operator== SFUNCTION_PERMUTATIONS)
         {
             short int index_permutations = i;
             short int index_outer_bracket_open = i + 1;
@@ -6091,19 +6091,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -6117,8 +6117,8 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // printf("INDEX: LCM = %d | open = %d | colon = %d | close = %d\n", index_LCM, index_outer_bracket_open, index_colon, index_outer_bracket_close);
             }
 
-            __INFIX__ I_value1 = {0, NULL};
-            __INFIX__ I_value2 = {0, NULL};
+            INFIX I_value1 = {0, NULL};
+            INFIX I_value2 = {0, NULL};
             double value1, value2;
 
             // extract the first expression
@@ -6148,7 +6148,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ Combinations ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_COMBINATIONS)
+        else if (I_exp->tokens[i].operator== SFUNCTION_COMBINATIONS)
         {
             short int index_combinations = i;
             short int index_outer_bracket_open = i + 1;
@@ -6190,19 +6190,19 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -6216,8 +6216,8 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // printf("INDEX: LCM = %d | open = %d | colon = %d | close = %d\n", index_LCM, index_outer_bracket_open, index_colon, index_outer_bracket_close);
             }
 
-            __INFIX__ I_value1 = {0, NULL};
-            __INFIX__ I_value2 = {0, NULL};
+            INFIX I_value1 = {0, NULL};
+            INFIX I_value2 = {0, NULL};
             double value1, value2;
 
             // extract the first expression
@@ -6247,7 +6247,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
         }
 
         // ------------------ Logarithm ------------------ //
-        else if (I_exp->tokens[i].operator== SPECIFIER_OF_LOG)
+        else if (I_exp->tokens[i].operator== SFUNCTION_LOG)
         {
             short int index_logarithm = i;
             short int index_outer_bracket_open = i + 1;
@@ -6289,21 +6289,21 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                             break;
                         }
 
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_DIF ||
+                        else if (I_exp->tokens[k].operator== SFUNCTION_DIF ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_GCD ||
+                                     .operator== SFUNCTION_GCD ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LOG ||
+                                     .operator== SFUNCTION_LOG ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_LCM ||
+                                     .operator== SFUNCTION_LCM ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_PERMUTATIONS ||
+                                     .operator== SFUNCTION_PERMUTATIONS ||
                                  I_exp->tokens[k]
-                                     .operator== SPECIFIER_OF_COMBINATIONS)
+                                     .operator== SFUNCTION_COMBINATIONS)
                             skip_colon += 1;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_INTEGRAL)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_INTEGRAL)
                             skip_colon += 3;
-                        else if (I_exp->tokens[k].operator== SPECIFIER_OF_SIGMA_SUM || I_exp->tokens[k].operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                        else if (I_exp->tokens[k].operator== SFUNCTION_SIGMA_SUM || I_exp->tokens[k].operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
                             skip_colon += 4;
                         else if (I_exp->tokens[k].operator== ',' && skip_colon != 0)
                             skip_colon--;
@@ -6317,8 +6317,8 @@ bool handle_special_functions_(__INFIX__ *I_exp)
                 // printf("INDEX: LCM = %d | open = %d | colon = %d | close = %d\n", index_LCM, index_outer_bracket_open, index_colon, index_outer_bracket_close);
             }
 
-            __INFIX__ I_base = {0, NULL};
-            __INFIX__ I_expression = {0, NULL};
+            INFIX I_base = {0, NULL};
+            INFIX I_expression = {0, NULL};
             double base, expression;
 
             // extract the first expression
@@ -6351,7 +6351,7 @@ bool handle_special_functions_(__INFIX__ *I_exp)
     return true;
 }
 
-double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var, double a, double b)
+double integral_GaussianQuadrature500(const INFIX I_function, const char var, double a, double b)
 {
     // check for valid parameter
     if (I_function.size <= 0 || I_function.tokens == NULL)
@@ -7377,7 +7377,7 @@ double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var
         0.9999391798145371,
         0.9999884567522129};
 
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
     double sum = 0.0;
     double _A_ = (b - a) / 2.0;
     double _B_ = (b + a) / 2.0;
@@ -7387,7 +7387,7 @@ double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var
 
         double x_i = _A_ * nodes[i] + _B_;
 
-        _POSTFIX__ copyof_P_function = copy_postfix_expression(P_function);
+        POSTFIX copyof_P_function = copy_postfix_expression(P_function);
 
         for (unsigned short int p = 0; p < copyof_P_function.size; p++)
         {
@@ -7411,10 +7411,10 @@ double integral_GaussianQuadrature500(const __INFIX__ I_function, const char var
     return sum;
 }
 
-double integral_definite_infix(__INFIX__ infix_function, const char var, const double lower_bound, const double upper_bound)
+double integral_definite_infix(INFIX infix_function, const char var, const double lower_bound, const double upper_bound)
 {
     double result;
-    _POSTFIX__ P_function = {NULL, 0};
+    POSTFIX P_function = {NULL, 0};
 
     // Validate input
     if (infix_function.size == 0 || infix_function.tokens == NULL)
@@ -7424,7 +7424,7 @@ double integral_definite_infix(__INFIX__ infix_function, const char var, const d
     optimize_I_exp(&infix_function);
 
     // Convert infix to postfix for computation
-    P_function = submodule_Parse(infix_function);
+    P_function = Parse_infix_to_postfix(infix_function);
 
     if (P_function.size == 0 || P_function.tokens == NULL)
         return NAN;
@@ -7477,7 +7477,7 @@ double integral_definite_infix(__INFIX__ infix_function, const char var, const d
 }
 
 // sum-sequence OR sigma sum
-double sum_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step)
+double sum_sequence(INFIX I_function, const char var, const double start, const double end, const double step)
 {
     // check for valid input
     if (step == 0.0 ||
@@ -7541,7 +7541,7 @@ double sum_sequence(__INFIX__ I_function, const char var, const double start, co
     }
 
     // Make a copy for optimization and substituting variables
-    __INFIX__ copyof_I_function;
+    INFIX copyof_I_function;
     copyof_I_function.size = I_function.size;
     copyof_I_function.tokens = (_infix_ *)malloc(I_function.size * sizeof(_infix_));
     if (copyof_I_function.tokens == NULL)
@@ -7610,7 +7610,7 @@ double sum_sequence(__INFIX__ I_function, const char var, const double start, co
 }
 
 // calculate the product of a sequence
-double product_sequence(__INFIX__ I_function, const char var, const double start, const double end, const double step)
+double product_sequence(INFIX I_function, const char var, const double start, const double end, const double step)
 {
     // check for valid input
     if (step == 0.0 ||
@@ -7680,7 +7680,7 @@ double product_sequence(__INFIX__ I_function, const char var, const double start
     }
 
     // Make a copy for optimization and substituting variables
-    __INFIX__ copyof_I_function;
+    INFIX copyof_I_function;
     copyof_I_function.size = I_function.size;
     copyof_I_function.tokens = (_infix_ *)malloc(I_function.size * sizeof(_infix_));
     if (copyof_I_function.tokens == NULL)
@@ -7766,9 +7766,9 @@ double product_sequence(__INFIX__ I_function, const char var, const double start
     return product;
 }
 
-__INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
+INFIX convert_P_to_I_exp(const POSTFIX P_exp)
 {
-    __INFIX__ result;
+    INFIX result;
     result.tokens = NULL;
     result.size = 0;
 
@@ -7777,8 +7777,8 @@ __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
         return result;
     }
 
-    // Stack to hold sub-expressions (each as an __INFIX__ structure)
-    __INFIX__ expression_stack[1000];
+    // Stack to hold sub-expressions (each as an INFIX structure)
+    INFIX expression_stack[1000];
     int stack_top = -1;
 
     // Process each token in the postfix expression
@@ -7798,28 +7798,28 @@ __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
             expression_stack[stack_top].tokens[0].variable = current.variable;
         }
         // If it's a unary operator (functions)
-        else if (current.operator== SPECIFIER_OF_SIN || current.operator== SPECIFIER_OF_COS ||
-                 current.operator== SPECIFIER_OF_TAN || current.operator== SPECIFIER_OF_COT ||
-                 current.operator== SPECIFIER_OF_SEC || current.operator== SPECIFIER_OF_CSC ||
-                 current.operator== SPECIFIER_OF_ARCSIN || current.operator== SPECIFIER_OF_ARCCOS ||
-                 current.operator== SPECIFIER_OF_ARCTAN || current.operator== SPECIFIER_OF_ARCCOT ||
-                 current.operator== SPECIFIER_OF_SINH || current.operator== SPECIFIER_OF_COSH ||
-                 current.operator== SPECIFIER_OF_TANH || current.operator== SPECIFIER_OF_COTH ||
-                 current.operator== SPECIFIER_OF_ARCSINH || current.operator== SPECIFIER_OF_ARCCOSH ||
-                 current.operator== SPECIFIER_OF_ARCTANH || current.operator== SPECIFIER_OF_ARCCOTH ||
-                 current.operator== SPECIFIER_OF_LN || current.operator== SPECIFIER_OF_LG ||
-                 current.operator== SPECIFIER_OF_SQRT || current.operator== SPECIFIER_OF_CBRT ||
-                 current.operator== SPECIFIER_OF_ABS || current.operator== SPECIFIER_OF_GAMMA ||
-                 current.operator== SPECIFIER_OF_CEIL || current.operator== SPECIFIER_OF_FLOOR ||
-                 current.operator== SPECIFIER_OF_LAMBERTW)
+        else if (current.operator== SFUNCTION_SIN || current.operator== SFUNCTION_COS ||
+                 current.operator== SFUNCTION_TAN || current.operator== SFUNCTION_COT ||
+                 current.operator== SFUNCTION_SEC || current.operator== SFUNCTION_CSC ||
+                 current.operator== SFUNCTION_ARCSIN || current.operator== SFUNCTION_ARCCOS ||
+                 current.operator== SFUNCTION_ARCTAN || current.operator== SFUNCTION_ARCCOT ||
+                 current.operator== SFUNCTION_SINH || current.operator== SFUNCTION_COSH ||
+                 current.operator== SFUNCTION_TANH || current.operator== SFUNCTION_COTH ||
+                 current.operator== SFUNCTION_ARCSINH || current.operator== SFUNCTION_ARCCOSH ||
+                 current.operator== SFUNCTION_ARCTANH || current.operator== SFUNCTION_ARCCOTH ||
+                 current.operator== SFUNCTION_LN || current.operator== SFUNCTION_LG ||
+                 current.operator== SFUNCTION_SQRT || current.operator== SFUNCTION_CBRT ||
+                 current.operator== SFUNCTION_ABS || current.operator== SFUNCTION_GAMMA ||
+                 current.operator== SFUNCTION_CEIL || current.operator== SFUNCTION_FLOOR ||
+                 current.operator== SFUNCTION_LAMBERTW)
         {
 
             if (stack_top >= 0)
             {
-                __INFIX__ operand = expression_stack[stack_top--];
+                INFIX operand = expression_stack[stack_top--];
 
                 // Create new expression: function(operand)
-                __INFIX__ new_expr;
+                INFIX new_expr;
                 new_expr.size = 3 + operand.size; // function + ( + operand + )
                 new_expr.tokens = (_infix_ *)malloc(new_expr.size * sizeof(_infix_));
 
@@ -7859,12 +7859,12 @@ __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
         {
             if (stack_top >= 1)
             {
-                __INFIX__ right = expression_stack[stack_top--];
-                __INFIX__ left = expression_stack[stack_top--];
+                INFIX right = expression_stack[stack_top--];
+                INFIX left = expression_stack[stack_top--];
 
                 // For simplicity, let's not use complex precedence logic for now
                 // Just create: left operator right (without extra parentheses)
-                __INFIX__ new_expr;
+                INFIX new_expr;
                 new_expr.size = left.size + 1 + right.size; // left + operator + right
                 new_expr.tokens = (_infix_ *)malloc(new_expr.size * sizeof(_infix_));
 
@@ -7907,9 +7907,9 @@ __INFIX__ convert_P_to_I_exp(const _POSTFIX__ P_exp)
     return result;
 }
 
-__INFIX__ copy_infix_expression(const __INFIX__ source)
+INFIX copy_infix_expression(const INFIX source)
 {
-    __INFIX__ copyof_source;
+    INFIX copyof_source;
     copyof_source.size = source.size;
     copyof_source.tokens = (_infix_ *)malloc(source.size * sizeof(_infix_));
     if (copyof_source.tokens == NULL)
@@ -7923,9 +7923,9 @@ __INFIX__ copy_infix_expression(const __INFIX__ source)
     return copyof_source;
 }
 
-_POSTFIX__ copy_postfix_expression(const _POSTFIX__ source)
+POSTFIX copy_postfix_expression(const POSTFIX source)
 {
-    _POSTFIX__ copyof_source;
+    POSTFIX copyof_source;
     copyof_source.size = source.size;
     copyof_source.tokens = (_TOKENS_DATA_ *)malloc(source.size * sizeof(_TOKENS_DATA_));
     if (copyof_source.tokens == NULL)
@@ -7939,10 +7939,10 @@ _POSTFIX__ copy_postfix_expression(const _POSTFIX__ source)
     return copyof_source;
 }
 
-double evaluate_I_1_var_function(const __INFIX__ I_function, const char var, const double value)
+double evaluate_I_1_var_function(const INFIX I_function, const char var, const double value)
 {
     // Parse to postfix type
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
 
     // substitude variable
     for (unsigned short int i = 0; i < P_function.size; i++)

@@ -41,7 +41,7 @@ extern "C"
 
     void cleanup_child_process(PROCESS_INFORMATION *process_info);
 
-    void substitude_variables(__INFIX__ *I_exp);
+    void substitude_variables(INFIX *I_exp);
 
     bool initialize_variables(HANDLE *hMapFile);
 
@@ -151,7 +151,7 @@ void assign_variables()
                 {
                     char *str_exp = input_String("");
 
-                    __INFIX__ I_exp = convert_string_to_INFIX(str_exp);
+                    INFIX I_exp = convert_string_to_INFIX(str_exp);
 
                     //
                     substitude_variables(&I_exp);
@@ -248,7 +248,7 @@ bool initialize_variables(HANDLE *hMapFile)
     return true;
 }
 
-void substitude_variables(__INFIX__ *I_exp)
+void substitude_variables(INFIX *I_exp)
 {
     char special_vars[NUM_OF_VARIABLES + 1] = {0};
     short int index_sv = 0;
@@ -593,7 +593,7 @@ short int ib_2_3_4_poly_equation(unsigned short int input_line, unsigned short i
     }
 
     // compute input
-    __INFIX__ I_input = convert_string_to_INFIX(str_input);
+    INFIX I_input = convert_string_to_INFIX(str_input);
 
     substitude_variables(&I_input);
     (*result) = evaluate_I_exp(I_input);
@@ -740,7 +740,7 @@ short int ib_solve_poly_get_coef(double *coefficient)
     }
 
     // compute input
-    __INFIX__ I_input = convert_string_to_INFIX(str_input);
+    INFIX I_input = convert_string_to_INFIX(str_input);
 
     substitude_variables(&I_input);
     (*coefficient) = evaluate_I_exp(I_input);
@@ -899,7 +899,7 @@ char *ib_se_get_function()
 void start_solving_section(char *str_function, const char var, const double l_bound, const double u_bound, const unsigned short int output_line)
 {
     // convert string to infix
-    __INFIX__ I_function = convert_string_to_INFIX(str_function);
+    INFIX I_function = convert_string_to_INFIX(str_function);
 
     // check for valid function
     bool var_found = false;
@@ -1314,7 +1314,7 @@ short int ib_for_system_o_l_e(int *ptr_input_line, unsigned short int input_colu
     }
 
     // compute input
-    __INFIX__ I_input = convert_string_to_INFIX(str_input);
+    INFIX I_input = convert_string_to_INFIX(str_input);
 
     substitude_variables(&I_input);
     (*result) = evaluate_I_exp(I_input);
@@ -1466,7 +1466,7 @@ char *ib_ssonle_get_function(int *ptr_input_line, unsigned short int input_colum
     }
 
     // // compute input
-    // __INFIX__ I_input = convert_string_to_INFIX(str_input);
+    // INFIX I_input = convert_string_to_INFIX(str_input);
 
     // substitude_variables(&I_input);
     // (*result) = evaluate_I_exp(I_input);
@@ -1758,7 +1758,7 @@ short int ib_ic_get_bounds(unsigned short int input_line, unsigned short int inp
     }
 
     // compute input
-    __INFIX__ I_input = convert_string_to_INFIX(str_input);
+    INFIX I_input = convert_string_to_INFIX(str_input);
 
     substitude_variables(&I_input);
     (*result) = evaluate_I_exp(I_input);
@@ -2152,7 +2152,7 @@ void ib_integrate_in_the_background()
 
     // ==========================================INTEGRATE========================================== //
 
-    __INFIX__ I_function = convert_string_to_INFIX(function);
+    INFIX I_function = convert_string_to_INFIX(function);
 
     ib_get_valueof_var_set();
 

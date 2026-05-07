@@ -57,7 +57,7 @@ bool is_integer___(double x);
 void print_sub_script_number(const int number);
 void print_super_script_number(const int number);
 void free_buffer(char **buffer);
-void display_infix_exp(const __INFIX__ expression);
+void display_infix_exp(const INFIX expression);
 void hide_cursor();
 void show_cursor();
 void delete_substring(char *string, const short int start_index, const short int end_index, const unsigned short int len);
@@ -142,7 +142,7 @@ void delete_substring(char *string, const short int start_index, const short int
     string[len - delete_count] = '\0';
 }
 
-void display_infix_exp(const __INFIX__ expression)
+void display_infix_exp(const INFIX expression)
 {
     if (expression.tokens == NULL)
         return;

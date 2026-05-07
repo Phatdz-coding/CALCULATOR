@@ -29,24 +29,24 @@
 // =============================================================================================================================== //
 // =============================================================================================================================== //
 
-void ni_decide_integration_method(const __INFIX__ I_function, const char var, const double a, const double b, short int *conclusion);
-double ni_integrate(const __INFIX__ I_function, const char var, const double a, const double b, unsigned short int *method);
+void ni_decide_integration_method(const INFIX I_function, const char var, const double a, const double b, short int *conclusion);
+double ni_integrate(const INFIX I_function, const char var, const double a, const double b, unsigned short int *method);
 
-double ni_eval_P_function(const _POSTFIX__, const char, const double);
-short int ni_substitude_variables(__INFIX__ *I_expression, const char *exceptions);
+double ni_eval_P_function(const POSTFIX, const char, const double);
+short int ni_substitude_variables(INFIX *I_expression, const char *exceptions);
 
-double ni_integral_simpson(const __INFIX__ I_function, const char var, const double a, const double b);
+double ni_integral_simpson(const INFIX I_function, const char var, const double a, const double b);
 
-short int ni_integral_quad(const __INFIX__, const char, const double, const double, double *, double *);
-double quad(const __INFIX__ I_function, const char var, /* double (*___function___)(double), */ double a, double b, int n, double eps, double *err);
-double exp_sinh_opt_d(const _POSTFIX__ P_function, const char var, /* double (*___function___)(double), */ double a, double eps, double d);
+short int ni_integral_quad(const INFIX, const char, const double, const double, double *, double *);
+double quad(const INFIX I_function, const char var, /* double (*___function___)(double), */ double a, double b, int n, double eps, double *err);
+double exp_sinh_opt_d(const POSTFIX P_function, const char var, /* double (*___function___)(double), */ double a, double eps, double d);
 
-short int ni_integral_aq(const __INFIX__ I_function, const char var, const double a, const double b, double *result, const double tolerance);
-short int ni_recurse(const _POSTFIX__ P_function, const char var, const double a, const double b, double *result, const double tolerance, const double simpson_estimate);
-double ni_simpson_estimate(const _POSTFIX__ P_function, const char var, const double a, const double b);
+short int ni_integral_aq(const INFIX I_function, const char var, const double a, const double b, double *result, const double tolerance);
+short int ni_recurse(const POSTFIX P_function, const char var, const double a, const double b, double *result, const double tolerance, const double simpson_estimate);
+double ni_simpson_estimate(const POSTFIX P_function, const char var, const double a, const double b);
 
-short int ni_integral_GaussianQuadrature700(const __INFIX__ I_function, const char var, const double a, const double b, double *result);
-double ni_integral_GaussianQuadrature500(const __INFIX__ I_function, const char var, double a, double b);
+short int ni_integral_GaussianQuadrature700(const INFIX I_function, const char var, const double a, const double b, double *result);
+double ni_integral_GaussianQuadrature500(const INFIX I_function, const char var, double a, double b);
 
 // =============================================================================================================================== //
 // =============================================================================================================================== //
@@ -74,7 +74,7 @@ https://math.okstate.edu/people/yqwang/teaching/math4513_fall12/Notes/gaussian.p
 
 https://pomax.github.io/bezierinfo/legendre-gauss.html
 */
-double ni_integral_GaussianQuadrature500(const __INFIX__ I_function, const char var, double a, double b)
+double ni_integral_GaussianQuadrature500(const INFIX I_function, const char var, double a, double b)
 {
     // check for valid parameter
     if (I_function.size <= 0 || I_function.tokens == NULL)
@@ -1100,7 +1100,7 @@ double ni_integral_GaussianQuadrature500(const __INFIX__ I_function, const char 
         0.9999391798145371,
         0.9999884567522129};
 
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
     double sum = 0.0;
     double _A_ = (b - a) / 2.0;
     double _B_ = (b + a) / 2.0;
@@ -1142,7 +1142,7 @@ https://math.okstate.edu/people/yqwang/teaching/math4513_fall12/Notes/gaussian.p
 
 https://pomax.github.io/bezierinfo/legendre-gauss.html
 */
-short int ni_integral_GaussianQuadrature700(const __INFIX__ I_function, const char var, double a, double b, double *result)
+short int ni_integral_GaussianQuadrature700(const INFIX I_function, const char var, double a, double b, double *result)
 {
     // check for valid parameter
     if (I_function.size <= 0 || I_function.tokens == NULL)
@@ -3972,7 +3972,7 @@ short int ni_integral_GaussianQuadrature700(const __INFIX__ I_function, const ch
         1.5122766970721705e-05};
 
     // convert to postfix
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
     if (P_function.size <= 0 || P_function.tokens == NULL)
         return -3;
 
@@ -4030,7 +4030,7 @@ https://en.wikipedia.org/wiki/Adaptive_quadrature
 
 https://math.libretexts.org/Bookshelves/Calculus/CLP-2_Integral_Calculus_(Feldman_Rechnitzer_and_Yeager)/04%3A_Appendices/4.03%3A_C%3A_More_About_Numerical_Integration/4.3.03%3A_C.3%3A_Adaptive_Quadrature
 */
-short int ni_integral_aq(const __INFIX__ I_function, const char var, const double a, const double b, double *result, const double tolerance)
+short int ni_integral_aq(const INFIX I_function, const char var, const double a, const double b, double *result, const double tolerance)
 {
     // check for valid parameters
     if (I_function.size <= 0 || I_function.tokens == NULL)
@@ -4046,7 +4046,7 @@ short int ni_integral_aq(const __INFIX__ I_function, const char var, const doubl
     short int substitude_status = ni_substitude_variables(&I_function, exception);
 
     // convert to postfix
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
     if (P_function.size <= 0 || P_function.tokens == NULL)
         return -4;
 
@@ -4071,13 +4071,13 @@ short int ni_integral_aq(const __INFIX__ I_function, const char var, const doubl
     return 0;
 }
 
-double ni_simpson_estimate(const _POSTFIX__ P_function, const char var, const double a, const double b)
+double ni_simpson_estimate(const POSTFIX P_function, const char var, const double a, const double b)
 {
     double c = (a + b) / 2.0;
     return ((b - a) / 6.0) * (ni_eval_P_function(P_function, var, a) + 4.0 * ni_eval_P_function(P_function, var, c) + ni_eval_P_function(P_function, var, b));
 }
 
-short int ni_recurse(const _POSTFIX__ P_function, const char var, const double a, const double b, double *result, const double tolerance, const double simpson_estimate)
+short int ni_recurse(const POSTFIX P_function, const char var, const double a, const double b, double *result, const double tolerance, const double simpson_estimate)
 {
     double c = (a + b) / 2.0;
 
@@ -4147,7 +4147,7 @@ https://en.wikipedia.org/wiki/Tanh-sinh_quadrature
 https://github.com/Robert-van-Engelen/Tanh-Sinh
 
 */
-short int ni_integral_quad(const __INFIX__ I_function, const char var, const double a, const double b, double *result, double *error)
+short int ni_integral_quad(const INFIX I_function, const char var, const double a, const double b, double *result, double *error)
 {
     // check for valid parameters
     if (I_function.tokens == NULL || I_function.size <= 0)
@@ -4162,13 +4162,13 @@ short int ni_integral_quad(const __INFIX__ I_function, const char var, const dou
     {
         if (I_function.tokens[i].operator== '\0')
             continue;
-        if (I_function.tokens[i].operator== SPECIFIER_OF_INTEGRAL ||
+        if (I_function.tokens[i].operator== SFUNCTION_INTEGRAL ||
             I_function.tokens[i]
-                .operator== SPECIFIER_OF_DIF ||
+                .operator== SFUNCTION_DIF ||
             I_function.tokens[i]
-                .operator== SPECIFIER_OF_SIGMA_SUM ||
+                .operator== SFUNCTION_SIGMA_SUM ||
             I_function.tokens[i]
-                .operator== SPECIFIER_OF_PRODUCT_OF_SEQUENCE)
+                .operator== SFUNCTION_PRODUCT_OF_SEQUENCE)
         {
             return -2;
         }
@@ -4190,7 +4190,7 @@ short int ni_integral_quad(const __INFIX__ I_function, const char var, const dou
     return 0;
 }
 
-double exp_sinh_opt_d(const _POSTFIX__ P_function, const char var, /* double (*___function___)(double), */ double a, double eps, double d)
+double exp_sinh_opt_d(const POSTFIX P_function, const char var, /* double (*___function___)(double), */ double a, double eps, double d)
 {
     int ev = 2;
     // const double base = 2; // 2 or 3 or exp(1) for example
@@ -4268,10 +4268,10 @@ double exp_sinh_opt_d(const _POSTFIX__ P_function, const char var, /* double (*_
 
 Returns:
   result of integration */
-double quad(const __INFIX__ I_function, const char var, /* double (*___function___)(double), */ double a, double b, int n, double eps, double *err)
+double quad(const INFIX I_function, const char var, /* double (*___function___)(double), */ double a, double b, int n, double eps, double *err)
 {
     // turn infix to postfix
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
 
     const double tol = FUDGE1 * eps;
     double c = 0, d = 1, s, sign = 1, e, v, h = 2;
@@ -4405,13 +4405,13 @@ double quad(const __INFIX__ I_function, const char var, /* double (*___function_
 // Simpson's Rule
 // =============================================================================================================================== //
 
-double ni_integral_simpson(const __INFIX__ I_function, const char var, const double a, const double b)
+double ni_integral_simpson(const INFIX I_function, const char var, const double a, const double b)
 {
     unsigned int n = 1000000;
 
     double delta = (b - a) / (double)n;
 
-    _POSTFIX__ P_function = submodule_Parse(I_function);
+    POSTFIX P_function = Parse_infix_to_postfix(I_function);
 
     double sum = ni_eval_P_function(P_function, var, a);
 
@@ -4444,10 +4444,10 @@ double ni_integral_simpson(const __INFIX__ I_function, const char var, const dou
 // =============================================================================================================================== //
 // =============================================================================================================================== //
 
-double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const double value)
+double ni_eval_P_function(const POSTFIX P_function, const char var, const double value)
 {
     // Make a copy of P_function
-    _POSTFIX__ cloned_exp = copy_postfix_expression(P_function);
+    POSTFIX cloned_exp = copy_postfix_expression(P_function);
 
     // substitude var
     for (unsigned short int i = 0; i < cloned_exp.size; i++)
@@ -4508,52 +4508,52 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
             cloned_exp.tokens[i - 2].num = pow(cloned_exp.tokens[i - 2].num, cloned_exp.tokens[i - 1].num);
             two_param_OP = true;
             break;
-        case SPECIFIER_OF_SIN: // sin
+        case SFUNCTION_SIN: // sin
             cloned_exp.tokens[i - 1].num = sin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SINH: // sinh
+        case SFUNCTION_SINH: // sinh
             cloned_exp.tokens[i - 1].num = sinh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SEC: // sec
+        case SFUNCTION_SEC: // sec
             cloned_exp.tokens[i - 1].num = 1 / cos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_SECH: // sech
+        case SFUNCTION_SECH: // sech
             cloned_exp.tokens[i - 1].num = 1 / cosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSEC: // arcsec
+        case SFUNCTION_ARCSEC: // arcsec
             cloned_exp.tokens[i - 1].num = arcsec(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSECH: // arcsech
+        case SFUNCTION_ARCSECH: // arcsech
             cloned_exp.tokens[i - 1].num = arcsech(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COS: // cos
+        case SFUNCTION_COS: // cos
             cloned_exp.tokens[i - 1].num = cos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COSH: // cosh
+        case SFUNCTION_COSH: // cosh
             cloned_exp.tokens[i - 1].num = cosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_CSC: // csc
+        case SFUNCTION_CSC: // csc
             cloned_exp.tokens[i - 1].num = 1 / sin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_CSCH: // csch
+        case SFUNCTION_CSCH: // csch
             cloned_exp.tokens[i - 1].num = csch(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCSC: // arccsc
+        case SFUNCTION_ARCCSC: // arccsc
             cloned_exp.tokens[i - 1].num = arccsc(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCSCH: // arccsch
+        case SFUNCTION_ARCCSCH: // arccsch
             cloned_exp.tokens[i - 1].num = arccsch(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_TAN: // tan
+        case SFUNCTION_TAN: // tan
             cloned_exp.tokens[i - 1].num = tan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_TANH: // tanh
+        case SFUNCTION_TANH: // tanh
             cloned_exp.tokens[i - 1].num = tanh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COT: // cot
+        case SFUNCTION_COT: // cot
             cloned_exp.tokens[i - 1].num = 1 / tan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_COTH: // coth
+        case SFUNCTION_COTH: // coth
             cloned_exp.tokens[i - 1].num = coth(cloned_exp.tokens[i - 1].num);
             break;
         case '!': // factorial
@@ -4574,25 +4574,25 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
                 cloned_exp.tokens[i - 1].num = (double)fac;
             break;
         }
-        case SPECIFIER_OF_ARCSIN: // arcsin
+        case SFUNCTION_ARCSIN: // arcsin
             cloned_exp.tokens[i - 1].num = asin(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCSINH: // arcsinh
+        case SFUNCTION_ARCSINH: // arcsinh
             cloned_exp.tokens[i - 1].num = asinh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOS: // arccos
+        case SFUNCTION_ARCCOS: // arccos
             cloned_exp.tokens[i - 1].num = acos(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOSH: // arccosh
+        case SFUNCTION_ARCCOSH: // arccosh
             cloned_exp.tokens[i - 1].num = acosh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCTAN: // arctan
+        case SFUNCTION_ARCTAN: // arctan
             cloned_exp.tokens[i - 1].num = atan(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCTANH: // arctanh
+        case SFUNCTION_ARCTANH: // arctanh
             cloned_exp.tokens[i - 1].num = atanh(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_ARCCOT: // arccot
+        case SFUNCTION_ARCCOT: // arccot
         {
             if (cloned_exp.tokens[i - 1].num > 0.0)
                 cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num));
@@ -4600,10 +4600,10 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
                 cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num)) + PI;
             break;
         }
-        case SPECIFIER_OF_ARCCOTH: // arccoth
+        case SFUNCTION_ARCCOTH: // arccoth
             cloned_exp.tokens[i - 1].num = arccoth(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_LN: // ln
+        case SFUNCTION_LN: // ln
         {
             if (cloned_exp.tokens[i - 1].num <= 0.0)
             {
@@ -4613,7 +4613,7 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
             cloned_exp.tokens[i - 1].num = log(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_LG: // log10
+        case SFUNCTION_LG: // log10
         {
             if (cloned_exp.tokens[i - 1].num <= 0.0)
             {
@@ -4623,7 +4623,7 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
             cloned_exp.tokens[i - 1].num = log10(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_SQRT: // sqrt
+        case SFUNCTION_SQRT: // sqrt
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
             {
@@ -4633,16 +4633,16 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
             cloned_exp.tokens[i - 1].num = sqrt(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_ABS: // abs
+        case SFUNCTION_ABS: // abs
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
                 cloned_exp.tokens[i - 1].num = -cloned_exp.tokens[i - 1].num;
             break;
         }
-        case SPECIFIER_OF_CBRT: // cuberoot
+        case SFUNCTION_CBRT: // cuberoot
             cloned_exp.tokens[i - 1].num = cbrt(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_GAMMA: // gamma function
+        case SFUNCTION_GAMMA: // gamma function
         {
             if (cloned_exp.tokens[i - 1].num < 0.0)
             {
@@ -4652,13 +4652,13 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
             cloned_exp.tokens[i - 1].num = gamma_function(cloned_exp.tokens[i - 1].num);
             break;
         }
-        case SPECIFIER_OF_CEIL: // ceiling function
+        case SFUNCTION_CEIL: // ceiling function
             cloned_exp.tokens[i - 1].num = ceil(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_FLOOR: // floor function
+        case SFUNCTION_FLOOR: // floor function
             cloned_exp.tokens[i - 1].num = floor(cloned_exp.tokens[i - 1].num);
             break;
-        case SPECIFIER_OF_LAMBERTW: // lambert W function
+        case SFUNCTION_LAMBERTW: // lambert W function
         {
             if (cloned_exp.tokens[i - 1].num < -1.0 / EULER_NUMBER)
             {
@@ -4714,7 +4714,7 @@ double ni_eval_P_function(const _POSTFIX__ P_function, const char var, const dou
     return result;
 }
 
-short int ni_substitude_variables(__INFIX__ *I_expression, const char *exceptions)
+short int ni_substitude_variables(INFIX *I_expression, const char *exceptions)
 {
     if (I_expression == NULL || I_expression->tokens == NULL)
         return -1;
@@ -4743,7 +4743,7 @@ short int ni_substitude_variables(__INFIX__ *I_expression, const char *exception
     return 0;
 }
 
-void ni_decide_integration_method(const __INFIX__ I_function, const char var, const double a, const double b, short int *conclusion)
+void ni_decide_integration_method(const INFIX I_function, const char var, const double a, const double b, short int *conclusion)
 {
     // check for improper integral & singularities at endpoints
     if (isinf(a) || isinf(b) || !isfinite(evaluate_I_1_var_function(I_function, var, a)) || !isfinite(evaluate_I_1_var_function(I_function, var, b)))
@@ -4759,9 +4759,9 @@ void ni_decide_integration_method(const __INFIX__ I_function, const char var, co
     double step = distance / (double)nodes;
 
     // find the derivative of the function
-    __INFIX__ I_derivative = differentiate_I_exp(I_function, var);
+    INFIX I_derivative = differentiate_I_exp(I_function, var);
     // parse to postfix type
-    _POSTFIX__ P_derivative = submodule_Parse(I_derivative);
+    POSTFIX P_derivative = Parse_infix_to_postfix(I_derivative);
 
     for (double x = a; x <= b; x += step)
     {
@@ -4790,7 +4790,7 @@ void ni_decide_integration_method(const __INFIX__ I_function, const char var, co
     free(I_derivative.tokens);
 }
 
-double ni_integrate(const __INFIX__ I_function, const char var, const double a, const double b, unsigned short int *method)
+double ni_integrate(const INFIX I_function, const char var, const double a, const double b, unsigned short int *method)
 {
     // check for valid function
     if (I_function.size <= 0 || I_function.tokens == NULL)

@@ -19,19 +19,19 @@
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
 
-void optimize_I_exp(__INFIX__ *I_exp);
+void optimize_I_exp(INFIX *I_exp);
 
-void optimize_P_exp(_POSTFIX__ *P_exp);
+void optimize_P_exp(POSTFIX *P_exp);
 
 bool remove_blanks_in_string(char *string);
 
-__INFIX__ convert_string_to_INFIX(char *expression);
+INFIX convert_string_to_INFIX(char *expression);
 
 // Lexer Module 1
-__INFIX__ laf_Lexer_old(char *expression);
+INFIX laf_Lexer_old(char *expression);
 
 // Lexer Module 2 - More advanced - Faster
-__INFIX__ laf_Lexer(char *expression);
+INFIX laf_Lexer(char *expression);
 
 void laf_encode_math_symbols(char *string, short int *index);
 
@@ -40,21 +40,21 @@ char ___operate_detector___(char *expression, unsigned short int *increase);
 
 void _increase_(int *token, char op);
 
-void reformat_I_exp(__INFIX__ *I_exp);
+void reformat_I_exp(INFIX *I_exp);
 
-__INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression);
+INFIX laf_handle_errors_in_exp(const INFIX I_expression);
 
 bool laf_valid_input_code(const short int input_code);
 
 void laf_delete_input_code(char *string, short int *input_index);
 
-void merge_2_num(__INFIX__ *I_exp, const short int index);
-void merge_num_and_bracket(__INFIX__ *I_exp, const short int index);
-void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index);
-void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first);
-bool merge_unused_bracket(__INFIX__ *I_exp, const short int index);
-void merge_pow_of_one(__INFIX__ *I_exp, const short int index);
-void merge_pow_of_zero(__INFIX__ *I_exp, const short int index);
+void merge_2_num(INFIX *I_exp, const short int index);
+void merge_num_and_bracket(INFIX *I_exp, const short int index);
+void merge_multiplier_of_one(INFIX *I_exp, const short int index);
+void merge_multiplier_of_zero(INFIX *I_exp, const short int index, const bool zero_first);
+bool merge_unused_bracket(INFIX *I_exp, const short int index);
+void merge_pow_of_one(INFIX *I_exp, const short int index);
+void merge_pow_of_zero(INFIX *I_exp, const short int index);
 
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────────── //
@@ -363,9 +363,9 @@ bool laf_valid_input_code(const short int input_code)
             input_code == 0x9E);
 }
 
-__INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
+INFIX laf_handle_errors_in_exp(const INFIX I_expression)
 {
-    __INFIX__ I_empty = {0, NULL};
+    INFIX I_empty = {0, NULL};
 
     // check for valid pointer and size
     if (I_expression.size <= 0 || I_expression.tokens == NULL)
@@ -379,7 +379,7 @@ __INFIX__ laf_handle_errors_in_exp(const __INFIX__ I_expression)
             .operator!= ')')
         return I_empty;
 
-    __INFIX__ I_new_exp;
+    INFIX I_new_exp;
 
     unsigned short int LEN = I_expression.size * 5;
 
@@ -584,9 +584,9 @@ To add new function:
 2/ add to __operate_detector___
 3/ add to Compute_P_expression
  */
-__INFIX__ laf_Lexer(char *expression)
+INFIX laf_Lexer(char *expression)
 {
-    __INFIX__ I_empty = {0, NULL};
+    INFIX I_empty = {0, NULL};
 
     // check for valid input
     if (expression == NULL || expression[0] == '\0')
@@ -598,7 +598,7 @@ __INFIX__ laf_Lexer(char *expression)
     strcpy(str_expression, expression);
 
     // alloc token array
-    __INFIX__ I_expression;
+    INFIX I_expression;
 
     I_expression.size = len;
     I_expression.tokens = (_infix_ *)malloc(I_expression.size * sizeof(_infix_));
@@ -803,10 +803,10 @@ __INFIX__ laf_Lexer(char *expression)
  * @param I_exp Pointer to the infix expression structure
  * @param index Index of the first number in the expression
  */
-void merge_2_num(__INFIX__ *I_exp, const short int index)
+void merge_2_num(INFIX *I_exp, const short int index)
 {
     _infix_ token_num[1] = {NAN, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
+    INFIX replacement = {1, token_num};
 
     switch (I_exp->tokens[index + 1].operator)
     {
@@ -865,17 +865,17 @@ void merge_2_num(__INFIX__ *I_exp, const short int index)
 /**
  * Merges a number enclosed in brackets by removing the brackets
  */
-void merge_num_and_bracket(__INFIX__ *I_exp, const short int index)
+void merge_num_and_bracket(INFIX *I_exp, const short int index)
 {
     _infix_ token_num[1] = {I_exp->tokens[index + 1].num, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
+    INFIX replacement = {1, token_num};
     substitude_result(I_exp, replacement, index, index + 2);
 }
 
 /**
  * Removes multiplication by 1 from the expression
  */
-void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index)
+void merge_multiplier_of_one(INFIX *I_exp, const short int index)
 {
     for (short int i = index; i + 2 < I_exp->size; i++)
     {
@@ -900,10 +900,10 @@ void merge_multiplier_of_one(__INFIX__ *I_exp, const short int index)
  * @param index Index where the multiplication by 0 occurs
  * @param zero_first Boolean indicating if zero is the first operand
  */
-void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const bool zero_first)
+void merge_multiplier_of_zero(INFIX *I_exp, const short int index, const bool zero_first)
 {
     _infix_ token_num[1] = {0.0, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
+    INFIX replacement = {1, token_num};
 
     if (zero_first)
     {
@@ -967,7 +967,7 @@ void merge_multiplier_of_zero(__INFIX__ *I_exp, const short int index, const boo
 /**
  * Removes unnecessary nested brackets from the expression
  */
-bool merge_unused_bracket(__INFIX__ *I_exp, const short int index)
+bool merge_unused_bracket(INFIX *I_exp, const short int index)
 {
 
     short int index_next_bracket = index + 1;
@@ -992,7 +992,7 @@ bool merge_unused_bracket(__INFIX__ *I_exp, const short int index)
     if (index_outer_bracket_close == -1 || (index_outer_bracket_close + 1 < I_exp->size && I_exp->tokens[index_outer_bracket_close + 1].operator!= '+' && I_exp->tokens[index_outer_bracket_close + 1].operator!= '-' && I_exp->tokens[index_outer_bracket_close + 1].operator!= ')'))
         return false;
 
-    __INFIX__ replacement = {0, NULL};
+    INFIX replacement = {0, NULL};
 
     copy_sub_I_exp(&replacement, *I_exp, index_next_bracket, index_outer_bracket_close);
 
@@ -1007,7 +1007,7 @@ bool merge_unused_bracket(__INFIX__ *I_exp, const short int index)
 /**
  * Removes exponentiation by 1 (x^1 becomes x)
  */
-void merge_pow_of_one(__INFIX__ *I_exp, const short int index)
+void merge_pow_of_one(INFIX *I_exp, const short int index)
 {
     for (short int i = index; i + 2 < I_exp->size; i++)
     {
@@ -1029,10 +1029,10 @@ void merge_pow_of_one(__INFIX__ *I_exp, const short int index)
 /**
  * Handles exponentiation by 0 (x^0 becomes 1)
  */
-void merge_pow_of_zero(__INFIX__ *I_exp, const short int index)
+void merge_pow_of_zero(INFIX *I_exp, const short int index)
 {
     _infix_ token_num[1] = {1.0, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
+    INFIX replacement = {1, token_num};
 
     if (isfinite(I_exp->tokens[index - 1].num))
     {
@@ -1080,73 +1080,73 @@ void _increase_(int *token, char op)
 {
     switch (op)
     {
-    case SPECIFIER_OF_LN:
-    case SPECIFIER_OF_LG:
+    case SFUNCTION_LN:
+    case SFUNCTION_LG:
     case '%':
         (*token) += 1;
         return;
 
-    case SPECIFIER_OF_SIN:
-    case SPECIFIER_OF_SEC:
-    case SPECIFIER_OF_COS:
-    case SPECIFIER_OF_CSC:
-    case SPECIFIER_OF_TAN:
-    case SPECIFIER_OF_COT:
-    case SPECIFIER_OF_ABS:
-    case SPECIFIER_OF_DIF:
-    case SPECIFIER_OF_GCD:
-    case SPECIFIER_OF_LCM:
-    case SPECIFIER_OF_LOG:
+    case SFUNCTION_SIN:
+    case SFUNCTION_SEC:
+    case SFUNCTION_COS:
+    case SFUNCTION_CSC:
+    case SFUNCTION_TAN:
+    case SFUNCTION_COT:
+    case SFUNCTION_ABS:
+    case SFUNCTION_DIF:
+    case SFUNCTION_GCD:
+    case SFUNCTION_LCM:
+    case SFUNCTION_LOG:
         (*token) += 2;
         return;
 
-    case SPECIFIER_OF_SQRT:
-    case SPECIFIER_OF_CBRT:
-    case SPECIFIER_OF_CEIL:
-    case SPECIFIER_OF_SINH:
-    case SPECIFIER_OF_COSH:
-    case SPECIFIER_OF_TANH:
-    case SPECIFIER_OF_COTH:
-    case SPECIFIER_OF_SECH:
-    case SPECIFIER_OF_CSCH:
+    case SFUNCTION_SQRT:
+    case SFUNCTION_CBRT:
+    case SFUNCTION_CEIL:
+    case SFUNCTION_SINH:
+    case SFUNCTION_COSH:
+    case SFUNCTION_TANH:
+    case SFUNCTION_COTH:
+    case SFUNCTION_SECH:
+    case SFUNCTION_CSCH:
         (*token) += 3;
         return;
 
-    case SPECIFIER_OF_FLOOR:
-    case SPECIFIER_OF_GAMMA:
+    case SFUNCTION_FLOOR:
+    case SFUNCTION_GAMMA:
         (*token) += 4;
         return;
 
-    case SPECIFIER_OF_ARCSIN:
-    case SPECIFIER_OF_ARCCOS:
-    case SPECIFIER_OF_ARCTAN:
-    case SPECIFIER_OF_ARCCOT:
-    case SPECIFIER_OF_ARCSEC:
-    case SPECIFIER_OF_ARCCSC:
+    case SFUNCTION_ARCSIN:
+    case SFUNCTION_ARCCOS:
+    case SFUNCTION_ARCTAN:
+    case SFUNCTION_ARCCOT:
+    case SFUNCTION_ARCSEC:
+    case SFUNCTION_ARCCSC:
         (*token) += 5;
         return;
 
-    case SPECIFIER_OF_ARCSINH:
-    case SPECIFIER_OF_ARCCOSH:
-    case SPECIFIER_OF_ARCTANH:
-    case SPECIFIER_OF_ARCCOTH:
-    case SPECIFIER_OF_ARCSECH:
-    case SPECIFIER_OF_ARCCSCH:
+    case SFUNCTION_ARCSINH:
+    case SFUNCTION_ARCCOSH:
+    case SFUNCTION_ARCTANH:
+    case SFUNCTION_ARCCOTH:
+    case SFUNCTION_ARCSECH:
+    case SFUNCTION_ARCCSCH:
         (*token) += 6;
         return;
 
-    case SPECIFIER_OF_LAMBERTW:
-    case SPECIFIER_OF_INTEGRAL:
+    case SFUNCTION_LAMBERTW:
+    case SFUNCTION_INTEGRAL:
         (*token) += 7;
         return;
-    case SPECIFIER_OF_SIGMA_SUM:
+    case SFUNCTION_SIGMA_SUM:
         (*token) += 10;
         return;
-    case SPECIFIER_OF_PERMUTATIONS:
-    case SPECIFIER_OF_COMBINATIONS:
+    case SFUNCTION_PERMUTATIONS:
+    case SFUNCTION_COMBINATIONS:
         (*token) += 11;
         return;
-    case SPECIFIER_OF_PRODUCT_OF_SEQUENCE:
+    case SFUNCTION_PRODUCT_OF_SEQUENCE:
         (*token) += 14;
         return;
     default:
@@ -1186,248 +1186,248 @@ char ___operate_detector___(char *expression, unsigned short int *increase)
     if (!strncmp(expression, "sin(", 4))
     {
         (*increase) += 2; // 2 = 4 - 2
-        return SPECIFIER_OF_SIN;
+        return SFUNCTION_SIN;
     }
     // start editing here
     if (!strncmp(expression, "cos(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_COS;
+        return SFUNCTION_COS;
     }
     if (!strncmp(expression, "tan(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_TAN;
+        return SFUNCTION_TAN;
     }
     if (!strncmp(expression, "cot(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_COT;
+        return SFUNCTION_COT;
     }
     if (!strncmp(expression, "sec(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_SEC;
+        return SFUNCTION_SEC;
     }
     if (!strncmp(expression, "sech(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_SECH;
+        return SFUNCTION_SECH;
     }
     if (!strncmp(expression, "arcsec(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCSEC;
+        return SFUNCTION_ARCSEC;
     }
     if (!strncmp(expression, "arcsech(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCSECH;
+        return SFUNCTION_ARCSECH;
     }
     if (!strncmp(expression, "csc(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_CSC;
+        return SFUNCTION_CSC;
     }
     if (!strncmp(expression, "csch(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_CSCH;
+        return SFUNCTION_CSCH;
     }
     if (!strncmp(expression, "arccsc(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCCSC;
+        return SFUNCTION_ARCCSC;
     }
     if (!strncmp(expression, "arccsch(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCCSCH;
+        return SFUNCTION_ARCCSCH;
     }
     if (!strncmp(expression, "arcsin(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCSIN;
+        return SFUNCTION_ARCSIN;
     }
     if (!strncmp(expression, "arccos(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCCOS;
+        return SFUNCTION_ARCCOS;
     }
     if (!strncmp(expression, "arctan(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCTAN;
+        return SFUNCTION_ARCTAN;
     }
     if (!strncmp(expression, "arccot(", 7))
     {
         (*increase) += 5;
-        return SPECIFIER_OF_ARCCOT;
+        return SFUNCTION_ARCCOT;
     }
     if (!strncmp(expression, "sqrt(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_SQRT;
+        return SFUNCTION_SQRT;
     }
     if (!strncmp(expression, "√(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_SQRT;
+        return SFUNCTION_SQRT;
     }
     if (!strncmp(expression, "ln(", 3))
     {
         (*increase) += 1;
-        return SPECIFIER_OF_LN;
+        return SFUNCTION_LN;
     }
     if (!strncmp(expression, "abs(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_ABS;
+        return SFUNCTION_ABS;
     }
     if (!strncmp(expression, "cbrt(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_CBRT;
+        return SFUNCTION_CBRT;
     }
     if (!strncmp(expression, "∛(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_CBRT;
+        return SFUNCTION_CBRT;
     }
     if (!strncmp(expression, "gamma(", 6))
     {
         (*increase) += 4;
-        return SPECIFIER_OF_GAMMA;
+        return SFUNCTION_GAMMA;
     }
     if (!strncmp(expression, "Γ(", 3))
     {
         (*increase) += 1;
-        return SPECIFIER_OF_GAMMA;
+        return SFUNCTION_GAMMA;
     }
     if (!strncmp(expression, "ceil(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_CEIL;
+        return SFUNCTION_CEIL;
     }
     if (!strncmp(expression, "floor(", 6))
     {
         (*increase) += 4;
-        return SPECIFIER_OF_FLOOR;
+        return SFUNCTION_FLOOR;
     }
     if (!strncmp(expression, "lambertw(", 9))
     {
         (*increase) += 7;
-        return SPECIFIER_OF_LAMBERTW;
+        return SFUNCTION_LAMBERTW;
     }
     if (!strncmp(expression, "Ꮤ(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_LAMBERTW;
+        return SFUNCTION_LAMBERTW;
     }
     if (!strncmp(expression, "lg(", 3))
     {
         (*increase) += 1;
-        return SPECIFIER_OF_LG;
+        return SFUNCTION_LG;
     }
     if (!strncmp(expression, "log(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_LOG;
+        return SFUNCTION_LOG;
     }
     if (!strncmp(expression, "sinh(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_SINH;
+        return SFUNCTION_SINH;
     }
     if (!strncmp(expression, "arcsinh(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCSINH;
+        return SFUNCTION_ARCSINH;
     }
     if (!strncmp(expression, "cosh(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_COSH;
+        return SFUNCTION_COSH;
     }
     if (!strncmp(expression, "arccosh(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCCOSH;
+        return SFUNCTION_ARCCOSH;
     }
     if (!strncmp(expression, "tanh(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_TANH;
+        return SFUNCTION_TANH;
     }
     if (!strncmp(expression, "arctanh(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCTANH;
+        return SFUNCTION_ARCTANH;
     }
     if (!strncmp(expression, "coth(", 5))
     {
         (*increase) += 3;
-        return SPECIFIER_OF_COTH;
+        return SFUNCTION_COTH;
     }
     if (!strncmp(expression, "arccoth(", 8))
     {
         (*increase) += 6;
-        return SPECIFIER_OF_ARCCOTH;
+        return SFUNCTION_ARCCOTH;
     }
     if (!strncmp(expression, "dif(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_DIF;
+        return SFUNCTION_DIF;
     }
     if (!strncmp(expression, "integral(", 9))
     {
         (*increase) += 7;
-        return SPECIFIER_OF_INTEGRAL;
+        return SFUNCTION_INTEGRAL;
     }
     if (!strncmp(expression, "∫(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_INTEGRAL;
+        return SFUNCTION_INTEGRAL;
     }
     if (!strncmp(expression, "sumsequence(", 12))
     {
         (*increase) += 10;
-        return SPECIFIER_OF_SIGMA_SUM;
+        return SFUNCTION_SIGMA_SUM;
     }
     if (!strncmp(expression, "∑(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_SIGMA_SUM;
+        return SFUNCTION_SIGMA_SUM;
     }
     if (!strncmp(expression, "productsequence(", 16))
     {
         (*increase) += 14;
-        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
+        return SFUNCTION_PRODUCT_OF_SEQUENCE;
     }
     if (!strncmp(expression, "Π(", 3))
     {
         (*increase) += 1;
-        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
+        return SFUNCTION_PRODUCT_OF_SEQUENCE;
     }
     if (!strncmp(expression, "permutations(", 13))
     {
         (*increase) += 11;
-        return SPECIFIER_OF_PERMUTATIONS;
+        return SFUNCTION_PERMUTATIONS;
     }
     if (!strncmp(expression, "combinations(", 13))
     {
         (*increase) += 11;
-        return SPECIFIER_OF_COMBINATIONS;
+        return SFUNCTION_COMBINATIONS;
     }
     if (!strncmp(expression, "GCD(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_GCD;
+        return SFUNCTION_GCD;
     }
     if (!strncmp(expression, "LCM(", 4))
     {
         (*increase) += 2;
-        return SPECIFIER_OF_LCM;
+        return SFUNCTION_LCM;
     }
 
     return '\0';
@@ -1459,93 +1459,93 @@ char __operator__(char *expression, int token)
     if (expression[token] == '=')
         return '=';
     if (!strncmp(expression + token, "sin(", 4))
-        return SPECIFIER_OF_SIN;
+        return SFUNCTION_SIN;
     if (!strncmp(expression + token, "cos(", 4))
-        return SPECIFIER_OF_COS;
+        return SFUNCTION_COS;
     if (!strncmp(expression + token, "tan(", 4))
-        return SPECIFIER_OF_TAN;
+        return SFUNCTION_TAN;
     if (!strncmp(expression + token, "cot(", 4))
-        return SPECIFIER_OF_COT;
+        return SFUNCTION_COT;
     if (!strncmp(expression + token, "sec(", 4))
-        return SPECIFIER_OF_SEC;
+        return SFUNCTION_SEC;
     if (!strncmp(expression + token, "sech(", 5))
-        return SPECIFIER_OF_SECH;
+        return SFUNCTION_SECH;
     if (!strncmp(expression + token, "arcsec(", 7))
-        return SPECIFIER_OF_ARCSEC;
+        return SFUNCTION_ARCSEC;
     if (!strncmp(expression + token, "arcsech(", 8))
-        return SPECIFIER_OF_ARCSECH;
+        return SFUNCTION_ARCSECH;
     if (!strncmp(expression + token, "csc(", 4))
-        return SPECIFIER_OF_CSC;
+        return SFUNCTION_CSC;
     if (!strncmp(expression + token, "csch(", 5))
-        return SPECIFIER_OF_CSCH;
+        return SFUNCTION_CSCH;
     if (!strncmp(expression + token, "arccsc(", 7))
-        return SPECIFIER_OF_ARCCSC;
+        return SFUNCTION_ARCCSC;
     if (!strncmp(expression + token, "arccsch(", 8))
-        return SPECIFIER_OF_ARCCSCH;
+        return SFUNCTION_ARCCSCH;
     if (!strncmp(expression + token, "arcsin(", 7))
-        return SPECIFIER_OF_ARCSIN;
+        return SFUNCTION_ARCSIN;
     if (!strncmp(expression + token, "arccos(", 7))
-        return SPECIFIER_OF_ARCCOS;
+        return SFUNCTION_ARCCOS;
     if (!strncmp(expression + token, "arctan(", 7))
-        return SPECIFIER_OF_ARCTAN;
+        return SFUNCTION_ARCTAN;
     if (!strncmp(expression + token, "arccot(", 7))
-        return SPECIFIER_OF_ARCCOT;
+        return SFUNCTION_ARCCOT;
     if (!strncmp(expression + token, "sqrt(", 5))
-        return SPECIFIER_OF_SQRT;
+        return SFUNCTION_SQRT;
     if (!strncmp(expression + token, "ln(", 3))
-        return SPECIFIER_OF_LN;
+        return SFUNCTION_LN;
     if (!strncmp(expression + token, "abs(", 4))
-        return SPECIFIER_OF_ABS;
+        return SFUNCTION_ABS;
     if (!strncmp(expression + token, "cbrt(", 5))
-        return SPECIFIER_OF_CBRT;
+        return SFUNCTION_CBRT;
     if (!strncmp(expression + token, "gamma(", 6))
-        return SPECIFIER_OF_GAMMA;
+        return SFUNCTION_GAMMA;
     if (!strncmp(expression + token, "ceil(", 5))
-        return SPECIFIER_OF_CEIL;
+        return SFUNCTION_CEIL;
     if (!strncmp(expression + token, "floor(", 6))
-        return SPECIFIER_OF_FLOOR;
+        return SFUNCTION_FLOOR;
     if (!strncmp(expression + token, "lambertw(", 9))
-        return SPECIFIER_OF_LAMBERTW;
+        return SFUNCTION_LAMBERTW;
     if (!strncmp(expression + token, "lg(", 3))
-        return SPECIFIER_OF_LG;
+        return SFUNCTION_LG;
     if (!strncmp(expression + token, "log(", 4))
-        return SPECIFIER_OF_LOG;
+        return SFUNCTION_LOG;
     if (!strncmp(expression + token, "sinh(", 5))
-        return SPECIFIER_OF_SINH;
+        return SFUNCTION_SINH;
     if (!strncmp(expression + token, "arcsinh(", 8))
-        return SPECIFIER_OF_ARCSINH;
+        return SFUNCTION_ARCSINH;
     if (!strncmp(expression + token, "cosh(", 5))
-        return SPECIFIER_OF_COSH;
+        return SFUNCTION_COSH;
     if (!strncmp(expression + token, "arccosh(", 8))
-        return SPECIFIER_OF_ARCCOSH;
+        return SFUNCTION_ARCCOSH;
     if (!strncmp(expression + token, "tanh(", 5))
-        return SPECIFIER_OF_TANH;
+        return SFUNCTION_TANH;
     if (!strncmp(expression + token, "arctanh(", 8))
-        return SPECIFIER_OF_ARCTANH;
+        return SFUNCTION_ARCTANH;
     if (!strncmp(expression + token, "coth(", 5))
-        return SPECIFIER_OF_COTH;
+        return SFUNCTION_COTH;
     if (!strncmp(expression + token, "arccoth(", 8))
-        return SPECIFIER_OF_ARCCOTH;
+        return SFUNCTION_ARCCOTH;
     if (!strncmp(expression + token, "dif(", 4))
-        return SPECIFIER_OF_DIF;
+        return SFUNCTION_DIF;
     if (!strncmp(expression + token, "integral(", 9))
-        return SPECIFIER_OF_INTEGRAL;
+        return SFUNCTION_INTEGRAL;
     if (!strncmp(expression + token, "sumsequence(", 12))
-        return SPECIFIER_OF_SIGMA_SUM;
+        return SFUNCTION_SIGMA_SUM;
     if (!strncmp(expression + token, "productsequence(", 16))
-        return SPECIFIER_OF_PRODUCT_OF_SEQUENCE;
+        return SFUNCTION_PRODUCT_OF_SEQUENCE;
     if (!strncmp(expression + token, "permutations(", 13))
-        return SPECIFIER_OF_PERMUTATIONS;
+        return SFUNCTION_PERMUTATIONS;
     if (!strncmp(expression + token, "combinations(", 13))
-        return SPECIFIER_OF_COMBINATIONS;
+        return SFUNCTION_COMBINATIONS;
     if (!strncmp(expression + token, "GCD(", 4))
-        return SPECIFIER_OF_GCD;
+        return SFUNCTION_GCD;
     if (!strncmp(expression + token, "LCM(", 4))
-        return SPECIFIER_OF_LCM;
+        return SFUNCTION_LCM;
     return '\0';
 }
 
-void optimize_I_exp(__INFIX__ *I_exp)
+void optimize_I_exp(INFIX *I_exp)
 {
     if (I_exp->size < 2 || I_exp->tokens == NULL)
         return;
@@ -1555,7 +1555,7 @@ void optimize_I_exp(__INFIX__ *I_exp)
     // display_infix_exp(*I_exp);
 
     _infix_ token_num[1] = {NAN, '\0', '\0'};
-    __INFIX__ replacement = {1, token_num};
+    INFIX replacement = {1, token_num};
     char OP_;
     double num_;
     bool standard_op;
@@ -1583,14 +1583,14 @@ void optimize_I_exp(__INFIX__ *I_exp)
         {
             // For OP
             if (OP_ != '\0' &&
-                OP_ != SPECIFIER_OF_INTEGRAL &&
-                OP_ != SPECIFIER_OF_DIF &&
-                OP_ != SPECIFIER_OF_SIGMA_SUM &&
-                OP_ != SPECIFIER_OF_PRODUCT_OF_SEQUENCE &&
-                OP_ != SPECIFIER_OF_PERMUTATIONS &&
-                OP_ != SPECIFIER_OF_COMBINATIONS &&
-                OP_ != SPECIFIER_OF_GCD &&
-                OP_ != SPECIFIER_OF_LCM &&
+                OP_ != SFUNCTION_INTEGRAL &&
+                OP_ != SFUNCTION_DIF &&
+                OP_ != SFUNCTION_SIGMA_SUM &&
+                OP_ != SFUNCTION_PRODUCT_OF_SEQUENCE &&
+                OP_ != SFUNCTION_PERMUTATIONS &&
+                OP_ != SFUNCTION_COMBINATIONS &&
+                OP_ != SFUNCTION_GCD &&
+                OP_ != SFUNCTION_LCM &&
                 OP_ != ',' &&
                 OP_ != '=')
             {
@@ -1682,49 +1682,49 @@ void optimize_I_exp(__INFIX__ *I_exp)
 
                     switch (OP_)
                     {
-                    case SPECIFIER_OF_SIN:
+                    case SFUNCTION_SIN:
                         replacement_num = sin(num_);
                         break;
-                    case SPECIFIER_OF_SINH:
+                    case SFUNCTION_SINH:
                         replacement_num = sinh(num_);
                         break;
-                    case SPECIFIER_OF_ARCSIN:
+                    case SFUNCTION_ARCSIN:
                         replacement_num = asin(num_);
                         break;
-                    case SPECIFIER_OF_ARCSINH:
+                    case SFUNCTION_ARCSINH:
                         replacement_num = asinh(num_);
                         break;
-                    case SPECIFIER_OF_COS:
+                    case SFUNCTION_COS:
                         replacement_num = cos(num_);
                         break;
-                    case SPECIFIER_OF_COSH:
+                    case SFUNCTION_COSH:
                         replacement_num = cosh(num_);
                         break;
-                    case SPECIFIER_OF_ARCCOS:
+                    case SFUNCTION_ARCCOS:
                         replacement_num = acos(num_);
                         break;
-                    case SPECIFIER_OF_ARCCOSH:
+                    case SFUNCTION_ARCCOSH:
                         replacement_num = acosh(num_);
                         break;
-                    case SPECIFIER_OF_TAN:
+                    case SFUNCTION_TAN:
                         replacement_num = tan(num_);
                         break;
-                    case SPECIFIER_OF_TANH:
+                    case SFUNCTION_TANH:
                         replacement_num = tanh(num_);
                         break;
-                    case SPECIFIER_OF_ARCTAN:
+                    case SFUNCTION_ARCTAN:
                         replacement_num = atan(num_);
                         break;
-                    case SPECIFIER_OF_ARCTANH:
+                    case SFUNCTION_ARCTANH:
                         replacement_num = atanh(num_);
                         break;
-                    case SPECIFIER_OF_COT:
+                    case SFUNCTION_COT:
                         replacement_num = 1.0 / tan(num_);
                         break;
-                    case SPECIFIER_OF_COTH:
+                    case SFUNCTION_COTH:
                         replacement_num = 1.0 / tanh(num_);
                         break;
-                    case SPECIFIER_OF_ARCCOT:
+                    case SFUNCTION_ARCCOT:
                     {
                         if (I_exp->tokens[i + 1].num > 0.0)
                             replacement_num = atan(1.0 / num_);
@@ -1732,74 +1732,74 @@ void optimize_I_exp(__INFIX__ *I_exp)
                             replacement_num = atan(1.0 / num_) + PI;
                         break;
                     }
-                    case SPECIFIER_OF_ARCCOTH:
+                    case SFUNCTION_ARCCOTH:
                         replacement_num = arccoth(num_);
                         break;
-                    case SPECIFIER_OF_SEC:
+                    case SFUNCTION_SEC:
                         replacement_num = 1.0 / cos(num_);
                         break;
-                    case SPECIFIER_OF_SECH:
+                    case SFUNCTION_SECH:
                         replacement_num = 1.0 / cosh(num_);
                         break;
-                    case SPECIFIER_OF_ARCSEC:
+                    case SFUNCTION_ARCSEC:
                         replacement_num = acos(1.0 / num_);
                         break;
-                    case SPECIFIER_OF_ARCSECH:
+                    case SFUNCTION_ARCSECH:
                         replacement_num = acosh(1.0 / num_);
                         break;
-                    case SPECIFIER_OF_CSC:
+                    case SFUNCTION_CSC:
                         replacement_num = 1.0 / sin(num_);
                         break;
-                    case SPECIFIER_OF_CSCH:
+                    case SFUNCTION_CSCH:
                         replacement_num = 1.0 / sinh(num_);
                         break;
-                    case SPECIFIER_OF_ARCCSC:
+                    case SFUNCTION_ARCCSC:
                         replacement_num = asin(1.0 / num_);
                         break;
-                    case SPECIFIER_OF_ARCCSCH:
+                    case SFUNCTION_ARCCSCH:
                         replacement_num = asinh(1.0 / num_);
                         break;
-                    case SPECIFIER_OF_SQRT:
+                    case SFUNCTION_SQRT:
                     {
                         if (num_ < 0.0)
                             return;
                         replacement_num = sqrt(num_);
                         break;
                     }
-                    case SPECIFIER_OF_CBRT:
+                    case SFUNCTION_CBRT:
                         replacement_num = cbrt(num_);
                         break;
-                    case SPECIFIER_OF_ABS:
+                    case SFUNCTION_ABS:
                         replacement_num = fabs(num_);
                         break;
-                    case SPECIFIER_OF_LN:
+                    case SFUNCTION_LN:
                     {
                         if (num_ <= 0.0)
                             return;
                         replacement_num = log(num_);
                         break;
                     }
-                    case SPECIFIER_OF_LG:
+                    case SFUNCTION_LG:
                     {
                         if (num_ <= 0.0)
                             return;
                         replacement_num = log10(num_);
                         break;
                     }
-                    case SPECIFIER_OF_GAMMA:
+                    case SFUNCTION_GAMMA:
                     {
                         if (num_ < 0.0)
                             return;
                         replacement_num = tgamma(num_);
                         break;
                     }
-                    case SPECIFIER_OF_CEIL:
+                    case SFUNCTION_CEIL:
                         replacement_num = ceil(num_);
                         break;
-                    case SPECIFIER_OF_FLOOR:
+                    case SFUNCTION_FLOOR:
                         replacement_num = floor(num_);
                         break;
-                    case SPECIFIER_OF_LAMBERTW:
+                    case SFUNCTION_LAMBERTW:
                     {
                         if (num_ < -1.0 / EULER_NUMBER)
                             return;
@@ -1848,7 +1848,7 @@ void optimize_I_exp(__INFIX__ *I_exp)
     // display_infix_exp(*I_exp);
 }
 
-void optimize_P_exp(_POSTFIX__ *P_exp)
+void optimize_P_exp(POSTFIX *P_exp)
 {
     if (P_exp->size < 2 || P_exp->tokens == NULL)
         return;
@@ -1914,7 +1914,7 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
         }
 
         // 1-parameter functions
-        else if (OP_ != SPECIFIER_OF_DIF && OP_ != SPECIFIER_OF_INTEGRAL &&
+        else if (OP_ != SFUNCTION_DIF && OP_ != SFUNCTION_INTEGRAL &&
                  OP_ != '-' &&
                  OP_ != '+' &&
                  OP_ != '*' &&
@@ -1926,52 +1926,52 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
 
             switch (OP_)
             {
-            case SPECIFIER_OF_SIN: // sin
+            case SFUNCTION_SIN: // sin
                 P_exp->tokens[i - 1].num = sin(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SINH: // sinh
+            case SFUNCTION_SINH: // sinh
                 P_exp->tokens[i - 1].num = sinh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SEC: // sec
+            case SFUNCTION_SEC: // sec
                 P_exp->tokens[i - 1].num = 1 / cos(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SECH: // sech
+            case SFUNCTION_SECH: // sech
                 P_exp->tokens[i - 1].num = 1 / cosh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSEC: // arcsec
+            case SFUNCTION_ARCSEC: // arcsec
                 P_exp->tokens[i - 1].num = arcsec(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSECH: // arcsech
+            case SFUNCTION_ARCSECH: // arcsech
                 P_exp->tokens[i - 1].num = arcsech(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COS: // cos
+            case SFUNCTION_COS: // cos
                 P_exp->tokens[i - 1].num = cos(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COSH: // cosh
+            case SFUNCTION_COSH: // cosh
                 P_exp->tokens[i - 1].num = cosh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSC: // csc
+            case SFUNCTION_CSC: // csc
                 P_exp->tokens[i - 1].num = 1 / sin(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSCH: // csch
+            case SFUNCTION_CSCH: // csch
                 P_exp->tokens[i - 1].num = csch(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSC: // arccsc
+            case SFUNCTION_ARCCSC: // arccsc
                 P_exp->tokens[i - 1].num = arccsc(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSCH: // arccsch
+            case SFUNCTION_ARCCSCH: // arccsch
                 P_exp->tokens[i - 1].num = arccsch(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TAN: // tan
+            case SFUNCTION_TAN: // tan
                 P_exp->tokens[i - 1].num = tan(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TANH: // tanh
+            case SFUNCTION_TANH: // tanh
                 P_exp->tokens[i - 1].num = tanh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COT: // cot
+            case SFUNCTION_COT: // cot
                 P_exp->tokens[i - 1].num = 1 / tan(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COTH: // coth
+            case SFUNCTION_COTH: // coth
                 P_exp->tokens[i - 1].num = coth(P_exp->tokens[i - 1].num);
                 break;
             case '!': // factorial
@@ -1986,25 +1986,25 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
                 P_exp->tokens[i - 1].num = (double)fac;
                 break;
             }
-            case SPECIFIER_OF_ARCSIN: // arcsin
+            case SFUNCTION_ARCSIN: // arcsin
                 P_exp->tokens[i - 1].num = asin(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSINH: // arcsinh
+            case SFUNCTION_ARCSINH: // arcsinh
                 P_exp->tokens[i - 1].num = asinh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOS: // arccos
+            case SFUNCTION_ARCCOS: // arccos
                 P_exp->tokens[i - 1].num = acos(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOSH: // arccosh
+            case SFUNCTION_ARCCOSH: // arccosh
                 P_exp->tokens[i - 1].num = acosh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTAN: // arctan
+            case SFUNCTION_ARCTAN: // arctan
                 P_exp->tokens[i - 1].num = atan(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTANH: // arctanh
+            case SFUNCTION_ARCTANH: // arctanh
                 P_exp->tokens[i - 1].num = atanh(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOT: // arccot
+            case SFUNCTION_ARCCOT: // arccot
             {
                 if (P_exp->tokens[i - 1].num > 0)
                     P_exp->tokens[i - 1].num = atan(1 / (P_exp->tokens[i - 1].num));
@@ -2012,53 +2012,53 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
                     P_exp->tokens[i - 1].num = atan(1 / (P_exp->tokens[i - 1].num)) + PI;
                 break;
             }
-            case SPECIFIER_OF_ARCCOTH: // arccoth
+            case SFUNCTION_ARCCOTH: // arccoth
                 P_exp->tokens[i - 1].num = arccoth(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LN: // ln
+            case SFUNCTION_LN: // ln
             {
                 if (P_exp->tokens[i - 1].num <= 0)
                     return;
                 P_exp->tokens[i - 1].num = log(P_exp->tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_LG: // log10
+            case SFUNCTION_LG: // log10
             {
                 if (P_exp->tokens[i - 1].num <= 0)
                     return;
                 P_exp->tokens[i - 1].num = log10(P_exp->tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_SQRT: // sqrt
+            case SFUNCTION_SQRT: // sqrt
             {
                 if (P_exp->tokens[i - 1].num < 0)
                     return;
                 P_exp->tokens[i - 1].num = sqrt(P_exp->tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_ABS: // abs
+            case SFUNCTION_ABS: // abs
             {
                 if (P_exp->tokens[i - 1].num < 0)
                     P_exp->tokens[i - 1].num = -P_exp->tokens[i - 1].num;
                 break;
             }
-            case SPECIFIER_OF_CBRT: // cuberoot
+            case SFUNCTION_CBRT: // cuberoot
                 P_exp->tokens[i - 1].num = cbrt(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_GAMMA: // gamma function
+            case SFUNCTION_GAMMA: // gamma function
             {
                 if (P_exp->tokens[i - 1].num < 0)
                     return;
                 P_exp->tokens[i - 1].num = gamma_function(P_exp->tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_CEIL: // ceiling function
+            case SFUNCTION_CEIL: // ceiling function
                 P_exp->tokens[i - 1].num = ceil(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_FLOOR: // floor function
+            case SFUNCTION_FLOOR: // floor function
                 P_exp->tokens[i - 1].num = floor(P_exp->tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LAMBERTW: // lambert W function
+            case SFUNCTION_LAMBERTW: // lambert W function
             {
                 if (P_exp->tokens[i - 1].num < -1 / EULER_NUMBER)
                     return;
@@ -2119,10 +2119,10 @@ void optimize_P_exp(_POSTFIX__ *P_exp)
     }
 }
 
-__INFIX__ convert_string_to_INFIX(char *expression)
+INFIX convert_string_to_INFIX(char *expression)
 {
-    __INFIX__ I_raw = laf_Lexer(expression);
-    __INFIX__ I_exp = laf_handle_errors_in_exp(I_raw);
+    INFIX I_raw = laf_Lexer(expression);
+    INFIX I_exp = laf_handle_errors_in_exp(I_raw);
     if (I_raw.tokens != NULL)
         free(I_raw.tokens);
     return I_exp;
@@ -2133,9 +2133,9 @@ __INFIX__ convert_string_to_INFIX(char *expression)
 2/ add to __operator__
 3/ add to _increase_
  */
-__INFIX__ laf_Lexer_old(char *expression)
+INFIX laf_Lexer_old(char *expression)
 {
-    __INFIX__ specified_exp;
+    INFIX specified_exp;
     specified_exp.size = 0;
     specified_exp.tokens = NULL;
 
@@ -2664,7 +2664,7 @@ __INFIX__ laf_Lexer_old(char *expression)
  */
 // NOTE:
 // This function does not reduce OR optimze the expression for faster computation. It just makes the expression look better
-void reformat_I_exp(__INFIX__ *I_exp)
+void reformat_I_exp(INFIX *I_exp)
 {
     if (I_exp->size < 2 || I_exp->tokens == NULL)
         return;

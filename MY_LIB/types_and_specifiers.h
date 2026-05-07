@@ -16,49 +16,49 @@
 #define _MAX_INT_VALUE_ 2147483647
 // Function specifiers
 // --- 1-parameter function --- //
-#define SPECIFIER_OF_SIN 's'
-#define SPECIFIER_OF_SINH 'n'
-#define SPECIFIER_OF_ARCSIN 'Q'
-#define SPECIFIER_OF_ARCSINH 'N'
-#define SPECIFIER_OF_COS '<'
-#define SPECIFIER_OF_COSH 'm'
-#define SPECIFIER_OF_ARCCOS 'W'
-#define SPECIFIER_OF_ARCCOSH 'M'
-#define SPECIFIER_OF_TAN 't'
-#define SPECIFIER_OF_TANH 'p'
-#define SPECIFIER_OF_ARCTAN 'U'
-#define SPECIFIER_OF_ARCTANH 'P'
-#define SPECIFIER_OF_COT 'T'
-#define SPECIFIER_OF_COTH 'j'
-#define SPECIFIER_OF_ARCCOT 'O'
-#define SPECIFIER_OF_ARCCOTH 'J'
-#define SPECIFIER_OF_SEC 'S'
-#define SPECIFIER_OF_SECH 'g'
-#define SPECIFIER_OF_ARCSEC 'a'
-#define SPECIFIER_OF_ARCSECH 'A'
-#define SPECIFIER_OF_CSC '>'
-#define SPECIFIER_OF_CSCH 'v'
-#define SPECIFIER_OF_ARCCSC 'b'
-#define SPECIFIER_OF_ARCCSCH 'B'
-#define SPECIFIER_OF_SQRT 'r'
-#define SPECIFIER_OF_CBRT 'R'
-#define SPECIFIER_OF_ABS 'V'
-#define SPECIFIER_OF_LN 'L'
-#define SPECIFIER_OF_LG 'l'
-#define SPECIFIER_OF_GAMMA 'G'
-#define SPECIFIER_OF_CEIL 'C'
-#define SPECIFIER_OF_FLOOR 'F'
-#define SPECIFIER_OF_LAMBERTW 'w'
+#define SFUNCTION_SIN 's'
+#define SFUNCTION_SINH 'n'
+#define SFUNCTION_ARCSIN 'Q'
+#define SFUNCTION_ARCSINH 'N'
+#define SFUNCTION_COS '<'
+#define SFUNCTION_COSH 'm'
+#define SFUNCTION_ARCCOS 'W'
+#define SFUNCTION_ARCCOSH 'M'
+#define SFUNCTION_TAN 't'
+#define SFUNCTION_TANH 'p'
+#define SFUNCTION_ARCTAN 'U'
+#define SFUNCTION_ARCTANH 'P'
+#define SFUNCTION_COT 'T'
+#define SFUNCTION_COTH 'j'
+#define SFUNCTION_ARCCOT 'O'
+#define SFUNCTION_ARCCOTH 'J'
+#define SFUNCTION_SEC 'S'
+#define SFUNCTION_SECH 'g'
+#define SFUNCTION_ARCSEC 'a'
+#define SFUNCTION_ARCSECH 'A'
+#define SFUNCTION_CSC '>'
+#define SFUNCTION_CSCH 'v'
+#define SFUNCTION_ARCCSC 'b'
+#define SFUNCTION_ARCCSCH 'B'
+#define SFUNCTION_SQRT 'r'
+#define SFUNCTION_CBRT 'R'
+#define SFUNCTION_ABS 'V'
+#define SFUNCTION_LN 'L'
+#define SFUNCTION_LG 'l'
+#define SFUNCTION_GAMMA 'G'
+#define SFUNCTION_CEIL 'C'
+#define SFUNCTION_FLOOR 'F'
+#define SFUNCTION_LAMBERTW 'w'
 // --- many-parameters functions --- //
-#define SPECIFIER_OF_DIF 'd' // derivative
-#define SPECIFIER_OF_INTEGRAL 'I'
-#define SPECIFIER_OF_SIGMA_SUM 'k'
-#define SPECIFIER_OF_PRODUCT_OF_SEQUENCE 'K'
-#define SPECIFIER_OF_PERMUTATIONS 'z' // probalbilstic
-#define SPECIFIER_OF_COMBINATIONS 'Z' // probalbilstic
-#define SPECIFIER_OF_GCD 'y'          // Greatest Common Divisor
-#define SPECIFIER_OF_LCM 'Y'          // Least Common Multiplier
-#define SPECIFIER_OF_LOG 'x'          // Logarithm
+#define SFUNCTION_DIF 'd' // derivative
+#define SFUNCTION_INTEGRAL 'I'
+#define SFUNCTION_SIGMA_SUM 'k'
+#define SFUNCTION_PRODUCT_OF_SEQUENCE 'K'
+#define SFUNCTION_PERMUTATIONS 'z' // probalbilstic
+#define SFUNCTION_COMBINATIONS 'Z' // probalbilstic
+#define SFUNCTION_GCD 'y'          // Greatest Common Divisor
+#define SFUNCTION_LCM 'Y'          // Least Common Multiplier
+#define SFUNCTION_LOG 'x'          // Logarithm
 
 typedef struct
 {
@@ -77,7 +77,7 @@ typedef struct P_tokens_array
 {
     _TOKENS_DATA_ *tokens;
     int size;
-} _POSTFIX__;
+} POSTFIX;
 
 typedef struct tokens_data
 {
@@ -90,7 +90,7 @@ typedef struct tokens_array
 {
     int size;
     _infix_ *tokens;
-} __INFIX__;
+} INFIX;
 
 /*
 Γ∛√Ꮤ∫∑Π∞π

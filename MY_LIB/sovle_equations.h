@@ -60,36 +60,36 @@ double **se_malloc_coefficients_of_system_equation(const unsigned short int num_
 
 void se_free_coefficients_of_system_equation(double ***coefficients, const unsigned short int num_of_variable);
 
-void se_subsitude_var(_POSTFIX__ *P_equation, const char var, const double value);
+void se_subsitude_var(POSTFIX *P_equation, const char var, const double value);
 
-double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const double value);
+double se_eval_P_expression(const POSTFIX P_expression, const char var, const double value);
 
-double se_find_root_regula_falsi(const _POSTFIX__ P_equation, const char var, const double init_a, const double init_b, const double init_fa, const double init_fb);
+double se_find_root_regula_falsi(const POSTFIX P_equation, const char var, const double init_a, const double init_b, const double init_fa, const double init_fb);
 
-double se_find_root_newton(const __INFIX__ I_equation, const char var, const double x0);
+double se_find_root_newton(const INFIX I_equation, const char var, const double x0);
 
-void se_verify_roots(const _POSTFIX__ P_equation, const char var, double **roots, unsigned short int *num_of_root);
+void se_verify_roots(const POSTFIX P_equation, const char var, double **roots, unsigned short int *num_of_root);
 
-short int se_solve_equation(const __INFIX__ equation, const char var, double lower_bound, double upper_bound, double **roots);
+short int se_solve_equation(const INFIX equation, const char var, double lower_bound, double upper_bound, double **roots);
 
 void se_display_root_array(const double *, const char var, const unsigned short int);
 
-__INFIX__ *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol);
+INFIX *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol);
 
-void se_free_F_x_for_systemof_nonlinear_equation(__INFIX__ **F_x, const unsigned short int num_of_sol);
+void se_free_F_x_for_systemof_nonlinear_equation(INFIX **F_x, const unsigned short int num_of_sol);
 
-double se_eval_P_function(const _POSTFIX__ P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set);
+double se_eval_P_function(const POSTFIX P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set);
 
 static void se_cleanup_nonlinear_resources(
     double **F_x_k,
-    _POSTFIX__ **P_F_x,
-    __INFIX__ ***J_x,
-    _POSTFIX__ ***P_J_x,
+    POSTFIX **P_F_x,
+    INFIX ***J_x,
+    POSTFIX ***P_J_x,
     double ***J_x_k,
     const unsigned short int num_of_sol);
 
 short int se_solve_system_of_nonlinear_equation(
-    const __INFIX__ *F_x,
+    const INFIX *F_x,
     const char *var_set,
     const unsigned short int num_of_sol,
     double **solutions,
@@ -778,7 +778,7 @@ double *se_solve_system_equation(int num_of_sol, double **coefficients)
     return solutions;
 }
 
-void se_subsitude_var(_POSTFIX__ *P_equation, const char var, const double value)
+void se_subsitude_var(POSTFIX *P_equation, const char var, const double value)
 {
     for (short int i = 0; i < P_equation->size; i++)
     {
@@ -790,10 +790,10 @@ void se_subsitude_var(_POSTFIX__ *P_equation, const char var, const double value
     }
 }
 
-double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const double value)
+double se_eval_P_expression(const POSTFIX P_expression, const char var, const double value)
 {
     // Make a copy of P_expression
-    _POSTFIX__ cloned_exp = copy_postfix_expression(P_expression);
+    POSTFIX cloned_exp = copy_postfix_expression(P_expression);
     se_subsitude_var(&cloned_exp, var, value);
 
     while (cloned_exp.size > 1)
@@ -841,52 +841,52 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
             case '^': // exponential
                 cloned_exp.tokens[i - 2].num = pow(cloned_exp.tokens[i - 2].num, cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SIN: // sin
+            case SFUNCTION_SIN: // sin
                 cloned_exp.tokens[i - 1].num = sin(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SINH: // sinh
+            case SFUNCTION_SINH: // sinh
                 cloned_exp.tokens[i - 1].num = sinh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SEC: // sec
+            case SFUNCTION_SEC: // sec
                 cloned_exp.tokens[i - 1].num = 1 / cos(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_SECH: // sech
+            case SFUNCTION_SECH: // sech
                 cloned_exp.tokens[i - 1].num = 1 / cosh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSEC: // arcsec
+            case SFUNCTION_ARCSEC: // arcsec
                 cloned_exp.tokens[i - 1].num = arcsec(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSECH: // arcsech
+            case SFUNCTION_ARCSECH: // arcsech
                 cloned_exp.tokens[i - 1].num = arcsech(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COS: // cos
+            case SFUNCTION_COS: // cos
                 cloned_exp.tokens[i - 1].num = cos(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COSH: // cosh
+            case SFUNCTION_COSH: // cosh
                 cloned_exp.tokens[i - 1].num = cosh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSC: // csc
+            case SFUNCTION_CSC: // csc
                 cloned_exp.tokens[i - 1].num = 1 / sin(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_CSCH: // csch
+            case SFUNCTION_CSCH: // csch
                 cloned_exp.tokens[i - 1].num = csch(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSC: // arccsc
+            case SFUNCTION_ARCCSC: // arccsc
                 cloned_exp.tokens[i - 1].num = arccsc(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCSCH: // arccsch
+            case SFUNCTION_ARCCSCH: // arccsch
                 cloned_exp.tokens[i - 1].num = arccsch(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TAN: // tan
+            case SFUNCTION_TAN: // tan
                 cloned_exp.tokens[i - 1].num = tan(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_TANH: // tanh
+            case SFUNCTION_TANH: // tanh
                 cloned_exp.tokens[i - 1].num = tanh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COT: // cot
+            case SFUNCTION_COT: // cot
                 cloned_exp.tokens[i - 1].num = 1 / tan(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_COTH: // coth
+            case SFUNCTION_COTH: // coth
                 cloned_exp.tokens[i - 1].num = coth(cloned_exp.tokens[i - 1].num);
                 break;
             case '!': // factorial
@@ -907,25 +907,25 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                     cloned_exp.tokens[i - 1].num = (double)fac;
                 break;
             }
-            case SPECIFIER_OF_ARCSIN: // arcsin
+            case SFUNCTION_ARCSIN: // arcsin
                 cloned_exp.tokens[i - 1].num = asin(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCSINH: // arcsinh
+            case SFUNCTION_ARCSINH: // arcsinh
                 cloned_exp.tokens[i - 1].num = asinh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOS: // arccos
+            case SFUNCTION_ARCCOS: // arccos
                 cloned_exp.tokens[i - 1].num = acos(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOSH: // arccosh
+            case SFUNCTION_ARCCOSH: // arccosh
                 cloned_exp.tokens[i - 1].num = acosh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTAN: // arctan
+            case SFUNCTION_ARCTAN: // arctan
                 cloned_exp.tokens[i - 1].num = atan(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCTANH: // arctanh
+            case SFUNCTION_ARCTANH: // arctanh
                 cloned_exp.tokens[i - 1].num = atanh(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_ARCCOT: // arccot
+            case SFUNCTION_ARCCOT: // arccot
             {
                 if (cloned_exp.tokens[i - 1].num > 0.0)
                     cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num));
@@ -933,10 +933,10 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                     cloned_exp.tokens[i - 1].num = atan(1.0 / (cloned_exp.tokens[i - 1].num)) + PI;
                 break;
             }
-            case SPECIFIER_OF_ARCCOTH: // arccoth
+            case SFUNCTION_ARCCOTH: // arccoth
                 cloned_exp.tokens[i - 1].num = arccoth(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LN: // ln
+            case SFUNCTION_LN: // ln
             {
                 if (cloned_exp.tokens[i - 1].num <= 0.0)
                 {
@@ -946,7 +946,7 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                 cloned_exp.tokens[i - 1].num = log(cloned_exp.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_LG: // log10
+            case SFUNCTION_LG: // log10
             {
                 if (cloned_exp.tokens[i - 1].num <= 0.0)
                 {
@@ -956,7 +956,7 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                 cloned_exp.tokens[i - 1].num = log10(cloned_exp.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_SQRT: // sqrt
+            case SFUNCTION_SQRT: // sqrt
             {
                 if (cloned_exp.tokens[i - 1].num < 0.0)
                 {
@@ -966,16 +966,16 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                 cloned_exp.tokens[i - 1].num = sqrt(cloned_exp.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_ABS: // abs
+            case SFUNCTION_ABS: // abs
             {
                 if (cloned_exp.tokens[i - 1].num < 0.0)
                     cloned_exp.tokens[i - 1].num = -cloned_exp.tokens[i - 1].num;
                 break;
             }
-            case SPECIFIER_OF_CBRT: // cuberoot
+            case SFUNCTION_CBRT: // cuberoot
                 cloned_exp.tokens[i - 1].num = cbrt(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_GAMMA: // gamma function
+            case SFUNCTION_GAMMA: // gamma function
             {
                 if (cloned_exp.tokens[i - 1].num < 0.0)
                 {
@@ -985,13 +985,13 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
                 cloned_exp.tokens[i - 1].num = gamma_function(cloned_exp.tokens[i - 1].num);
                 break;
             }
-            case SPECIFIER_OF_CEIL: // ceiling function
+            case SFUNCTION_CEIL: // ceiling function
                 cloned_exp.tokens[i - 1].num = ceil(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_FLOOR: // floor function
+            case SFUNCTION_FLOOR: // floor function
                 cloned_exp.tokens[i - 1].num = floor(cloned_exp.tokens[i - 1].num);
                 break;
-            case SPECIFIER_OF_LAMBERTW: // lambert W function
+            case SFUNCTION_LAMBERTW: // lambert W function
             {
                 if (cloned_exp.tokens[i - 1].num < -1.0 / EULER_NUMBER)
                 {
@@ -1078,7 +1078,7 @@ double se_eval_P_expression(const _POSTFIX__ P_expression, const char var, const
     return result;
 }
 
-double se_find_root_regula_falsi(const _POSTFIX__ P_equation, const char var, const double init_a, const double init_b, const double init_fa, const double init_fb)
+double se_find_root_regula_falsi(const POSTFIX P_equation, const char var, const double init_a, const double init_b, const double init_fa, const double init_fb)
 {
     double a = init_a;
     double b = init_b;
@@ -1120,13 +1120,13 @@ double se_find_root_regula_falsi(const _POSTFIX__ P_equation, const char var, co
     return c;
 }
 
-double se_find_root_newton(const __INFIX__ I_equation, const char var, const double x0)
+double se_find_root_newton(const INFIX I_equation, const char var, const double x0)
 {
-    __INFIX__ derivative = differentiate_I_exp(I_equation, var);
+    INFIX derivative = differentiate_I_exp(I_equation, var);
     reformat_I_exp(&derivative);
     optimize_I_exp(&derivative);
-    _POSTFIX__ P_f = submodule_Parse(I_equation);
-    _POSTFIX__ P_df = submodule_Parse(derivative);
+    POSTFIX P_f = Parse_infix_to_postfix(I_equation);
+    POSTFIX P_df = Parse_infix_to_postfix(derivative);
     free(derivative.tokens);
 
     double x1 = x0;
@@ -1159,7 +1159,7 @@ double se_find_root_newton(const __INFIX__ I_equation, const char var, const dou
     return x1;
 }
 
-void se_verify_roots(const _POSTFIX__ P_equation, const char var, double **roots, unsigned short int *num_of_root)
+void se_verify_roots(const POSTFIX P_equation, const char var, double **roots, unsigned short int *num_of_root)
 {
     // verify roots
     for (unsigned short int i = 0; i < *num_of_root; i++)
@@ -1218,13 +1218,13 @@ void se_verify_roots(const _POSTFIX__ P_equation, const char var, double **roots
     *num_of_root = new_numof_root;
 }
 
-short int se_solve_equation(const __INFIX__ equation, const char var, double lower_bound, double upper_bound, double **roots)
+short int se_solve_equation(const INFIX equation, const char var, double lower_bound, double upper_bound, double **roots)
 {
     if (equation.tokens == NULL || upper_bound <= lower_bound || equation.size < 1)
         return -1;
 
     // make a copy
-    __INFIX__ copyof_equation = copy_infix_expression(equation);
+    INFIX copyof_equation = copy_infix_expression(equation);
     if (copyof_equation.size == 0 || copyof_equation.tokens == NULL)
         return -1;
 
@@ -1232,7 +1232,7 @@ short int se_solve_equation(const __INFIX__ equation, const char var, double low
     reformat_I_exp(&copyof_equation);
     optimize_I_exp(&copyof_equation);
 
-    _POSTFIX__ P_equation = submodule_Parse(copyof_equation);
+    POSTFIX P_equation = Parse_infix_to_postfix(copyof_equation);
 
     // alloc storage for roots
     unsigned short int num_of_root = 0;
@@ -1356,9 +1356,9 @@ short int se_solve_equation(const __INFIX__ equation, const char var, double low
 
 // ====== //
 
-__INFIX__ *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol)
+INFIX *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int num_of_sol)
 {
-    __INFIX__ *F_x = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+    INFIX *F_x = (INFIX *)calloc(num_of_sol, sizeof(INFIX));
     if (F_x == NULL)
     {
         perror("se_alloc_F_x_for_systemof_nonlinear_equation: Failed to calloc F_x");
@@ -1367,7 +1367,7 @@ __INFIX__ *se_alloc_F_x_for_systemof_nonlinear_equation(const unsigned short int
     return F_x;
 }
 
-void se_free_F_x_for_systemof_nonlinear_equation(__INFIX__ **F_x, const unsigned short int num_of_sol)
+void se_free_F_x_for_systemof_nonlinear_equation(INFIX **F_x, const unsigned short int num_of_sol)
 {
     if (*F_x == NULL)
         return;
@@ -1383,9 +1383,9 @@ void se_free_F_x_for_systemof_nonlinear_equation(__INFIX__ **F_x, const unsigned
     *F_x = NULL;
 }
 
-double se_eval_P_function(const _POSTFIX__ P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set)
+double se_eval_P_function(const POSTFIX P_F_x_originnal, const char *var_set, const unsigned short int num_of_sol, const double *valueof_var_set)
 {
-    _POSTFIX__ P_F_x = copy_postfix_expression(P_F_x_originnal);
+    POSTFIX P_F_x = copy_postfix_expression(P_F_x_originnal);
 
     for (unsigned short int i = 0; i < P_F_x.size; i++)
     {
@@ -1415,9 +1415,9 @@ double se_eval_P_function(const _POSTFIX__ P_F_x_originnal, const char *var_set,
 // Helper function to safely clean up resources
 static void se_cleanup_nonlinear_resources(
     double **F_x_k,
-    _POSTFIX__ **P_F_x,
-    __INFIX__ ***J_x,
-    _POSTFIX__ ***P_J_x,
+    POSTFIX **P_F_x,
+    INFIX ***J_x,
+    POSTFIX ***P_J_x,
     double ***J_x_k,
     const unsigned short int num_of_sol)
 {
@@ -1532,7 +1532,7 @@ Reference:
     Link: https://www.lakeheadu.ca/sites/default/files/uploads/77/docs/RemaniFinal.pdf
  */
 short int se_solve_system_of_nonlinear_equation(
-    const __INFIX__ *F_x,
+    const INFIX *F_x,
     const char *var_set,
     const unsigned short int num_of_sol,
     double **solutions,
@@ -1562,9 +1562,9 @@ short int se_solve_system_of_nonlinear_equation(
     // Declare all resources
     double *se_solutions = NULL;
     double *F_x_k = NULL;
-    _POSTFIX__ *P_F_x = NULL;
-    __INFIX__ **J_x = NULL;
-    _POSTFIX__ **P_J_x = NULL;
+    POSTFIX *P_F_x = NULL;
+    INFIX **J_x = NULL;
+    POSTFIX **P_J_x = NULL;
     double **J_x_k = NULL;
 
     // Main retry loop
@@ -1589,7 +1589,7 @@ short int se_solve_system_of_nonlinear_equation(
         }
 
         // Allocate and parse P_F_x
-        P_F_x = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+        P_F_x = (POSTFIX *)calloc(num_of_sol, sizeof(POSTFIX));
         if (P_F_x == NULL)
         {
             free(se_solutions);
@@ -1599,7 +1599,7 @@ short int se_solve_system_of_nonlinear_equation(
 
         for (unsigned short int i = 0; i < num_of_sol; i++)
         {
-            P_F_x[i] = submodule_Parse(F_x[i]);
+            P_F_x[i] = Parse_infix_to_postfix(F_x[i]);
             if (P_F_x[i].tokens == NULL)
             {
                 // Clean up partial allocation
@@ -1616,7 +1616,7 @@ short int se_solve_system_of_nonlinear_equation(
         }
 
         // Allocate Jacobian matrices
-        J_x = (__INFIX__ **)calloc(num_of_sol, sizeof(__INFIX__ *));
+        J_x = (INFIX **)calloc(num_of_sol, sizeof(INFIX *));
         if (J_x == NULL)
         {
             se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
@@ -1626,7 +1626,7 @@ short int se_solve_system_of_nonlinear_equation(
 
         for (unsigned short int i = 0; i < num_of_sol; i++)
         {
-            J_x[i] = (__INFIX__ *)calloc(num_of_sol, sizeof(__INFIX__));
+            J_x[i] = (INFIX *)calloc(num_of_sol, sizeof(INFIX));
             if (J_x[i] == NULL)
             {
                 se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
@@ -1635,7 +1635,7 @@ short int se_solve_system_of_nonlinear_equation(
             }
         }
 
-        P_J_x = (_POSTFIX__ **)calloc(num_of_sol, sizeof(_POSTFIX__ *));
+        P_J_x = (POSTFIX **)calloc(num_of_sol, sizeof(POSTFIX *));
         if (P_J_x == NULL)
         {
             se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
@@ -1645,7 +1645,7 @@ short int se_solve_system_of_nonlinear_equation(
 
         for (unsigned short int i = 0; i < num_of_sol; i++)
         {
-            P_J_x[i] = (_POSTFIX__ *)calloc(num_of_sol, sizeof(_POSTFIX__));
+            P_J_x[i] = (POSTFIX *)calloc(num_of_sol, sizeof(POSTFIX));
             if (P_J_x[i] == NULL)
             {
                 se_cleanup_nonlinear_resources(&F_x_k, &P_F_x, &J_x, &P_J_x, &J_x_k, num_of_sol);
@@ -1681,7 +1681,7 @@ short int se_solve_system_of_nonlinear_equation(
                 J_x[row][col] = differentiate_I_exp(F_x[row], var_set[col]);
                 reformat_I_exp(&(J_x[row][col]));
                 optimize_I_exp(&(J_x[row][col]));
-                P_J_x[row][col] = submodule_Parse(J_x[row][col]);
+                P_J_x[row][col] = Parse_infix_to_postfix(J_x[row][col]);
             }
         }
 

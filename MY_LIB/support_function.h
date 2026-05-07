@@ -14,13 +14,13 @@
 #include <limits.h>
 #include <MY_LIB/types_and_specifiers.h>
 
-void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int index_start, const short int index_end);
-void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replacement, const int index_start, const int index_end);
-void display_postfix_exp(_POSTFIX__ P_exp);
+void copy_sub_I_exp(INFIX *destination, INFIX source, const short int index_start, const short int index_end);
+void substitude_result(INFIX *I_exp_tobe_replaced, const INFIX replacement, const int index_start, const int index_end);
+void display_postfix_exp(POSTFIX P_exp);
 
 // ------------------------------------------------- //
 
-void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int index_start, const short int index_end)
+void copy_sub_I_exp(INFIX *destination, INFIX source, const short int index_start, const short int index_end)
 {
     if (destination->tokens == NULL)
     {
@@ -45,7 +45,7 @@ void copy_sub_I_exp(__INFIX__ *destination, __INFIX__ source, const short int in
 }
 
 
-void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replacement, const int index_start, const int index_end)
+void substitude_result(INFIX *I_exp_tobe_replaced, const INFIX replacement, const int index_start, const int index_end)
 {
     int old_size = I_exp_tobe_replaced->size;
     /* Validate indices */
@@ -93,7 +93,7 @@ void substitude_result(__INFIX__ *I_exp_tobe_replaced, const __INFIX__ replaceme
     I_exp_tobe_replaced->size = new_size;
 }
 
-void display_postfix_exp(_POSTFIX__ P_exp)
+void display_postfix_exp(POSTFIX P_exp)
 {
     if (P_exp.size < 1 || P_exp.tokens == NULL)
         return;

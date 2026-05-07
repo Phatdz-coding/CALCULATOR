@@ -273,8 +273,8 @@ void usual_calculation()
 
         if (new_input)
         {
-            __INFIX__ I_raw_exp = laf_Lexer(str_input);
-            __INFIX__ I_exp = laf_handle_errors_in_exp(I_raw_exp);
+            INFIX I_raw_exp = laf_Lexer(str_input);
+            INFIX I_exp = laf_handle_errors_in_exp(I_raw_exp);
             if (I_raw_exp.tokens != NULL)
                 free(I_raw_exp.tokens);
 
@@ -405,7 +405,7 @@ void derivative_calculator()
     bool use_result = false;
     int input_line;
 
-    __INFIX__ I_func = {0, NULL}, I_derivative = {0, NULL};
+    INFIX I_func = {0, NULL}, I_derivative = {0, NULL};
     string_ str_derivative = {0, NULL};
     char *str_function = create_new_buffer_with_sizeof(max_index);
 
@@ -587,21 +587,21 @@ void derivative_calculator()
                 invalid = false;
                 for (short int i = 0; i < I_func.size; i++)
                 {
-                    if (I_func.tokens[i].operator == SPECIFIER_OF_DIF ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_INTEGRAL ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_SIGMA_SUM ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_PRODUCT_OF_SEQUENCE ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_GCD ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_LCM ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_COMBINATIONS ||
-                        I_func.tokens[i].operator == SPECIFIER_OF_PERMUTATIONS)
+                    if (I_func.tokens[i].operator == SFUNCTION_DIF ||
+                        I_func.tokens[i].operator == SFUNCTION_INTEGRAL ||
+                        I_func.tokens[i].operator == SFUNCTION_SIGMA_SUM ||
+                        I_func.tokens[i].operator == SFUNCTION_PRODUCT_OF_SEQUENCE ||
+                        I_func.tokens[i].operator == SFUNCTION_GCD ||
+                        I_func.tokens[i].operator == SFUNCTION_LCM ||
+                        I_func.tokens[i].operator == SFUNCTION_COMBINATIONS ||
+                        I_func.tokens[i].operator == SFUNCTION_PERMUTATIONS)
                     {
                         invalid = true;
                         break;
                     }
 
                     // handle log function
-                    else if (I_func.tokens[i].operator == SPECIFIER_OF_LOG)
+                    else if (I_func.tokens[i].operator == SFUNCTION_LOG)
                     {
                         short int index_log = i;
                         short int index_outer_bracket_open = i + 1;
@@ -638,14 +638,14 @@ void derivative_calculator()
                                     break;
                                 }
 
-                                else if (I_func.tokens[k].operator == SPECIFIER_OF_LOG)
+                                else if (I_func.tokens[k].operator == SFUNCTION_LOG)
                                     skip_colon += 1;
                                 else if (I_func.tokens[k].operator == ',' && skip_colon != 0)
                                     skip_colon--;
                             }
                         }
 
-                        __INFIX__ replacement;
+                        INFIX replacement;
                         // replacement  = ln(exp) / ln(base)
                         replacement.size = 5 + index_outer_bracket_close - index_colon + index_colon - index_outer_bracket_open;
                         replacement.tokens = (_infix_ *)malloc(replacement.size * sizeof(_infix_));
@@ -657,7 +657,7 @@ void derivative_calculator()
                             replacement.tokens[k].variable = '\0';
                         }
 
-                        replacement.tokens[0].operator = SPECIFIER_OF_LN;
+                        replacement.tokens[0].operator = SFUNCTION_LN;
                         replacement.tokens[1].operator = '(';
 
                         short int j = 2;
@@ -670,7 +670,7 @@ void derivative_calculator()
 
                         replacement.tokens[j++].operator = ')';
                         replacement.tokens[j++].operator = '/';
-                        replacement.tokens[j++].operator = SPECIFIER_OF_LN;
+                        replacement.tokens[j++].operator = SFUNCTION_LN;
                         replacement.tokens[j++].operator = '(';
 
                         for (short int k = index_outer_bracket_open + 1; k < index_colon; k++, j++)
@@ -1837,7 +1837,7 @@ void solve_system_of_nonlinear_equation()
             short int n = 0;
             char **str_functions = NULL;
             char *var_set = NULL;
-            __INFIX__ *I_functions = NULL;
+            INFIX *I_functions = NULL;
             double *solutions = NULL;
             double l_bound, u_bound;
 
