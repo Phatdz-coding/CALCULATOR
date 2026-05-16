@@ -11,7 +11,7 @@
 
 void handle_child_process(const char *[]);
 
-void usual_calculation();
+void scientific_calculation();
 
 void derivative_calculator();
 
@@ -204,7 +204,7 @@ bool central_control()
     switch (user_option)
     {
     case 1:
-        usual_calculation();
+        scientific_calculation();
         break;
     case 2:
         derivative_calculator();
@@ -242,7 +242,10 @@ bool central_control()
 
 // ---------------------------------------------------------------------------------------------------------------------- //
 
-void usual_calculation()
+/*
+Terminal loop checking input and show result
+*/
+void scientific_calculation()
 {
     puts("🔢 Scientific Mode");
     delay(40);

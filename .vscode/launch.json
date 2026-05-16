@@ -4,7 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
+        {
+            "type": "java",
+            "name": "testdll",
+            "request": "launch",
+            "mainClass": "dll.testdll",
+            "projectName": "CALCULATOR_57e107c9"
+        },
         {
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
@@ -17,6 +23,5 @@
             "console": "externalTerminal",
             "preLaunchTask": "[_DEFAULT_RUN_]"
         }
-
     ]
 }
