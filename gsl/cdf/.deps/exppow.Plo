@@ -1,1 +1,16 @@
-# dummy
+exppow.lo: exppow.c ../config.h C:/Clang/include/math.h \
+ C:/Clang/include/crtdefs.h C:/Clang/include/corecrt.h \
+ C:/Clang/include/_mingw.h C:/Clang/include/_mingw_mac.h \
+ C:/Clang/include/_mingw_secapi.h C:/Clang/include/vadefs.h \
+ ../gsl/gsl_cdf.h ../gsl/gsl_sf_gamma.h ../gsl/gsl_sf_result.h
+../config.h:
+C:/Clang/include/math.h:
+C:/Clang/include/crtdefs.h:
+C:/Clang/include/corecrt.h:
+C:/Clang/include/_mingw.h:
+C:/Clang/include/_mingw_mac.h:
+C:/Clang/include/_mingw_secapi.h:
+C:/Clang/include/vadefs.h:
+../gsl/gsl_cdf.h:
+../gsl/gsl_sf_gamma.h:
+../gsl/gsl_sf_result.h:

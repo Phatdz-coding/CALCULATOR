@@ -1,1 +1,15 @@
-# dummy
+infnan.lo: infnan.c ../config.h C:/Clang/include/math.h \
+ C:/Clang/include/crtdefs.h C:/Clang/include/corecrt.h \
+ C:/Clang/include/_mingw.h C:/Clang/include/_mingw_mac.h \
+ C:/Clang/include/_mingw_secapi.h C:/Clang/include/vadefs.h \
+ C:/Clang/include/ieeefp.h ../gsl/gsl_sys.h
+../config.h:
+C:/Clang/include/math.h:
+C:/Clang/include/crtdefs.h:
+C:/Clang/include/corecrt.h:
+C:/Clang/include/_mingw.h:
+C:/Clang/include/_mingw_mac.h:
+C:/Clang/include/_mingw_secapi.h:
+C:/Clang/include/vadefs.h:
+C:/Clang/include/ieeefp.h:
+../gsl/gsl_sys.h:

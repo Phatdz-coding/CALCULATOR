@@ -1,1 +1,40 @@
-# dummy
+ccopy.lo: ccopy.c ../gsl/gsl_math.h C:/Clang/include/math.h \
+ C:/Clang/include/crtdefs.h C:/Clang/include/corecrt.h \
+ C:/Clang/include/_mingw.h C:/Clang/include/_mingw_mac.h \
+ C:/Clang/include/_mingw_secapi.h C:/Clang/include/vadefs.h \
+ ../gsl/gsl_sys.h ../gsl/gsl_inline.h ../gsl/gsl_machine.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h \
+ C:/Clang/include/limits.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/float.h \
+ C:/Clang/include/float.h ../gsl/gsl_precision.h ../gsl/gsl_types.h \
+ ../gsl/gsl_nan.h ../gsl/gsl_pow_int.h ../gsl/gsl_minmax.h \
+ ../gsl/gsl_cblas.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/stddef.h \
+ C:/Clang/include/stddef.h cblas.h source_copy_c.h
+../gsl/gsl_math.h:
+C:/Clang/include/math.h:
+C:/Clang/include/crtdefs.h:
+C:/Clang/include/corecrt.h:
+C:/Clang/include/_mingw.h:
+C:/Clang/include/_mingw_mac.h:
+C:/Clang/include/_mingw_secapi.h:
+C:/Clang/include/vadefs.h:
+../gsl/gsl_sys.h:
+../gsl/gsl_inline.h:
+../gsl/gsl_machine.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h:
+C:/Clang/include/limits.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/float.h:
+C:/Clang/include/float.h:
+../gsl/gsl_precision.h:
+../gsl/gsl_types.h:
+../gsl/gsl_nan.h:
+../gsl/gsl_pow_int.h:
+../gsl/gsl_minmax.h:
+../gsl/gsl_cblas.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/stddef.h:
+C:/Clang/include/stddef.h:
+cblas.h:
+source_copy_c.h:

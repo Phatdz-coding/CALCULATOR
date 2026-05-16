@@ -1,1 +1,54 @@
-# dummy
+wskew.lo: wskew.c ../config.h C:/Clang/include/math.h \
+ C:/Clang/include/crtdefs.h C:/Clang/include/corecrt.h \
+ C:/Clang/include/_mingw.h C:/Clang/include/_mingw_mac.h \
+ C:/Clang/include/_mingw_secapi.h C:/Clang/include/vadefs.h \
+ ../gsl/gsl_statistics.h ../gsl/gsl_statistics_long_double.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/stddef.h \
+ C:/Clang/include/stddef.h C:/Clang/include/stdlib.h \
+ C:/Clang/include/corecrt_wstdlib.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h \
+ C:/Clang/include/limits.h C:/Clang/include/sec_api/stdlib_s.h \
+ C:/Clang/include/malloc.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/mm_malloc.h \
+ C:/Clang/include/errno.h ../gsl/gsl_statistics_double.h \
+ ../gsl/gsl_statistics_float.h ../gsl/gsl_statistics_ulong.h \
+ ../gsl/gsl_statistics_long.h ../gsl/gsl_statistics_uint.h \
+ ../gsl/gsl_statistics_int.h ../gsl/gsl_statistics_ushort.h \
+ ../gsl/gsl_statistics_short.h ../gsl/gsl_statistics_uchar.h \
+ ../gsl/gsl_statistics_char.h ../templates_on.h wskew_source.c \
+ ../templates_off.h
+../config.h:
+C:/Clang/include/math.h:
+C:/Clang/include/crtdefs.h:
+C:/Clang/include/corecrt.h:
+C:/Clang/include/_mingw.h:
+C:/Clang/include/_mingw_mac.h:
+C:/Clang/include/_mingw_secapi.h:
+C:/Clang/include/vadefs.h:
+../gsl/gsl_statistics.h:
+../gsl/gsl_statistics_long_double.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/stddef.h:
+C:/Clang/include/stddef.h:
+C:/Clang/include/stdlib.h:
+C:/Clang/include/corecrt_wstdlib.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h:
+C:/Clang/include/limits.h:
+C:/Clang/include/sec_api/stdlib_s.h:
+C:/Clang/include/malloc.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/mm_malloc.h:
+C:/Clang/include/errno.h:
+../gsl/gsl_statistics_double.h:
+../gsl/gsl_statistics_float.h:
+../gsl/gsl_statistics_ulong.h:
+../gsl/gsl_statistics_long.h:
+../gsl/gsl_statistics_uint.h:
+../gsl/gsl_statistics_int.h:
+../gsl/gsl_statistics_ushort.h:
+../gsl/gsl_statistics_short.h:
+../gsl/gsl_statistics_uchar.h:
+../gsl/gsl_statistics_char.h:
+../templates_on.h:
+wskew_source.c:
+../templates_off.h:
