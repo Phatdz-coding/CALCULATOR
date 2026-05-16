@@ -1,2 +1,6 @@
 .qodo
 /.vs
+bin/
+obj/
+**/bin/
+**/obj/

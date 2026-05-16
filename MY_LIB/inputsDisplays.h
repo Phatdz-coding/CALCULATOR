@@ -5,7 +5,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <time.h>
 #include <stdarg.h>
 #include <windows.h>
@@ -186,12 +185,15 @@ void clear_line_in_range(const short int lower_bound, const short int upper_boun
     int win_width;
     getWinSize(&win_width, NULL);
 
-    char blanks[win_width];
+    char *blanks = (char *)malloc((win_width + 1) * sizeof(char));
+    if (blanks == NULL)
+        return;
     blanks[win_width] = '\0';
-    memset(blanks, ' ', sizeof(blanks));
+    memset(blanks, ' ', win_width);
     move_cursor(lower_bound, 0);
     for (short int i = 0; i < upper_bound - lower_bound + 1; i++)
         puts(blanks);
+    free(blanks);
     move_cursor(lower_bound, 0);
 }
 
@@ -421,11 +423,14 @@ void clear_line_(const int line_number)
     int win_width;
     getWinSize(&win_width, NULL);
 
-    char blanks[win_width];
+    char *blanks = (char *)malloc((win_width + 1) * sizeof(char));
+    if (blanks == NULL)
+        return;
     blanks[win_width] = '\0';
-    memset(blanks, ' ', sizeof(blanks));
+    memset(blanks, ' ', win_width);
     move_cursor(line_number, 0);
     printf("%s", blanks);
+    free(blanks);
     move_cursor(line_number, 0);
 }
 
@@ -564,11 +569,15 @@ void turn_on_advanced_character_mode()
 // Create a delay between each action
 void delay(int mili_sec)
 {
+#if defined(_WIN32)
+    Sleep((DWORD)mili_sec);
+#else
     struct timespec ts;
     ts.tv_sec = mili_sec / 1000;
     ts.tv_nsec = (mili_sec % 1000) * 1000000;
 
     nanosleep(&ts, NULL);
+#endif
 }
 
 /*
@@ -589,11 +598,13 @@ void display_each_char(const char *text, int milisec_Delay)
 // Print out each word of the text with formats & arguments supported
 void print_each_word(int milisec_Delay, const char *format, ...)
 {
-    int string_length = strlen(format) + 100;
-    char content[string_length];
+    size_t string_length = strlen(format) + 100;
+    char *content = (char *)malloc(string_length);
+    if (content == NULL)
+        return;
     va_list arguments;
     va_start(arguments, format);
-    vsnprintf(content, sizeof(content), format, arguments);
+    vsnprintf(content, string_length, format, arguments);
     va_end(arguments);
 
     int content_len = strlen(content);
@@ -614,18 +625,22 @@ void print_each_word(int milisec_Delay, const char *format, ...)
             delay(milisec_Delay);
         }
     }
+    free(content);
 }
 
 // Print out each character of the text with formats & arguments supported
 void print_each_char(int milisec_Delay, char *format, ...)
 {
-    int string_length = strlen(format) + 100;
-    char content[string_length];
+    size_t string_length = strlen(format) + 100;
+    char *content = (char *)malloc(string_length);
+    if (content == NULL)
+        return;
     va_list arguments;
     va_start(arguments, format);
-    vsnprintf(content, sizeof(content), format, arguments);
+    vsnprintf(content, string_length, format, arguments);
     va_end(arguments);
     display_each_char(content, milisec_Delay);
+    free(content);
 }
 
 // get int, float, double, char with message

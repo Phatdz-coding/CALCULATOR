@@ -79,7 +79,7 @@ void sort_double_array(double *arr, int size);
 int compare_ints(const void *a, const void *b);
 int compare_doubles(const void *a, const void *b);
 
-_POSTFIX__ Parse_Infix_To_Postfix(char *expression);
+_POSTFIX__ Parse_String_To_Postfix(char *expression);
 _POSTFIX__ Parse_Infix_To_Postfix(__INFIX__ specified_expression);
 
 double Compute_P_expression(const _POSTFIX__ P_expression);
@@ -748,7 +748,7 @@ Step 4: add to precedent_of
 Step 5: add to Compute_POSTFIX_expression
 Step 6: add to Compute_P_function
 */
-_POSTFIX__ Parse_Infix_To_Postfix(char *expression)
+_POSTFIX__ Parse_String_To_Postfix(char *expression)
 {
     _POSTFIX__ parsed_expression;
     parsed_expression.size = 0;
@@ -1455,7 +1455,7 @@ double L = limit_left("cos(x)/x", 0)
 */
 double limit_left(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
+    _POSTFIX__ P_expression = Parse_String_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1505,7 +1505,7 @@ double L = limit_right("cos(x/e)/x", 0);
 */
 double limit_right(char *function, const char _varriable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
+    _POSTFIX__ P_expression = Parse_String_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1555,7 +1555,7 @@ double L = limit("sin(x)/x");
 */
 double limit(char *function, const char _variable_, const double _x_)
 {
-    _POSTFIX__ P_expression = Parse_Infix_To_Postfix(function);
+    _POSTFIX__ P_expression = Parse_String_To_Postfix(function);
 
     if (P_expression.size == 0 || P_expression.tokens == NULL)
         return NAN;
@@ -1776,7 +1776,7 @@ double result = integral("e^x", 1, 2);
 double integral_definite(char *function, const char var, const double lower_bound, const double upper_bound)
 {
     double result;
-    _POSTFIX__ P_function = Parse_Infix_To_Postfix(function);
+    _POSTFIX__ P_function = Parse_String_To_Postfix(function);
 
     if (P_function.size == 0 || P_function.tokens == NULL)
         return NAN;
@@ -2799,7 +2799,7 @@ double Compute_P_function(_POSTFIX__ function, char *_variables_, ...)
 
 double evaluate_function(char *_function_, const char *_variables_, ...)
 {
-    _POSTFIX__ function = Parse_Infix_To_Postfix(_function_);
+    _POSTFIX__ function = Parse_String_To_Postfix(_function_);
 
     if (function.size == 0 || function.tokens == NULL)
         return NAN;

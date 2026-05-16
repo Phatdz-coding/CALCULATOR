@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\CalculatorCore\x64\$(Configuration)\CalculatorCore.dll"
+          Link="CalculatorCore.dll"
+          CopyToOutputDirectory="PreserveNewest"
+          Condition="Exists('..\CalculatorCore\x64\$(Configuration)\CalculatorCore.dll')" />
+    <None Include="..\saves.dat"
+          Link="saves.dat"
+          CopyToOutputDirectory="PreserveNewest"
+          Condition="Exists('..\saves.dat')" />
+  </ItemGroup>
+
+  <Target Name="CopyAppToSolutionRoot" AfterTargets="Build">
+    <ItemGroup>
+      <RootAppFiles Include="$(TargetDir)CalculatorUI.exe" />
+      <RootAppFiles Include="$(TargetDir)CalculatorUI.dll" />
+      <RootAppFiles Include="$(TargetDir)CalculatorUI.deps.json" />
+      <RootAppFiles Include="$(TargetDir)CalculatorUI.runtimeconfig.json" />
+      <RootAppFiles Include="$(TargetDir)CalculatorCore.dll" Condition="Exists('$(TargetDir)CalculatorCore.dll')" />
+      <RootAppFiles Include="$(TargetDir)saves.dat" Condition="Exists('$(TargetDir)saves.dat')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(RootAppFiles)"
+          DestinationFolder="$(MSBuildProjectDirectory)\.."
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
