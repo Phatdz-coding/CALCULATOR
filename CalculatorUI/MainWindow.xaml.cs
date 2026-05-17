@@ -119,7 +119,7 @@ public partial class MainWindow : Window
         const int maxRoots = 50;
         double[] roots = new double[maxRoots];
         byte variable = (byte)FindSolveVariable(equation);
-        int rootCount = NativeMethods.SolveEquationRoots(equation, variable, -1_000_000.0, 1_000_000.0, roots, maxRoots);
+        int rootCount = NativeMethods.SolveEquationRoots(equation, variable, -100.0, 100.0, roots, maxRoots);
 
         if (rootCount < 0)
             return "Failed to solve equation";

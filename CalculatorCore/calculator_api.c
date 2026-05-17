@@ -1,265 +1,245 @@
-#define _CRT_SECURE_NO_WARNINGS
+/*
+▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄
 
-#include "calculator_api.h"
+to export this file to .dll
+use the following command:
+gcc -shared -o x64/Debug/calculator_api.dll calculator_api.c
 
-#if defined(_MSC_VER)
-#include <float.h>
-#include <string.h>
-#define __DBL_EPSILON__ DBL_EPSILON
-#define __DBL_MAX__ DBL_MAX
-#define strncasecmp _strnicmp
-#endif
+▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄
+*/
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include <MY_LIB/types_and_specifiers.h>
+#include <MY_LIB/extra_math_function.h>
+#include <MY_LIB/lexer_and_format.h>
 #include <MY_LIB/my_calculator.h>
+#include <MY_LIB/numerical_integration.h>
+#include <MY_LIB/sovle_equations.h>
 
-static CalculatorState g_state = {0};
-
-static int copy_expression(char *destination, size_t destination_size, const char *source)
+typedef struct CalculatorVariable
 {
-    if (destination == 0 || destination_size == 0 || source == 0 || source[0] == '\0')
-        return 0;
+    unsigned char Name;
+    unsigned char Reserved0[7];
+    double Value;
+    int IsSet;
+    int Reserved1;
+} CalculatorVariable;
 
-#if defined(_MSC_VER)
-    strncpy_s(destination, destination_size, source, _TRUNCATE);
-#else
-    strncpy(destination, source, destination_size - 1);
-    destination[destination_size - 1] = '\0';
-#endif
-
-    return 1;
-}
-
-static int build_zero_equation(char *destination, size_t destination_size, const char *source)
+typedef struct CalculatorState
 {
-    const char *equals = strchr(source, '=');
-    if (equals == 0)
-        return copy_expression(destination, destination_size, source);
+    int AngleMode;
+    int LastError;
+    int VariableCount;
+    double LastResult;
+    CalculatorVariable Variables[49];
+} CalculatorState;
 
-    size_t left_length = (size_t)(equals - source);
-    const char *right = equals + 1;
+static CalculatorState g_state;
+static int g_state_initialized = 0;
 
-    if (left_length == 0 || right[0] == '\0')
-        return 0;
-
-#if defined(_MSC_VER)
-    int written = _snprintf_s(
-        destination,
-        destination_size,
-        _TRUNCATE,
-        "%.*s-(%s)",
-        (int)left_length,
-        source,
-        right);
-    return written > 0;
-#else
-    int written = snprintf(destination, destination_size, "%.*s-(%s)", (int)left_length, source, right);
-    return written > 0 && (size_t)written < destination_size;
-#endif
-}
-
-double CALC_CALL evaluate_expression_double(const char *expression)
+static void calculator_init_state(void)
 {
-    char buffer[4096];
+    if (g_state_initialized)
+        return;
 
-    if (!copy_expression(buffer, sizeof(buffer), expression))
+    memset(&g_state, 0, sizeof(g_state));
+    g_state.VariableCount = 49;
+
+    static const unsigned char kVariableNames[49] = {
+        'a', 'b', 'd', 'f', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+        'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+        'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+        'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
+    for (int i = 0; i < 49; i++)
     {
-        g_state.last_error = 1;
+        g_state.Variables[i].Name = kVariableNames[i];
+        g_state.Variables[i].Value = 0.0;
+        g_state.Variables[i].IsSet = 0;
+        g_state.Variables[i].Reserved1 = 0;
+        memset(g_state.Variables[i].Reserved0, 0, sizeof(g_state.Variables[i].Reserved0));
+    }
+
+    g_state_initialized = 1;
+}
+
+static char *calculator_strdup(const char *text)
+{
+    if (!text)
+        return NULL;
+
+    size_t len = strlen(text);
+    char *copy = (char *)malloc(len + 1);
+    if (!copy)
+        return NULL;
+
+    memcpy(copy, text, len + 1);
+    return copy;
+}
+
+static char *calculator_build_equation_function(const char *equation)
+{
+    const char *equals = strchr(equation, '=');
+    if (!equals)
+        return calculator_strdup(equation);
+
+    size_t left_len = (size_t)(equals - equation);
+    const char *right = equals + 1;
+    size_t right_len = strlen(right);
+    size_t out_len = left_len + 3 + right_len + 1;
+
+    char *out = (char *)malloc(out_len + 1);
+    if (!out)
+        return NULL;
+
+    memcpy(out, equation, left_len);
+    out[left_len] = '\0';
+    strcat(out, "-(");
+    strcat(out, right);
+    strcat(out, ")");
+    return out;
+}
+
+long long evaluate_expression(const char *expression)
+{
+    // temp:
+    // disable this feature
+    return 0;
+}
+
+double evaluate_expression_double(const char *expression)
+{
+    calculator_init_state();
+    if (!expression)
+    {
+        g_state.LastError = 1;
         return NAN;
     }
 
-    double result = evaluate(buffer);
-    if (isnan(result) || isinf(result))
+    char *mutable_expression = calculator_strdup(expression);
+    if (!mutable_expression)
     {
-        g_state.last_error = 2;
-        return result;
+        g_state.LastError = 1;
+        return NAN;
     }
 
-    g_state.last_error = 0;
-    g_state.last_result = result;
+    double result = evaluate(mutable_expression);
+    free(mutable_expression);
+
+    g_state.LastResult = result;
+    g_state.LastError = isfinite(result) ? 0 : 1;
     return result;
 }
 
-long long int CALC_CALL evaluate_expression(const char *expression)
+int solve_equation_roots(const char *equation,
+                         unsigned char variable,
+                         double lower_bound,
+                         double upper_bound,
+                         double *roots,
+                         int maxRoots)
 {
-    double result = evaluate_expression_double(expression);
-
-    if (isnan(result) || isinf(result))
-        return 0;
-
-    return (long long int)llround(result);
-}
-
-int CALC_CALL solve_equation_roots(
-    const char *equation,
-    char variable,
-    double lower_bound,
-    double upper_bound,
-    double *roots,
-    int32_t max_roots)
-{
-    char buffer[4096];
-
-    if (roots == 0 || max_roots <= 0 || variable == '\0' || !isfinite(lower_bound) || !isfinite(upper_bound))
+    calculator_init_state();
+    if (!equation || !roots || maxRoots <= 0)
     {
-        g_state.last_error = 1;
+        g_state.LastError = 1;
         return -1;
     }
 
-    if (!copy_expression(buffer, sizeof(buffer), equation))
+    char *function_text = calculator_build_equation_function(equation);
+    if (!function_text)
     {
-        g_state.last_error = 1;
+        g_state.LastError = 1;
         return -1;
     }
 
-    if (!build_zero_equation(buffer, sizeof(buffer), equation))
+    INFIX infix_function = convert_string_to_INFIX(function_text);
+    free(function_text);
+
+    if (!infix_function.tokens || infix_function.size <= 0)
     {
-        g_state.last_error = 1;
+        g_state.LastError = 1;
         return -1;
     }
 
-    __INFIX__ infix = convert_string_to_INFIX(buffer);
-    if (infix.tokens == 0 || infix.size <= 0)
+    bool var_found = false;
+    for (int i = 0; i < infix_function.size; i++)
     {
-        g_state.last_error = 2;
-        return -2;
-    }
-
-    int variable_found = 0;
-    for (int i = 0; i < infix.size; i++)
-    {
-        if (infix.tokens[i].variable == variable)
+        if (infix_function.tokens[i].variable == (char)variable)
         {
-            variable_found = 1;
+            var_found = true;
             break;
         }
     }
 
-    if (!variable_found)
+    if (!var_found)
     {
-        free(infix.tokens);
-        g_state.last_error = 3;
-        return 0;
+        free(infix_function.tokens);
+        g_state.LastError = 2;
+        return -2;
     }
 
-    reformat_I_exp(&infix);
-    optimize_I_exp(&infix);
+    double *solver_roots = NULL;
+    short int root_count = se_solve_equation(infix_function, (char)variable, lower_bound, upper_bound, &solver_roots);
+    free(infix_function.tokens);
 
-    int copied_count = 0;
-    const int intervals = 2000;
-    const double step = (upper_bound - lower_bound) / intervals;
-    const double epsilon = 1e-7;
-
-    double previous_x = lower_bound;
-    double previous_y = evaluate_I_1_var_function(infix, variable, previous_x);
-
-    for (int i = 1; i <= intervals && copied_count < max_roots; i++)
+    if (!solver_roots || root_count < 0)
     {
-        double current_x = i == intervals ? upper_bound : lower_bound + (step * i);
-        double current_y = evaluate_I_1_var_function(infix, variable, current_x);
-
-        if (!isfinite(previous_y))
-        {
-            previous_x = current_x;
-            previous_y = current_y;
-            continue;
-        }
-
-        if (isfinite(current_y) && fabs(current_y) <= epsilon)
-        {
-            int duplicate = 0;
-            for (int r = 0; r < copied_count; r++)
-            {
-                if (fabs(roots[r] - current_x) <= 1e-5)
-                {
-                    duplicate = 1;
-                    break;
-                }
-            }
-
-            if (!duplicate)
-                roots[copied_count++] = current_x;
-        }
-        else if (isfinite(current_y) && previous_y * current_y < 0.0)
-        {
-            double left = previous_x;
-            double right = current_x;
-            double left_y = previous_y;
-
-            for (int iteration = 0; iteration < 100; iteration++)
-            {
-                double mid = (left + right) / 2.0;
-                double mid_y = evaluate_I_1_var_function(infix, variable, mid);
-
-                if (!isfinite(mid_y))
-                    break;
-
-                if (fabs(mid_y) <= epsilon)
-                {
-                    left = mid;
-                    right = mid;
-                    break;
-                }
-
-                if (left_y * mid_y <= 0.0)
-                {
-                    right = mid;
-                }
-                else
-                {
-                    left = mid;
-                    left_y = mid_y;
-                }
-            }
-
-            double root = (left + right) / 2.0;
-            int duplicate = 0;
-            for (int r = 0; r < copied_count; r++)
-            {
-                if (fabs(roots[r] - root) <= 1e-5)
-                {
-                    duplicate = 1;
-                    break;
-                }
-            }
-
-            if (!duplicate)
-                roots[copied_count++] = root;
-        }
-
-        previous_x = current_x;
-        previous_y = current_y;
+        if (solver_roots)
+            free(solver_roots);
+        g_state.LastError = 3;
+        return -1;
     }
 
-    free(infix.tokens);
+    int write_count = root_count < maxRoots ? root_count : maxRoots;
+    for (int i = 0; i < write_count; i++)
+    {
+        roots[i] = solver_roots[i];
+    }
 
-    g_state.last_error = 0;
-    return copied_count;
+    free(solver_roots);
+    g_state.LastError = 0;
+    return write_count;
 }
 
-int CALC_CALL calculator_get_state(CalculatorState *out_state)
+int calculator_get_state(CalculatorState *state)
 {
-    if (out_state == 0)
-        return 0;
+    calculator_init_state();
+    if (!state)
+        return -1;
 
-    *out_state = g_state;
-    return 1;
+    *state = g_state;
+    return 0;
 }
 
-int CALC_CALL calculator_set_state(const CalculatorState *state)
+int calculator_set_state(const CalculatorState *state)
 {
-    if (state == 0)
-        return 0;
+    calculator_init_state();
+    if (!state)
+        return -1;
 
     g_state = *state;
-    return 1;
+    g_state_initialized = 1;
+    return 0;
 }
 
-int CALC_CALL calculator_clear_state(void)
+int calculator_clear_state(void)
 {
-    memset(&g_state, 0, sizeof(g_state));
-    return 1;
+    calculator_init_state();
+    g_state.LastError = 0;
+    g_state.LastResult = 0.0;
+    g_state.AngleMode = 0;
+
+    for (int i = 0; i < g_state.VariableCount && i < 49; i++)
+    {
+        g_state.Variables[i].Value = 0.0;
+        g_state.Variables[i].IsSet = 0;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    // main function to test api
+    return 0;
 }
