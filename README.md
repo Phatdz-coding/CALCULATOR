@@ -4,6 +4,8 @@
 
 A lightweight, high-performance scientific calculator built to make solving math problems easier. Designed with powerful features and minimal UI for quick keyboard-driven input.
 
+**Version**: BETA 2.0
+
 ---
 
 ## ✨ Features
@@ -29,34 +31,24 @@ A lightweight, high-performance scientific calculator built to make solving math
 
 ## 🛠 Built With
 
-- **Language**: C, Python
-- **Editor**: Visual Studio Code
+- **Languages**: C, C++, C#
+- **Framework**: .NET
+- **Tools/Tech**: Git, Autotools/Automake, MinGW-w64 GCC, MSYS2
+- **Editors/IDEs**: Visual Studio Code, Visual Studio 2022
+- **SDK/Toolchain**: Windows 11 SDK, MSVC v143 toolset
 
 ---
 
 ## ▶️ How to Run
 
-- Main source file: `Scientific Calculator.c`
-- Executable: `Scientific Calculator.exe`
-- Installer: `Calculator SetUp.exe`
+- Main source file: `MainWindow.xaml.cs`
+- Executable: `CalculatorUI.exe` (run directly on Windows without an IDE or tools)
 
 ## To run:
-1. Download `Scientific Calculator.exe` from the repo
-  - OR Download the installer package for more features, no need to set up manually
-2. Download `saves.dat` file
-4. Make sure that the `Scientific Calculator.exe` & `saves.dat` files stay in the same directory
-3. Launch the executable and start typing your expressions!
+1. Download `CalculatorUI.exe` from the repo
+2. Launch the executable and start typing your expressions
 
 -Alternative: You can find older commit and download it if the .exe file doesn't work
-
-## ▶️ How to Compile
-- Source Files: "Scientific Calculator.c", gsl and MY_LIB.
-1. You need to download the main source files mentioned above
-2. Move gsl and MY_LIB folder to your "include" folder
-3. Run compilation command:  
-  **gcc -o3 "Scientific Calculator.c" -o "Scientific Calculator.exe"**
-
-✅ This file is safe — no viruses or malware inside ( ͡~ ͜ʖ ͡°)👌
 
 ---
 
@@ -70,5 +62,3 @@ MIT — feel free to contribute or fork your own version!
 
 This is a **beta version**, so bugs may exist.  
 Spotted a bug? Please report it to my repo ( ͡° ͜ʖ ͡°)
-
-💡 UI is intentionally minimal for speed and focus.

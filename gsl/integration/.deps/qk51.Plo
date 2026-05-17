@@ -1,0 +1,44 @@
+qk51.lo: qk51.c ../config.h ../gsl/gsl_integration.h \
+ C:/Clang/include/stdlib.h C:/Clang/include/corecrt.h \
+ C:/Clang/include/_mingw.h C:/Clang/include/_mingw_mac.h \
+ C:/Clang/include/_mingw_secapi.h C:/Clang/include/vadefs.h \
+ C:/Clang/include/corecrt_wstdlib.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h \
+ C:/Clang/include/limits.h C:/Clang/include/crtdefs.h \
+ C:/Clang/include/sec_api/stdlib_s.h C:/Clang/include/malloc.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/mm_malloc.h \
+ C:/Clang/include/errno.h ../gsl/gsl_math.h C:/Clang/include/math.h \
+ ../gsl/gsl_sys.h ../gsl/gsl_inline.h ../gsl/gsl_machine.h \
+ C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/float.h \
+ C:/Clang/include/float.h ../gsl/gsl_precision.h ../gsl/gsl_types.h \
+ ../gsl/gsl_nan.h ../gsl/gsl_pow_int.h ../gsl/gsl_minmax.h
+../config.h:
+../gsl/gsl_integration.h:
+C:/Clang/include/stdlib.h:
+C:/Clang/include/corecrt.h:
+C:/Clang/include/_mingw.h:
+C:/Clang/include/_mingw_mac.h:
+C:/Clang/include/_mingw_secapi.h:
+C:/Clang/include/vadefs.h:
+C:/Clang/include/corecrt_wstdlib.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/limits.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/syslimits.h:
+C:/Clang/include/limits.h:
+C:/Clang/include/crtdefs.h:
+C:/Clang/include/sec_api/stdlib_s.h:
+C:/Clang/include/malloc.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/mm_malloc.h:
+C:/Clang/include/errno.h:
+../gsl/gsl_math.h:
+C:/Clang/include/math.h:
+../gsl/gsl_sys.h:
+../gsl/gsl_inline.h:
+../gsl/gsl_machine.h:
+C:/Clang/lib/gcc/x86_64-w64-mingw32/16.1.0/include/float.h:
+C:/Clang/include/float.h:
+../gsl/gsl_precision.h:
+../gsl/gsl_types.h:
+../gsl/gsl_nan.h:
+../gsl/gsl_pow_int.h:
+../gsl/gsl_minmax.h:

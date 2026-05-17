@@ -1,0 +1,105 @@
+<Window x:Class="CalculatorUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Scientific Calculator"
+        Width="420"
+        Height="640"
+        MinWidth="360"
+        MinHeight="560"
+        Background="#202124"
+        WindowStartupLocation="CenterScreen"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewTextInput="Window_PreviewTextInput">
+    <Window.Resources>
+        <Style x:Key="CalcButton" TargetType="Button">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="MinHeight" Value="52"/>
+            <Setter Property="Background" Value="#303134"/>
+            <Setter Property="Foreground" Value="#F1F3F4"/>
+            <Setter Property="BorderBrush" Value="#3C4043"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="FunctionButton" TargetType="Button" BasedOn="{StaticResource CalcButton}">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Background" Value="#2B3036"/>
+        </Style>
+
+        <Style x:Key="OperatorButton" TargetType="Button" BasedOn="{StaticResource CalcButton}">
+            <Setter Property="Background" Value="#3A4756"/>
+        </Style>
+
+        <Style x:Key="EqualsButton" TargetType="Button" BasedOn="{StaticResource CalcButton}">
+            <Setter Property="Background" Value="#8AB4F8"/>
+            <Setter Property="Foreground" Value="#111827"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBox x:Name="DisplayTextBox"
+                 Grid.Row="0"
+                 Text="0"
+                 FontSize="34"
+                 FontWeight="SemiBold"
+                 TextAlignment="Right"
+                 VerticalContentAlignment="Bottom"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 IsReadOnly="True"
+                 Background="#171717"
+                 Foreground="#FFFFFF"
+                 BorderBrush="#3C4043"
+                 Padding="14"/>
+
+        <UniformGrid Grid.Row="1" Columns="5" Rows="7" Margin="0,12,0,0">
+            <Button Content="C" Style="{StaticResource FunctionButton}" Click="Clear_Click"/>
+            <Button Content="Back" Style="{StaticResource FunctionButton}" Click="Backspace_Click"/>
+            <Button Content="(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content=")" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="/" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+
+            <Button Content="sin(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="cos(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="tan(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="^" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+            <Button Content="*" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+
+            <Button Content="ln(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="sqrt(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="pi" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="e" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="-" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+
+            <Button Content="7" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="8" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="9" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="+" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+
+            <Button Content="4" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="5" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="6" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="Enter" Style="{StaticResource EqualsButton}" Click="Equals_Click"/>
+
+            <Button Content="1" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="2" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="3" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="x" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="," Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+
+            <Button Content="0" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="." Style="{StaticResource CalcButton}" Click="Input_Click"/>
+            <Button Content="!" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="=" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+            <Button Content="State" Style="{StaticResource FunctionButton}" Click="ClearState_Click"/>
+        </UniformGrid>
+    </Grid>
+</Window>
