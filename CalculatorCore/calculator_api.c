@@ -3,7 +3,7 @@
 
 to export this file to .dll
 use the following command:
-gcc -shared -o x64/Debug/calculator_api.dll calculator_api.c
+gcc -shared -o x64/Debug/CalculatorCore.dll calculator_api.c
 
 ▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄
 */
@@ -238,8 +238,18 @@ int calculator_clear_state(void)
     return 0;
 }
 
+char * differentiate(char * function, char variable){
+    INFIX I_function = convert_string_to_INFIX(function);
+    INFIX I_result = differentiate_I_exp(I_function, variable);
+    string_ result = convert_INFIX_to_string(I_result);
+    free(I_function.tokens);
+    free(I_result.tokens);
+    return result.Content;
+}
+
 int main()
 {
     // main function to test api
+    printf(differentiate("2x-3", 'x'));
     return 0;
 }
