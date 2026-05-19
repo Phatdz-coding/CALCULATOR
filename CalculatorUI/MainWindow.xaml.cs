@@ -2,6 +2,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Text;
+using System.Globalization;
+using System.Numerics;
 using CalculatorUI.Interop;
 
 namespace CalculatorUI;
@@ -9,6 +11,10 @@ namespace CalculatorUI;
 public partial class MainWindow : Window
 {
     private bool _replaceDisplay = true;
+    private int _polynomialDegree;
+    private int _coefficientIndex;
+    private double[] _coefficients = [];
+    private string _coefficientInput = string.Empty;
 
     public MainWindow()
     {
@@ -20,11 +26,48 @@ public partial class MainWindow : Window
         if (sender is not Button button)
             return;
 
-        AppendInput(button.Content?.ToString() ?? string.Empty);
+        AppendInput(button.Tag?.ToString() ?? button.Content?.ToString() ?? string.Empty);
+    }
+
+    private void Mode_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement item)
+            return;
+
+        string mode = item.Tag?.ToString() ?? "Scientific";
+        Title = $"{mode} - Calculator";
+        ModeTitleTextBlock.Text = mode;
+        ModeToggleButton.IsChecked = false;
+
+        if (mode is "Solve Quadratic Equation" or "Solve Cubic Equation" or "Solve Quartic Equation")
+        {
+            StartPolynomialMode(mode);
+            return;
+        }
+
+        ClearPolynomialMode();
+        DisplayTextBox.Text = mode switch
+        {
+            "Standard" => "0",
+            "Scientific" => "0",
+            "Derivative Calculator" => "dif(",
+            "Integral Calculator" => "integral(",
+            "Solve Any Equation" => "x=",
+            _ => mode
+        };
+
+        _replaceDisplay = mode is not "Derivative Calculator" and not "Integral Calculator" and not "Solve Any Equation";
+        DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
     }
 
     private void AppendInput(string input)
     {
+        if (_polynomialDegree > 0)
+        {
+            AppendPolynomialInput(input);
+            return;
+        }
+
         if (_replaceDisplay || DisplayTextBox.Text == "0")
         {
             DisplayTextBox.Text = input;
@@ -45,6 +88,13 @@ public partial class MainWindow : Window
 
     private void ClearDisplay()
     {
+        if (_polynomialDegree > 0)
+        {
+            _coefficientInput = string.Empty;
+            UpdatePolynomialDisplay();
+            return;
+        }
+
         DisplayTextBox.Text = "0";
         _replaceDisplay = true;
     }
@@ -56,6 +106,15 @@ public partial class MainWindow : Window
 
     private void DeleteLastInput()
     {
+        if (_polynomialDegree > 0)
+        {
+            if (_coefficientInput.Length > 0)
+                _coefficientInput = _coefficientInput[..^1];
+
+            UpdatePolynomialDisplay();
+            return;
+        }
+
         if (_replaceDisplay || DisplayTextBox.Text.Length <= 1)
         {
             DisplayTextBox.Text = "0";
@@ -74,6 +133,12 @@ public partial class MainWindow : Window
 
     private void Equals_Click(object sender, RoutedEventArgs e)
     {
+        if (_polynomialDegree > 0)
+        {
+            ConfirmPolynomialCoefficient();
+            return;
+        }
+
         EvaluateCurrentExpression();
     }
 
@@ -163,6 +228,7 @@ public partial class MainWindow : Window
 
     private void ClearState_Click(object sender, RoutedEventArgs e)
     {
+        ClearPolynomialMode();
         NativeMethods.ClearState();
         DisplayTextBox.Text = "0";
         _replaceDisplay = true;
@@ -204,6 +270,218 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
         }
+    }
+
+    private void StartPolynomialMode(string mode)
+    {
+        _polynomialDegree = mode switch
+        {
+            "Solve Quadratic Equation" => 2,
+            "Solve Cubic Equation" => 3,
+            "Solve Quartic Equation" => 4,
+            _ => 0
+        };
+
+        _coefficients = new double[_polynomialDegree + 1];
+        _coefficientIndex = 0;
+        _coefficientInput = string.Empty;
+        _replaceDisplay = false;
+        UpdatePolynomialDisplay();
+    }
+
+    private void ClearPolynomialMode()
+    {
+        _polynomialDegree = 0;
+        _coefficientIndex = 0;
+        _coefficients = [];
+        _coefficientInput = string.Empty;
+    }
+
+    private void AppendPolynomialInput(string input)
+    {
+        if (input.Length != 1)
+            return;
+
+        char character = input[0];
+        if (char.IsDigit(character) || character is '.' or '-')
+        {
+            if (character == '-' && _coefficientInput.Length > 0)
+                return;
+
+            if (character == '.' && _coefficientInput.Contains('.'))
+                return;
+
+            _coefficientInput += input;
+            UpdatePolynomialDisplay();
+        }
+    }
+
+    private void ConfirmPolynomialCoefficient()
+    {
+        if (!double.TryParse(_coefficientInput, NumberStyles.Float, CultureInfo.InvariantCulture, out double coefficient))
+        {
+            DisplayTextBox.Text = $"{GetPolynomialEquationForm()}\n{GetCurrentCoefficientName()}? invalid";
+            _coefficientInput = string.Empty;
+            return;
+        }
+
+        if (_coefficientIndex == 0 && Math.Abs(coefficient) <= 1e-12)
+        {
+            DisplayTextBox.Text = $"{GetPolynomialEquationForm()}\na cannot be 0";
+            _coefficientInput = string.Empty;
+            return;
+        }
+
+        _coefficients[_coefficientIndex] = coefficient;
+        _coefficientInput = string.Empty;
+        _coefficientIndex++;
+
+        if (_coefficientIndex < _coefficients.Length)
+        {
+            UpdatePolynomialDisplay();
+            return;
+        }
+
+        DisplayTextBox.Text = SolvePolynomial();
+        _replaceDisplay = true;
+        ClearPolynomialMode();
+    }
+
+    private void UpdatePolynomialDisplay()
+    {
+        var display = new StringBuilder();
+        display.AppendLine(GetPolynomialEquationForm());
+
+        for (int i = 0; i < _coefficientIndex; i++)
+        {
+            if (i > 0)
+                display.Append("  ");
+
+            display.Append(GetCoefficientName(i));
+            display.Append('=');
+            display.Append(_coefficients[i].ToString("G15", CultureInfo.InvariantCulture));
+        }
+
+        if (_coefficientIndex > 0)
+            display.AppendLine();
+
+        display.Append(GetCurrentCoefficientName());
+        display.Append("? ");
+        display.Append(_coefficientInput.Length == 0 ? "_" : _coefficientInput);
+
+        DisplayTextBox.Text = display.ToString();
+        DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
+    }
+
+    private string GetPolynomialEquationForm()
+    {
+        return _polynomialDegree switch
+        {
+            2 => "ax^2 + bx + c = 0",
+            3 => "ax^3 + bx^2 + cx + d = 0",
+            4 => "ax^4 + bx^3 + cx^2 + dx + e = 0",
+            _ => string.Empty
+        };
+    }
+
+    private string GetCurrentCoefficientName()
+    {
+        return GetCoefficientName(_coefficientIndex);
+    }
+
+    private static string GetCoefficientName(int index)
+    {
+        return ((char)('a' + index)).ToString();
+    }
+
+    private string SolvePolynomial()
+    {
+        Complex[] roots = SolvePolynomialRoots(_coefficients);
+        var result = new StringBuilder();
+        result.AppendLine(GetPolynomialEquationForm());
+
+        for (int i = 0; i < roots.Length; i++)
+        {
+            result.Append('x');
+            result.Append(i + 1);
+            result.Append(" = ");
+            result.Append(FormatComplex(roots[i]));
+
+            if (i < roots.Length - 1)
+                result.AppendLine();
+        }
+
+        return result.ToString();
+    }
+
+    private static Complex[] SolvePolynomialRoots(double[] coefficients)
+    {
+        int degree = coefficients.Length - 1;
+        Complex[] roots = new Complex[degree];
+        double radius = 1.0;
+
+        for (int i = 1; i < coefficients.Length; i++)
+            radius = Math.Max(radius, Math.Abs(coefficients[i] / coefficients[0]) + 1.0);
+
+        for (int i = 0; i < degree; i++)
+        {
+            double angle = 2.0 * Math.PI * i / degree;
+            roots[i] = Complex.FromPolarCoordinates(radius, angle);
+        }
+
+        for (int iteration = 0; iteration < 200; iteration++)
+        {
+            double maxChange = 0.0;
+
+            for (int i = 0; i < degree; i++)
+            {
+                Complex denominator = Complex.One;
+                for (int j = 0; j < degree; j++)
+                {
+                    if (i != j)
+                        denominator *= roots[i] - roots[j];
+                }
+
+                if (denominator.Magnitude <= 1e-18)
+                    denominator = new Complex(1e-18, 0.0);
+
+                Complex change = EvaluatePolynomial(coefficients, roots[i]) / denominator;
+                roots[i] -= change;
+                maxChange = Math.Max(maxChange, change.Magnitude);
+            }
+
+            if (maxChange <= 1e-12)
+                break;
+        }
+
+        return roots.OrderBy(root => Math.Abs(root.Imaginary) <= 1e-9 ? 0 : 1)
+            .ThenBy(root => root.Real)
+            .ThenBy(root => root.Imaginary)
+            .ToArray();
+    }
+
+    private static Complex EvaluatePolynomial(double[] coefficients, Complex x)
+    {
+        Complex result = Complex.Zero;
+        foreach (double coefficient in coefficients)
+            result = result * x + coefficient;
+
+        return result;
+    }
+
+    private static string FormatComplex(Complex value)
+    {
+        double real = Math.Abs(value.Real) <= 1e-10 ? 0.0 : value.Real;
+        double imaginary = Math.Abs(value.Imaginary) <= 1e-10 ? 0.0 : value.Imaginary;
+
+        if (imaginary == 0.0)
+            return real.ToString("G12", CultureInfo.InvariantCulture);
+
+        if (real == 0.0)
+            return $"{imaginary.ToString("G12", CultureInfo.InvariantCulture)}i";
+
+        string sign = imaginary < 0.0 ? " - " : " + ";
+        return $"{real.ToString("G12", CultureInfo.InvariantCulture)}{sign}{Math.Abs(imaginary).ToString("G12", CultureInfo.InvariantCulture)}i";
     }
 
     private static bool IsAllowedTypedInput(char input)

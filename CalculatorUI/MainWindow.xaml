@@ -35,16 +35,88 @@
             <Setter Property="Foreground" Value="#111827"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
+
+        <Style x:Key="ModeToggleButton" TargetType="ToggleButton">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Margin" Value="0,0,10,8"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Background" Value="#202124"/>
+            <Setter Property="Foreground" Value="#F1F3F4"/>
+            <Setter Property="BorderBrush" Value="#3C4043"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="ModeFlyoutButton" TargetType="Button">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="#202124"/>
+            <Setter Property="Foreground" Value="#F1F3F4"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="14">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="150"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <ToggleButton x:Name="ModeToggleButton"
+                              Content="&#x2630;"
+                              Style="{StaticResource ModeToggleButton}"
+                              ToolTip="Calculator modes"/>
+                <TextBlock x:Name="ModeTitleTextBlock"
+                           Text="Scientific"
+                           Foreground="#F1F3F4"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,0,8"/>
+            </StackPanel>
+
+            <Popup IsOpen="{Binding IsChecked, ElementName=ModeToggleButton}"
+                   PlacementTarget="{Binding ElementName=ModeToggleButton}"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   PopupAnimation="Fade">
+                <Border Width="292"
+                        MaxHeight="430"
+                        Background="#202124"
+                        BorderBrush="#3C4043"
+                        BorderThickness="1"
+                        Padding="8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Button Content="Standard" Tag="Standard" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Scientific" Tag="Scientific" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Rectangle Height="1" Fill="#3C4043" Margin="8,8"/>
+                            <Button Content="Derivative Calculator" Tag="Derivative Calculator" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Integral Calculator" Tag="Integral Calculator" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Rectangle Height="1" Fill="#3C4043" Margin="8,8"/>
+                            <Button Content="Solve Quadratic Equation" Tag="Solve Quadratic Equation" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Solve Cubic Equation" Tag="Solve Cubic Equation" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Solve Quartic Equation" Tag="Solve Quartic Equation" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Solve n-degree Polynomial Equation" Tag="Solve n-degree Polynomial Equation" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Rectangle Height="1" Fill="#3C4043" Margin="8,8"/>
+                            <Button Content="Solve System of Linear Equations" Tag="Solve System of Linear Equations" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Solve System of Non-linear Equations" Tag="Solve System of Non-linear Equations" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <Button Content="Solve Any Equation" Tag="Solve Any Equation" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+
         <TextBox x:Name="DisplayTextBox"
-                 Grid.Row="0"
+                 Grid.Row="1"
                  Text="0"
                  FontSize="34"
                  FontWeight="SemiBold"
@@ -58,7 +130,7 @@
                  BorderBrush="#3C4043"
                  Padding="14"/>
 
-        <UniformGrid Grid.Row="1" Columns="5" Rows="7" Margin="0,12,0,0">
+        <UniformGrid Grid.Row="2" Columns="5" Rows="7" Margin="0,12,0,0">
             <Button Content="C" Style="{StaticResource FunctionButton}" Click="Clear_Click"/>
             <Button Content="Back" Style="{StaticResource FunctionButton}" Click="Backspace_Click"/>
             <Button Content="(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
@@ -80,13 +152,13 @@
             <Button Content="7" Style="{StaticResource CalcButton}" Click="Input_Click"/>
             <Button Content="8" Style="{StaticResource CalcButton}" Click="Input_Click"/>
             <Button Content="9" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="&#x222B;" Tag="integral(" ToolTip="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
             <Button Content="+" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
             <Button Content="4" Style="{StaticResource CalcButton}" Click="Input_Click"/>
             <Button Content="5" Style="{StaticResource CalcButton}" Click="Input_Click"/>
             <Button Content="6" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+            <Button Content="d/dx" Tag="dif(" ToolTip="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
             <Button Content="Enter" Style="{StaticResource EqualsButton}" Click="Equals_Click"/>
 
             <Button Content="1" Style="{StaticResource CalcButton}" Click="Input_Click"/>
