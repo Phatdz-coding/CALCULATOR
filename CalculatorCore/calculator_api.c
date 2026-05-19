@@ -250,6 +250,6 @@ char * differentiate(char * function, char variable){
 int main()
 {
     // main function to test api
-    printf(differentiate("2x-3", 'x'));
+    printf("%g", evaluate("infinity"));
     return 0;
 }

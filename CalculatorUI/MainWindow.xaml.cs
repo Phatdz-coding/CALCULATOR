@@ -195,7 +195,7 @@ public partial class MainWindow : Window
         try
         {
             double result = NativeMethods.EvaluateExpressionDouble(expression);
-            DisplayTextBox.Text = double.IsFinite(result) ? result.ToString("G15") : "Calculation error";
+            DisplayTextBox.Text = double.IsNaN(result) ? "Syntax error ⚠️" : result.ToString("G15");
             
             _replaceDisplay = true;
         }
