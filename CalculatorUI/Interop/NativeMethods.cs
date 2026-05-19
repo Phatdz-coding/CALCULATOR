@@ -11,8 +11,28 @@ internal static class NativeMethods
         [MarshalAs(UnmanagedType.LPUTF8Str)] string expression);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "differentiate")]
-    internal static extern string differentiate(
-        [MarshalAs(UnmanagedType.LPUTF8Str)] string expression, char variable);
+    private static extern IntPtr differentiate(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string function, char variable);
+
+    internal static string Differentiate(string function, char variable)
+    {
+        IntPtr resultPtr = differentiate(function, variable);
+        try
+        {
+            return resultPtr == IntPtr.Zero
+                ? string.Empty
+                : Marshal.PtrToStringUTF8(resultPtr) ?? string.Empty;
+        }
+        finally
+        {
+            if (resultPtr != IntPtr.Zero)
+                FreeString(resultPtr);
+        }
+    }
+
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "calculator_free_string")]
+    internal static extern void FreeString(IntPtr text);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "evaluate_expression_double")]
     internal static extern double EvaluateExpressionDouble(

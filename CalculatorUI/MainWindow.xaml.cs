@@ -98,7 +98,7 @@ public partial class MainWindow : Window
 
         char variable = variableText.First();
 
-        DisplayTextBox.Text = NativeMethods.differentiate(function, variable);
+        DisplayTextBox.Text = NativeMethods.Differentiate(function, variable);
         _replaceDisplay = true;
         DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
     }

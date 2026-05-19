@@ -182,7 +182,7 @@
                 <TextBlock Text="Variable (single letter)" Foreground="#9AA0A6" FontSize="12" Margin="0,0,0,4"/>
                 <TextBox x:Name="DerivativeVariableTextBox" Height="42" FontSize="18" Background="#171717" Foreground="#FFFFFF" BorderBrush="#3C4043" Padding="12" MaxLength="1" Width="140" Margin="0,0,0,14"/>
                 <Button Content="Differentiate" Style="{StaticResource EqualsButton}" Width="140" HorizontalAlignment="Left" Click="ApplyDerivative_Click"/>
-                <TextBlock Text="Builds dif(function, variable)" Foreground="#9AA0A6" FontSize="12" Margin="0,12,0,0"/>
+                <!-- <TextBlock Text="Builds dif(function, variable)" Foreground="#9AA0A6" FontSize="12" Margin="0,12,0,0"/> -->
             </StackPanel>
         </Grid>
     </Grid>
