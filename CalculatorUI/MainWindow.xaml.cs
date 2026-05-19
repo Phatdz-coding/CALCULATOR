@@ -48,7 +48,6 @@ public partial class MainWindow : Window
         ClearPolynomialMode();
         DisplayTextBox.Text = mode switch
         {
-            "Standard" => "0",
             "Scientific" => "0",
             "Derivative Calculator" => "dif(",
             "Integral Calculator" => "integral(",
