@@ -95,7 +95,7 @@
                         Padding="8">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <Button Content="Standard" Tag="Standard" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
+                            <!-- <Button Content="Standard" Tag="Standard" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/> -->
                             <Button Content="Scientific" Tag="Scientific" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
                             <Rectangle Height="1" Fill="#3C4043" Margin="8,8"/>
                             <Button Content="Derivative Calculator" Tag="Derivative Calculator" Style="{StaticResource ModeFlyoutButton}" Click="Mode_Click"/>
