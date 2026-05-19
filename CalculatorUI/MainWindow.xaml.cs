@@ -195,7 +195,7 @@ public partial class MainWindow : Window
         try
         {
             double result = NativeMethods.EvaluateExpressionDouble(expression);
-            DisplayTextBox.Text = double.IsNaN(result) ? "Syntax error ⚠️" : result.ToString("G15");
+            DisplayTextBox.Text = double.IsNaN(result) ? "Syntax error ⚠️" : result.ToString("G16");
             
             _replaceDisplay = true;
         }
@@ -237,7 +237,7 @@ public partial class MainWindow : Window
 
             result.Append((char)variable);
             result.Append(" = ");
-            result.Append(roots[i].ToString("G15"));
+            result.Append(roots[i].ToString("G16"));
         }
 
         return result.ToString();
@@ -407,7 +407,7 @@ public partial class MainWindow : Window
 
             display.Append(GetCoefficientName(i));
             display.Append('=');
-            display.Append(_coefficients[i].ToString("G15", CultureInfo.InvariantCulture));
+            display.Append(_coefficients[i].ToString("G16", CultureInfo.InvariantCulture));
         }
 
         if (_coefficientIndex > 0)
