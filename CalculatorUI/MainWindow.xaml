@@ -130,48 +130,60 @@
                  BorderBrush="#3C4043"
                  Padding="14"/>
 
-        <UniformGrid Grid.Row="2" Columns="5" Rows="7" Margin="0,12,0,0">
-            <Button Content="C" Style="{StaticResource FunctionButton}" Click="Clear_Click"/>
-            <Button Content="Back" Style="{StaticResource FunctionButton}" Click="Backspace_Click"/>
-            <Button Content="(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content=")" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="/" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <UniformGrid x:Name="KeypadGrid" Columns="5" Rows="7">
+                <Button Content="C" Style="{StaticResource FunctionButton}" Click="Clear_Click"/>
+                <Button Content="Back" Style="{StaticResource FunctionButton}" Click="Backspace_Click"/>
+                <Button Content="(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content=")" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="/" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
-            <Button Content="sin(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="cos(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="tan(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="^" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
-            <Button Content="*" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="sin(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="cos(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="tan(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="^" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="*" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
-            <Button Content="ln(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="sqrt(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="pi" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="e" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="-" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="ln(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="sqrt(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="pi" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="e" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="-" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
-            <Button Content="7" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="8" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="9" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="&#x222B;" Tag="integral(" ToolTip="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="+" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="7" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="8" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="9" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="&#x222B;" Tag="integral(" ToolTip="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="+" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
-            <Button Content="4" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="5" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="6" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="d/dx" Tag="dif(" ToolTip="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="Enter" Style="{StaticResource EqualsButton}" Click="Equals_Click"/>
+                <Button Content="4" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="5" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="6" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="d/dx" Tag="dif(" ToolTip="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="Enter" Style="{StaticResource EqualsButton}" Click="Equals_Click"/>
 
-            <Button Content="1" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="2" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="3" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="x" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="," Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="1" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="2" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="3" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="x" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="," Style="{StaticResource FunctionButton}" Click="Input_Click"/>
 
-            <Button Content="0" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="." Style="{StaticResource CalcButton}" Click="Input_Click"/>
-            <Button Content="!" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-            <Button Content="=" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
-            <Button Content="State" Style="{StaticResource FunctionButton}" Click="ClearState_Click"/>
-        </UniformGrid>
+                <Button Content="0" Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="." Style="{StaticResource CalcButton}" Click="Input_Click"/>
+                <Button Content="!" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="=" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="State" Style="{StaticResource FunctionButton}" Click="ClearState_Click"/>
+            </UniformGrid>
+
+            <StackPanel x:Name="DerivativePanel" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,8">
+                <TextBlock Text="Derivative mode" Foreground="#F1F3F4" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <TextBlock Text="Function" Foreground="#9AA0A6" FontSize="12" Margin="0,0,0,4"/>
+                <TextBox x:Name="DerivativeFunctionTextBox" Height="42" FontSize="18" Background="#171717" Foreground="#FFFFFF" BorderBrush="#3C4043" Padding="12" Margin="0,0,0,12"/>
+                <TextBlock Text="Variable (single letter)" Foreground="#9AA0A6" FontSize="12" Margin="0,0,0,4"/>
+                <TextBox x:Name="DerivativeVariableTextBox" Height="42" FontSize="18" Background="#171717" Foreground="#FFFFFF" BorderBrush="#3C4043" Padding="12" MaxLength="1" Width="140" Margin="0,0,0,14"/>
+                <Button Content="Differentiate" Style="{StaticResource EqualsButton}" Width="140" HorizontalAlignment="Left" Click="ApplyDerivative_Click"/>
+                <TextBlock Text="Builds dif(function, variable)" Foreground="#9AA0A6" FontSize="12" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

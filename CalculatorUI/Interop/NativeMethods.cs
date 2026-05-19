@@ -10,6 +10,10 @@ internal static class NativeMethods
     internal static extern long EvaluateExpression(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string expression);
 
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "differentiate")]
+    internal static extern string differentiate(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string expression, char variable);
+
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "evaluate_expression_double")]
     internal static extern double EvaluateExpressionDouble(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string expression);

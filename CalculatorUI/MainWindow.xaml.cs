@@ -39,6 +39,8 @@ public partial class MainWindow : Window
         ModeTitleTextBlock.Text = mode;
         ModeToggleButton.IsChecked = false;
 
+        SetDerivativeMode(mode == "Derivative Calculator");
+
         if (mode is "Solve Quadratic Equation" or "Solve Cubic Equation" or "Solve Quartic Equation")
         {
             StartPolynomialMode(mode);
@@ -49,13 +51,55 @@ public partial class MainWindow : Window
         DisplayTextBox.Text = mode switch
         {
             "Scientific" => "0",
-            "Derivative Calculator" => "dif(",
+            "Derivative Calculator" => "0",
             "Integral Calculator" => "integral(",
             "Solve Any Equation" => "x=",
             _ => mode
         };
 
         _replaceDisplay = mode is not "Derivative Calculator" and not "Integral Calculator" and not "Solve Any Equation";
+        DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
+    }
+
+    private void SetDerivativeMode(bool isEnabled)
+    {
+        if (DerivativePanel is null || KeypadGrid is null)
+            return;
+
+        DerivativePanel.Visibility = isEnabled ? Visibility.Visible : Visibility.Collapsed;
+        KeypadGrid.Visibility = isEnabled ? Visibility.Collapsed : Visibility.Visible;
+
+        if (isEnabled)
+        {
+            DerivativeFunctionTextBox.Text = string.Empty;
+            DerivativeVariableTextBox.Text = "x";
+            DerivativeFunctionTextBox.Focus();
+        }
+    }
+
+    private void ApplyDerivative_Click(object sender, RoutedEventArgs e)
+    {
+        string function = DerivativeFunctionTextBox.Text.Trim();
+        string variableText = DerivativeVariableTextBox.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(function))
+        {
+            DisplayTextBox.Text = "Enter a function for differentiation";
+            _replaceDisplay = true;
+            return;
+        }
+
+        if (variableText.Length != 1 || !char.IsLetter(variableText[0]))
+        {
+            DisplayTextBox.Text = "Variable must be a single letter";
+            _replaceDisplay = true;
+            return;
+        }
+
+        char variable = variableText.First();
+
+        DisplayTextBox.Text = NativeMethods.differentiate(function, variable);
+        _replaceDisplay = true;
         DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
     }
 
@@ -235,6 +279,9 @@ public partial class MainWindow : Window
 
     private void Window_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
+        if (IsDerivativeModeActive())
+            return;
+
         string text = e.Text;
         if (text.Length == 1 && IsAllowedTypedInput(text[0]))
         {
@@ -245,6 +292,9 @@ public partial class MainWindow : Window
 
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (IsDerivativeModeActive())
+            return;
+
         string? input = KeyToCalculatorInput(e.Key);
         if (input is not null)
         {
@@ -269,6 +319,11 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
         }
+    }
+
+    private bool IsDerivativeModeActive()
+    {
+        return DerivativePanel is not null && DerivativePanel.Visibility == Visibility.Visible;
     }
 
     private void StartPolynomialMode(string mode)
