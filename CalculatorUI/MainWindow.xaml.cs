@@ -194,15 +194,9 @@ public partial class MainWindow : Window
 
         try
         {
-            if (expression.Contains('='))
-            {
-                DisplayTextBox.Text = SolveEquation(expression);
-            }
-            else
-            {
-                double result = NativeMethods.EvaluateExpressionDouble(expression);
-                DisplayTextBox.Text = double.IsFinite(result) ? result.ToString("G15") : "Calculation error";
-            }
+            double result = NativeMethods.EvaluateExpressionDouble(expression);
+            DisplayTextBox.Text = double.IsFinite(result) ? result.ToString("G15") : "Calculation error";
+            
             _replaceDisplay = true;
         }
         catch (DllNotFoundException)
