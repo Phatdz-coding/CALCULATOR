@@ -11,12 +11,16 @@ internal static class NativeMethods
         [MarshalAs(UnmanagedType.LPUTF8Str)] string expression);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "differentiate")]
-    private static extern IntPtr differentiate(
+    private static extern IntPtr differentiate_support(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string function, char variable);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "integral")]
+    internal static extern double Integral(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string function, char variable, string l_bound, string u_bound, int method);
 
     internal static string Differentiate(string function, char variable)
     {
-        IntPtr resultPtr = differentiate(function, variable);
+        IntPtr resultPtr = differentiate_support(function, variable);
         try
         {
             return resultPtr == IntPtr.Zero

@@ -238,7 +238,8 @@ int calculator_clear_state(void)
     return 0;
 }
 
-char * differentiate(char * function, char variable){
+char *differentiate(char *function, char variable)
+{
     INFIX I_function = convert_string_to_INFIX(function);
     INFIX I_result = differentiate_I_exp(I_function, variable);
     string_ result = convert_INFIX_to_string(I_result);
@@ -247,9 +248,21 @@ char * differentiate(char * function, char variable){
     return result.Content;
 }
 
+double integral(char *function,
+                char var,
+                char *lower,
+                char *upper,
+                int method)
+{
+    INFIX I_function = convert_string_to_INFIX(function);
+    double result = ni_integrate(I_function, var, evaluate(lower), evaluate(upper),(unsigned short *) &method);
+    free(I_function.tokens);
+    return result;
+}
+
 int main()
 {
     // main function to test api
-    printf("%g", evaluate("infinity"));
+    printf("%g", integral("2x^3-5x", 'x', "-1", "1", 0));
     return 0;
 }

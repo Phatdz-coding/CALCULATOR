@@ -40,6 +40,7 @@ public partial class MainWindow : Window
         ModeToggleButton.IsChecked = false;
 
         SetDerivativeMode(mode == "Derivative Calculator");
+        SetIntegralMode(mode == "Integral Calculator");
 
         if (mode is "Solve Quadratic Equation" or "Solve Cubic Equation" or "Solve Quartic Equation")
         {
@@ -51,8 +52,8 @@ public partial class MainWindow : Window
         DisplayTextBox.Text = mode switch
         {
             "Scientific" => "0",
-            "Derivative Calculator" => "0",
-            "Integral Calculator" => "integral(",
+            "Derivative Calculator" => "Enter function",
+            "Integral Calculator" => "Enter function",
             "Solve Any Equation" => "x=",
             _ => mode
         };
@@ -67,7 +68,8 @@ public partial class MainWindow : Window
             return;
 
         DerivativePanel.Visibility = isEnabled ? Visibility.Visible : Visibility.Collapsed;
-        KeypadGrid.Visibility = isEnabled ? Visibility.Collapsed : Visibility.Visible;
+        UpdateKeypadVisibility();
+        ModeTitleTextBlock.Visibility = isEnabled ? Visibility.Collapsed : Visibility.Visible;
 
         if (isEnabled)
         {
@@ -75,6 +77,31 @@ public partial class MainWindow : Window
             DerivativeVariableTextBox.Text = "x";
             DerivativeFunctionTextBox.Focus();
         }
+    }
+
+    private void SetIntegralMode(bool isEnabled)
+    {
+        if (IntegralPanel is null || KeypadGrid is null)
+            return;
+
+        IntegralPanel.Visibility = isEnabled ? Visibility.Visible : Visibility.Collapsed;
+        UpdateKeypadVisibility();
+
+        if (isEnabled)
+        {
+            IntegralFunctionTextBox.Text = string.Empty;
+            IntegralVariableTextBox.Text = "x";
+            IntegralLowerBoundTextBox.Text = "-1";
+            IntegralUpperBoundTextBox.Text = "1";
+            IntegralMethodComboBox.SelectedValue = "0";
+            IntegralFunctionTextBox.Focus();
+        }
+    }
+
+    private void UpdateKeypadVisibility()
+    {
+        bool showKeypad = !IsDerivativeModeActive() && !IsIntegralModeActive();
+        KeypadGrid.Visibility = showKeypad ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void ApplyDerivative_Click(object sender, RoutedEventArgs e)
@@ -99,6 +126,42 @@ public partial class MainWindow : Window
         char variable = variableText.First();
 
         DisplayTextBox.Text = NativeMethods.Differentiate(function, variable);
+        _replaceDisplay = true;
+        DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
+    }
+
+    private void ApplyIntegral_Click(object sender, RoutedEventArgs e)
+    {
+        string function = IntegralFunctionTextBox.Text.Trim();
+        string variableText = IntegralVariableTextBox.Text.Trim();
+        string lower = IntegralLowerBoundTextBox.Text.Trim();
+        string upper = IntegralUpperBoundTextBox.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(function))
+        {
+            DisplayTextBox.Text = "Enter a function for integration";
+            _replaceDisplay = true;
+            return;
+        }
+
+        if (variableText.Length != 1 || !char.IsLetter(variableText[0]))
+        {
+            DisplayTextBox.Text = "Variable must be a single letter";
+            _replaceDisplay = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(lower) || string.IsNullOrWhiteSpace(upper))
+        {
+            DisplayTextBox.Text = "Enter both lower and upper bounds";
+            _replaceDisplay = true;
+            return;
+        }
+
+        int methodId = int.TryParse(IntegralMethodComboBox.SelectedValue?.ToString(), out int value) ? value : 0;
+        
+        double result = NativeMethods.Integral(function, variableText.First(), lower, upper, methodId);
+        DisplayTextBox.Text = result.ToString("G16");
         _replaceDisplay = true;
         DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
     }
@@ -273,7 +336,7 @@ public partial class MainWindow : Window
 
     private void Window_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
-        if (IsDerivativeModeActive())
+        if (IsDerivativeModeActive() || IsIntegralModeActive())
             return;
 
         string text = e.Text;
@@ -286,7 +349,7 @@ public partial class MainWindow : Window
 
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (IsDerivativeModeActive())
+        if (IsDerivativeModeActive() || IsIntegralModeActive())
             return;
 
         string? input = KeyToCalculatorInput(e.Key);
@@ -318,6 +381,11 @@ public partial class MainWindow : Window
     private bool IsDerivativeModeActive()
     {
         return DerivativePanel is not null && DerivativePanel.Visibility == Visibility.Visible;
+    }
+
+    private bool IsIntegralModeActive()
+    {
+        return IntegralPanel is not null && IntegralPanel.Visibility == Visibility.Visible;
     }
 
     private void StartPolynomialMode(string mode)
