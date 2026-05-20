@@ -242,6 +242,7 @@ char *differentiate(char *function, char variable)
 {
     INFIX I_function = convert_string_to_INFIX(function);
     INFIX I_result = differentiate_I_exp(I_function, variable);
+    reformat_I_exp(&I_result);
     string_ result = convert_INFIX_to_string(I_result);
     free(I_function.tokens);
     free(I_result.tokens);
