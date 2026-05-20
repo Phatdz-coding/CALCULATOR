@@ -260,9 +260,13 @@ double integral(char *function,
     return result;
 }
 
+void free_string(char * string){
+    free(string);
+}
+
 int main()
 {
     // main function to test api
-    printf("%g", integral("2x^3-5x", 'x', "-1", "1", 0));
+    printf(differentiate("87", 'x'));
     return 0;
 }

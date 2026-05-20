@@ -35,7 +35,7 @@ internal static class NativeMethods
     }
 
 
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "calculator_free_string")]
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "free_string")]
     internal static extern void FreeString(IntPtr text);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "evaluate_expression_double")]
