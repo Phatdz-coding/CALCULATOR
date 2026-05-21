@@ -458,9 +458,47 @@ public partial class MainWindow : Window
             return;
         }
 
-        DisplayTextBox.Text = SolvePolynomial();
+        DisplayTextBox.Text = FormatPolynomialRoots(NativeMethods.SolvePolynomial(_coefficients));
         _replaceDisplay = true;
         ClearPolynomialMode();
+    }
+
+    private static string FormatPolynomialRoots(NativeMethods.GslComplex[] roots)
+    {
+        if (roots == null || roots.Length == 0)
+            return "No roots";
+
+        var builder = new StringBuilder();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            if (i > 0)
+                builder.Append(", ");
+
+            builder.Append('x');
+            builder.Append(i + 1);
+            builder.Append(" = ");
+            builder.Append(FormatComplex(roots[i]));
+        }
+
+        return builder.ToString();
+    }
+
+    private static string FormatComplex(NativeMethods.GslComplex value)
+    {
+        const double epsilon = 1e-12;
+        double real = value.Real;
+        double imag = value.Imag;
+
+        if (Math.Abs(imag) <= epsilon)
+            return real.ToString("G16", CultureInfo.InvariantCulture);
+
+        string imagText = Math.Abs(imag).ToString("G16", CultureInfo.InvariantCulture);
+        if (Math.Abs(real) <= epsilon)
+            return (imag < 0 ? "-" : "") + imagText + "i";
+
+        string realText = real.ToString("G16", CultureInfo.InvariantCulture);
+        string sign = imag < 0 ? " - " : " + ";
+        return realText + sign + imagText + "i";
     }
 
     private void UpdatePolynomialDisplay()
@@ -508,96 +546,6 @@ public partial class MainWindow : Window
     private static string GetCoefficientName(int index)
     {
         return ((char)('a' + index)).ToString();
-    }
-
-    private string SolvePolynomial()
-    {
-        Complex[] roots = SolvePolynomialRoots(_coefficients);
-        var result = new StringBuilder();
-        result.AppendLine(GetPolynomialEquationForm());
-
-        for (int i = 0; i < roots.Length; i++)
-        {
-            result.Append('x');
-            result.Append(i + 1);
-            result.Append(" = ");
-            result.Append(FormatComplex(roots[i]));
-
-            if (i < roots.Length - 1)
-                result.AppendLine();
-        }
-
-        return result.ToString();
-    }
-
-    private static Complex[] SolvePolynomialRoots(double[] coefficients)
-    {
-        int degree = coefficients.Length - 1;
-        Complex[] roots = new Complex[degree];
-        double radius = 1.0;
-
-        for (int i = 1; i < coefficients.Length; i++)
-            radius = Math.Max(radius, Math.Abs(coefficients[i] / coefficients[0]) + 1.0);
-
-        for (int i = 0; i < degree; i++)
-        {
-            double angle = 2.0 * Math.PI * i / degree;
-            roots[i] = Complex.FromPolarCoordinates(radius, angle);
-        }
-
-        for (int iteration = 0; iteration < 200; iteration++)
-        {
-            double maxChange = 0.0;
-
-            for (int i = 0; i < degree; i++)
-            {
-                Complex denominator = Complex.One;
-                for (int j = 0; j < degree; j++)
-                {
-                    if (i != j)
-                        denominator *= roots[i] - roots[j];
-                }
-
-                if (denominator.Magnitude <= 1e-18)
-                    denominator = new Complex(1e-18, 0.0);
-
-                Complex change = EvaluatePolynomial(coefficients, roots[i]) / denominator;
-                roots[i] -= change;
-                maxChange = Math.Max(maxChange, change.Magnitude);
-            }
-
-            if (maxChange <= 1e-12)
-                break;
-        }
-
-        return roots.OrderBy(root => Math.Abs(root.Imaginary) <= 1e-9 ? 0 : 1)
-            .ThenBy(root => root.Real)
-            .ThenBy(root => root.Imaginary)
-            .ToArray();
-    }
-
-    private static Complex EvaluatePolynomial(double[] coefficients, Complex x)
-    {
-        Complex result = Complex.Zero;
-        foreach (double coefficient in coefficients)
-            result = result * x + coefficient;
-
-        return result;
-    }
-
-    private static string FormatComplex(Complex value)
-    {
-        double real = Math.Abs(value.Real) <= 1e-10 ? 0.0 : value.Real;
-        double imaginary = Math.Abs(value.Imaginary) <= 1e-10 ? 0.0 : value.Imaginary;
-
-        if (imaginary == 0.0)
-            return real.ToString("G12", CultureInfo.InvariantCulture);
-
-        if (real == 0.0)
-            return $"{imaginary.ToString("G12", CultureInfo.InvariantCulture)}i";
-
-        string sign = imaginary < 0.0 ? " - " : " + ";
-        return $"{real.ToString("G12", CultureInfo.InvariantCulture)}{sign}{Math.Abs(imaginary).ToString("G12", CultureInfo.InvariantCulture)}i";
     }
 
     private static bool IsAllowedTypedInput(char input)

@@ -4,6 +4,13 @@ namespace CalculatorUI.Interop;
 
 internal static class NativeMethods
 {
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct GslComplex
+    {
+        public double Real;
+        public double Imag;
+    }
+
     private const string DllName = "CalculatorCore.dll";
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "evaluate_expression")]
@@ -36,7 +43,7 @@ internal static class NativeMethods
 
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "free_string")]
-    internal static extern void FreeString(IntPtr text);
+    private static extern void FreeString(IntPtr text);
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "evaluate_expression_double")]
     internal static extern double EvaluateExpressionDouble(
@@ -59,6 +66,41 @@ internal static class NativeMethods
 
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "calculator_clear_state")]
     internal static extern int ClearState();
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "free_solutions")]
+    private static extern void free_solutions(IntPtr solutions);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "solve_polynomial")]
+    private static extern IntPtr solve_polynomial(double[] coef, int degree);
+
+    internal static GslComplex[] SolvePolynomial(double[] coef)
+    {
+        if (coef == null || coef.Length < 2)
+            return Array.Empty<GslComplex>();
+
+        int degree = coef.Length - 1;
+        IntPtr ptr = solve_polynomial(coef, degree);
+        if (ptr == IntPtr.Zero)
+            return Array.Empty<GslComplex>();
+
+        try
+        {
+            int count = degree;
+            var result = new GslComplex[count];
+            int size = Marshal.SizeOf<GslComplex>();
+            for (int i = 0; i < count; i++)
+            {
+                IntPtr itemPtr = IntPtr.Add(ptr, i * size);
+                result[i] = Marshal.PtrToStructure<GslComplex>(itemPtr);
+            }
+            return result;
+        }
+        finally
+        {
+            free_solutions(ptr);
+        }
+    }
+
 }
 
 [StructLayout(LayoutKind.Sequential)]
