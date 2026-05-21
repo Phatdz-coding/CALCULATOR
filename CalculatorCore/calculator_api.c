@@ -3,7 +3,7 @@
 
 to export this file to .dll
 use the following command:
-gcc -shared -o x64/Debug/calculator_api.dll calculator_api.c
+gcc -shared -o x64/Debug/CalculatorCore.dll calculator_api.c
 
 ▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄
 */
@@ -238,8 +238,79 @@ int calculator_clear_state(void)
     return 0;
 }
 
+char *differentiate(char *function, char variable)
+{
+    INFIX I_function = convert_string_to_INFIX(function);
+    INFIX I_result = differentiate_I_exp(I_function, variable);
+    reformat_I_exp(&I_result);
+    string_ result = convert_INFIX_to_string(I_result);
+    free(I_function.tokens);
+    free(I_result.tokens);
+    return result.Content;
+}
+
+double integral(char *function,
+                char var,
+                char *lower,
+                char *upper,
+                int method)
+{
+    INFIX I_function = convert_string_to_INFIX(function);
+    double result = ni_integrate(I_function, var, evaluate(lower), evaluate(upper), (unsigned short *)&method);
+    free(I_function.tokens);
+    return result;
+}
+
+void free_string(char *string)
+{
+    free(string);
+}
+
+gsl_complex *solve_polynomial(double *coef, int degree)
+{
+    gsl_complex *solutions = calloc(degree, sizeof(gsl_complex));
+
+    if (degree == 2)
+    {
+        se_sovle_quadratic_equation(coef[0], coef[1], coef[2], solutions, solutions + 1);
+        return solutions;
+    }
+
+    if (degree == 3)
+    {
+        se_solve_cubic_equation(coef[0], coef[1], coef[2], coef[3], solutions, solutions + 1, solutions + 2);
+        return solutions;
+    }
+
+    if (degree == 4)
+    {
+        se_solve_quartic_equation(coef[0], coef[1], coef[2], coef[3], coef[4], solutions, solutions + 1, solutions + 2, solutions + 3);
+        return solutions;
+    }
+
+    se_solve_polynomial_equation(coef, degree, &solutions);
+    return solutions;
+}
+
+void free_solutions(gsl_complex *solutions)
+{
+    if (solutions != NULL)
+    {
+        free(solutions);
+    }
+}
+
 int main()
 {
     // main function to test api
+    unsigned short int degree = 7;
+    double coef[] = {1, 2, 5, -10, 20, 4, 3.12, -30};
+    gsl_complex *solutions = solve_polynomial(coef, degree);
+    for (unsigned short int i = 0; i < degree; i++)
+    {
+        printf("%lf + %lfi\n", GSL_REAL(solutions[i]), GSL_IMAG(solutions[i]));
+    }
+
+    free_solutions(solutions);
     return 0;
 }
