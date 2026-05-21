@@ -256,18 +256,61 @@ double integral(char *function,
                 int method)
 {
     INFIX I_function = convert_string_to_INFIX(function);
-    double result = ni_integrate(I_function, var, evaluate(lower), evaluate(upper),(unsigned short *) &method);
+    double result = ni_integrate(I_function, var, evaluate(lower), evaluate(upper), (unsigned short *)&method);
     free(I_function.tokens);
     return result;
 }
 
-void free_string(char * string){
+void free_string(char *string)
+{
     free(string);
+}
+
+gsl_complex *solve_polynomial(double *coef, int degree)
+{
+    gsl_complex *solutions = calloc(degree, sizeof(gsl_complex));
+
+    if (degree == 2)
+    {
+        se_sovle_quadratic_equation(coef[0], coef[1], coef[2], solutions, solutions + 1);
+        return solutions;
+    }
+
+    if (degree == 3)
+    {
+        se_solve_cubic_equation(coef[0], coef[1], coef[2], coef[3], solutions, solutions + 1, solutions + 2);
+        return solutions;
+    }
+
+    if (degree == 4)
+    {
+        se_solve_quartic_equation(coef[0], coef[1], coef[2], coef[3], coef[4], solutions, solutions + 1, solutions + 2, solutions + 3);
+        return solutions;
+    }
+
+    se_solve_polynomial_equation(coef, degree, &solutions);
+    return solutions;
+}
+
+void free_solutions(gsl_complex *solutions)
+{
+    if (solutions != NULL)
+    {
+        free(solutions);
+    }
 }
 
 int main()
 {
     // main function to test api
-    printf(differentiate("87", 'x'));
+    unsigned short int degree = 7;
+    double coef[] = {1, 2, 5, -10, 20, 4, 3.12, -30};
+    gsl_complex *solutions = solve_polynomial(coef, degree);
+    for (unsigned short int i = 0; i < degree; i++)
+    {
+        printf("%lf + %lfi\n", GSL_REAL(solutions[i]), GSL_IMAG(solutions[i]));
+    }
+
+    free_solutions(solutions);
     return 0;
 }
