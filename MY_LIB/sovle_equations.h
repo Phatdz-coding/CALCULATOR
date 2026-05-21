@@ -631,7 +631,10 @@ short int se_solve_polynomial_equation(const double *coefficients, const unsigne
         return -1;
     }
 
-    roots = se_convert__complex_packed_ptr__to__gsl_complex(se_roots, 2 * degree);
+    roots = se_convert__complex_packed_ptr__to__gsl_complex(se_roots, degree);
+    free(se_roots);
+    if (roots == NULL)
+        return -1;
 
     // count real root
     short int numof_real_root = 0;

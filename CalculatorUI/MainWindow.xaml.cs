@@ -11,6 +11,7 @@ namespace CalculatorUI;
 public partial class MainWindow : Window
 {
     private bool _replaceDisplay = true;
+    private bool _isEnteringPolynomialDegree;
     private int _polynomialDegree;
     private int _coefficientIndex;
     private double[] _coefficients = [];
@@ -42,7 +43,7 @@ public partial class MainWindow : Window
         SetDerivativeMode(mode == "Derivative Calculator");
         SetIntegralMode(mode == "Integral Calculator");
 
-        if (mode is "Solve Quadratic Equation" or "Solve Cubic Equation" or "Solve Quartic Equation")
+        if (mode is "Solve Quadratic Equation" or "Solve Cubic Equation" or "Solve Quartic Equation" or "Solve n-degree Polynomial Equation")
         {
             StartPolynomialMode(mode);
             return;
@@ -168,7 +169,7 @@ public partial class MainWindow : Window
 
     private void AppendInput(string input)
     {
-        if (_polynomialDegree > 0)
+        if (IsPolynomialModeActive())
         {
             AppendPolynomialInput(input);
             return;
@@ -194,7 +195,7 @@ public partial class MainWindow : Window
 
     private void ClearDisplay()
     {
-        if (_polynomialDegree > 0)
+        if (IsPolynomialModeActive())
         {
             _coefficientInput = string.Empty;
             UpdatePolynomialDisplay();
@@ -212,7 +213,7 @@ public partial class MainWindow : Window
 
     private void DeleteLastInput()
     {
-        if (_polynomialDegree > 0)
+        if (IsPolynomialModeActive())
         {
             if (_coefficientInput.Length > 0)
                 _coefficientInput = _coefficientInput[..^1];
@@ -239,7 +240,7 @@ public partial class MainWindow : Window
 
     private void Equals_Click(object sender, RoutedEventArgs e)
     {
-        if (_polynomialDegree > 0)
+        if (IsPolynomialModeActive())
         {
             ConfirmPolynomialCoefficient();
             return;
@@ -390,6 +391,7 @@ public partial class MainWindow : Window
 
     private void StartPolynomialMode(string mode)
     {
+        _isEnteringPolynomialDegree = mode == "Solve n-degree Polynomial Equation";
         _polynomialDegree = mode switch
         {
             "Solve Quadratic Equation" => 2,
@@ -407,6 +409,7 @@ public partial class MainWindow : Window
 
     private void ClearPolynomialMode()
     {
+        _isEnteringPolynomialDegree = false;
         _polynomialDegree = 0;
         _coefficientIndex = 0;
         _coefficients = [];
@@ -419,6 +422,17 @@ public partial class MainWindow : Window
             return;
 
         char character = input[0];
+        if (_isEnteringPolynomialDegree)
+        {
+            if (char.IsDigit(character))
+            {
+                _coefficientInput += input;
+                UpdatePolynomialDisplay();
+            }
+
+            return;
+        }
+
         if (char.IsDigit(character) || character is '.' or '-')
         {
             if (character == '-' && _coefficientInput.Length > 0)
@@ -434,6 +448,12 @@ public partial class MainWindow : Window
 
     private void ConfirmPolynomialCoefficient()
     {
+        if (_isEnteringPolynomialDegree)
+        {
+            ConfirmPolynomialDegree();
+            return;
+        }
+
         if (!double.TryParse(_coefficientInput, NumberStyles.Float, CultureInfo.InvariantCulture, out double coefficient))
         {
             DisplayTextBox.Text = $"{GetPolynomialEquationForm()}\n{GetCurrentCoefficientName()}? invalid";
@@ -458,9 +478,48 @@ public partial class MainWindow : Window
             return;
         }
 
-        DisplayTextBox.Text = FormatPolynomialRoots(NativeMethods.SolvePolynomial(_coefficients));
+        NativeMethods.GslComplex[] roots = NativeMethods.SolvePolynomial(_coefficients);
+        DisplayTextBox.Text = _polynomialDegree > 4
+            ? FormatPolynomialResult(roots)
+            : FormatPolynomialRoots(roots);
         _replaceDisplay = true;
         ClearPolynomialMode();
+    }
+
+    private void ConfirmPolynomialDegree()
+    {
+        if (!int.TryParse(_coefficientInput, NumberStyles.None, CultureInfo.InvariantCulture, out int degree) || degree < 5)
+        {
+            DisplayTextBox.Text = "Enter degree: invalid\nDegree must be 5 or greater";
+            _coefficientInput = string.Empty;
+            return;
+        }
+
+        _isEnteringPolynomialDegree = false;
+        _polynomialDegree = degree;
+        _coefficients = new double[_polynomialDegree + 1];
+        _coefficientIndex = 0;
+        _coefficientInput = string.Empty;
+        UpdatePolynomialDisplay();
+    }
+
+    private bool IsPolynomialModeActive()
+    {
+        return _isEnteringPolynomialDegree || _polynomialDegree > 0;
+    }
+
+    private string FormatPolynomialResult(NativeMethods.GslComplex[] roots)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("Solved successfully");
+        builder.Append("The ");
+        builder.Append(_polynomialDegree);
+        builder.Append(ToOrdinalSuffix(_polynomialDegree));
+        builder.AppendLine(" degree polynomial equation:");
+        builder.AppendLine(FormatPolynomialExpression());
+        builder.AppendLine();
+        builder.Append(FormatPolynomialRoots(roots));
+        return builder.ToString();
     }
 
     private static string FormatPolynomialRoots(NativeMethods.GslComplex[] roots)
@@ -472,10 +531,10 @@ public partial class MainWindow : Window
         for (int i = 0; i < roots.Length; i++)
         {
             if (i > 0)
-                builder.Append(", ");
+                builder.AppendLine();
 
             builder.Append('x');
-            builder.Append(i + 1);
+            builder.Append(ToSubscript(i + 1));
             builder.Append(" = ");
             builder.Append(FormatComplex(roots[i]));
         }
@@ -504,23 +563,27 @@ public partial class MainWindow : Window
     private void UpdatePolynomialDisplay()
     {
         var display = new StringBuilder();
+        if (_isEnteringPolynomialDegree)
+        {
+            display.Append("Enter degree: ");
+            display.Append(_coefficientInput.Length == 0 ? "_" : _coefficientInput);
+            DisplayTextBox.Text = display.ToString();
+            DisplayTextBox.CaretIndex = DisplayTextBox.Text.Length;
+            return;
+        }
+
         display.AppendLine(GetPolynomialEquationForm());
 
         for (int i = 0; i < _coefficientIndex; i++)
         {
-            if (i > 0)
-                display.Append("  ");
-
             display.Append(GetCoefficientName(i));
             display.Append('=');
             display.Append(_coefficients[i].ToString("G16", CultureInfo.InvariantCulture));
+            display.AppendLine();
         }
 
-        if (_coefficientIndex > 0)
-            display.AppendLine();
-
         display.Append(GetCurrentCoefficientName());
-        display.Append("? ");
+        display.Append(" = ");
         display.Append(_coefficientInput.Length == 0 ? "_" : _coefficientInput);
 
         DisplayTextBox.Text = display.ToString();
@@ -534,8 +597,32 @@ public partial class MainWindow : Window
             2 => "ax^2 + bx + c = 0",
             3 => "ax^3 + bx^2 + cx + d = 0",
             4 => "ax^4 + bx^3 + cx^2 + dx + e = 0",
+            > 4 => $"Enter degree: {_polynomialDegree}",
             _ => string.Empty
         };
+    }
+
+    private string FormatPolynomialExpression()
+    {
+        var builder = new StringBuilder();
+        for (int i = 0; i < _coefficients.Length; i++)
+        {
+            int power = _polynomialDegree - i;
+            double coefficient = _coefficients[i];
+
+            if (i > 0)
+                builder.Append(coefficient < 0 ? " " : " +");
+
+            builder.Append(coefficient.ToString("G16", CultureInfo.InvariantCulture));
+            if (power > 0)
+            {
+                builder.Append('x');
+                builder.Append(ToSuperscript(power));
+            }
+        }
+
+        builder.Append(" = 0");
+        return builder.ToString();
     }
 
     private string GetCurrentCoefficientName()
@@ -543,9 +630,49 @@ public partial class MainWindow : Window
         return GetCoefficientName(_coefficientIndex);
     }
 
-    private static string GetCoefficientName(int index)
+    private string GetCoefficientName(int index)
     {
-        return ((char)('a' + index)).ToString();
+        if (_polynomialDegree <= 4)
+            return ((char)('a' + index)).ToString();
+
+        return $"a_[{index}]";
+    }
+
+    private static string ToOrdinalSuffix(int value)
+    {
+        int lastTwoDigits = value % 100;
+        if (lastTwoDigits is 11 or 12 or 13)
+            return "th";
+
+        return (value % 10) switch
+        {
+            1 => "st",
+            2 => "nd",
+            3 => "rd",
+            _ => "th"
+        };
+    }
+
+    private static string ToSuperscript(int value)
+    {
+        return ToScriptNumber(value, "⁰¹²³⁴⁵⁶⁷⁸⁹");
+    }
+
+    private static string ToSubscript(int value)
+    {
+        return ToScriptNumber(value, "₀₁₂₃₄₅₆₇₈₉");
+    }
+
+    private static string ToScriptNumber(int value, string digits)
+    {
+        if (value == 0)
+            return digits[0].ToString();
+
+        var result = new StringBuilder();
+        foreach (char digit in value.ToString(CultureInfo.InvariantCulture))
+            result.Append(digits[digit - '0']);
+
+        return result.ToString();
     }
 
     private static bool IsAllowedTypedInput(char input)

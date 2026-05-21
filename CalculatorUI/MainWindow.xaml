@@ -220,30 +220,30 @@
                 <Button Content="Back" Style="{StaticResource FunctionButton}" Click="Backspace_Click"/>
                 <Button Content="(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content=")" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-                <Button Content="/" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="&#x00F7;" Tag="/" ToolTip="/" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
                 <Button Content="sin(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content="cos(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content="tan(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-                <Button Content="^" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
-                <Button Content="*" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="x&#x02B8;" Tag="^" ToolTip="^" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="&#x00D7;" Tag="*" ToolTip="*" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
                 <Button Content="ln(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-                <Button Content="sqrt(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-                <Button Content="pi" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="&#x221A;" Tag="sqrt(" ToolTip="sqrt(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="&#x03C0;" Tag="pi" ToolTip="pi" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content="e" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
-                <Button Content="-" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
+                <Button Content="&#x2212;" Tag="-" ToolTip="-" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
                 <Button Content="7" Style="{StaticResource CalcButton}" Click="Input_Click"/>
                 <Button Content="8" Style="{StaticResource CalcButton}" Click="Input_Click"/>
                 <Button Content="9" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-                <Button Content="&#x222B;" Tag="integral(" ToolTip="integral(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="|x|" Tag="abs(" ToolTip="abs(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content="+" Style="{StaticResource OperatorButton}" Click="Input_Click"/>
 
                 <Button Content="4" Style="{StaticResource CalcButton}" Click="Input_Click"/>
                 <Button Content="5" Style="{StaticResource CalcButton}" Click="Input_Click"/>
                 <Button Content="6" Style="{StaticResource CalcButton}" Click="Input_Click"/>
-                <Button Content="d/dx" Tag="dif(" ToolTip="dif(" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
+                <Button Content="lg(" ToolTip="log10" Style="{StaticResource FunctionButton}" Click="Input_Click"/>
                 <Button Content="Enter" Style="{StaticResource EqualsButton}" Click="Equals_Click"/>
 
                 <Button Content="1" Style="{StaticResource CalcButton}" Click="Input_Click"/>
